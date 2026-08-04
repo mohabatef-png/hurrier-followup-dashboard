@@ -186,8 +186,8 @@ td{padding:12px 14px;vertical-align:middle;}
 .td-type{font-size:12px;color:var(--text2);}
 
 /* Cash */
-.cash-yes{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#15803d;}
-.cash-no {font-size:12px;color:var(--text3);}
+.pay-cash{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;}
+.pay-visa{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:500;background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb;}
 
 /* Agent */
 .agent-sel{
@@ -320,7 +320,7 @@ textarea#clip{position:fixed;left:-9999px;}
         <th onclick="sc('s')"     id="th-s">     STATUS    <span class="ico">↕</span></th>
         <th onclick="sc('z')"     id="th-z">     ZONE      <span class="ico">↕</span></th>
         <th onclick="sc('vt')"    id="th-vt">    TYPE      <span class="ico">↕</span></th>
-        <th onclick="sc('cash')"  id="th-cash">  CASH      <span class="ico">↕</span></th>
+        <th onclick="sc('cash')"  id="th-cash">  PAYMENT METHOD <span class="ico">↕</span></th>
         <th onclick="sc('agent')" id="th-agent"> AGENT     <span class="ico">↕</span></th>
       </tr>
     </thead>
@@ -557,7 +557,10 @@ function renderTable(){
       <td>${sbadge(o.s)}</td>
       <td style="font-size:13px;color:var(--text2);white-space:nowrap">${o.z||'—'}</td>
       <td><span class="td-type">${o.vt||'—'}</span></td>
-      <td>${o.cash?'<span class="cash-yes">✓ Cash</span>':'<span class="cash-no">—</span>'}</td>
+      <td>${o.cash
+        ? '<span class="pay-cash">💚 Cash</span>'
+        : '<span class="pay-visa">💳 Visa</span>'
+      }</td>
       <td>
         <select class="agent-sel${o.agent!=='Unassigned'?' on':''}" onchange="sa('${o.id}',this)">
           ${AGENTS.map(a=>`<option${o.agent===a?' selected':''}>${a}</option>`).join('')}
