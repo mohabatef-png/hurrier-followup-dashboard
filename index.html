@@ -158,6 +158,11 @@ select.ag{height:28px;padding:0 6px;font-size:11px;border-radius:6px;min-width:1
   </div>
   <select id="zf" onchange="render()"><option value="">All zones</option></select>
   <select id="vtf" onchange="render()"><option value="">All types</option></select>
+  <select id="pf" onchange="render()">
+    <option value="">All payments</option>
+    <option value="cash">Cash</option>
+    <option value="visa">Visa</option>
+  </select>
   <div class="vtog">
     <button id="vt-flat" class="on" onclick="setView('flat')">Flat list</button>
     <button id="vt-vendor" onclick="setView('vendor')">By vendor</button>
@@ -290,9 +295,11 @@ function getF(){
   const zf=document.getElementById('zf').value;
   const vtf=document.getElementById('vtf').value;
   const sf=document.querySelector('.stat.on')?.dataset.s||'';
+  const pf=document.getElementById('pf').value;
   return orders.filter(o=>
     (!q||o.id.toLowerCase().includes(q)||o.c.toLowerCase().includes(q)||o.v.toLowerCase().includes(q)||o.z.toLowerCase().includes(q))&&
-    (!zf||o.z===zf)&&(!vtf||o.vt===vtf)&&(!sf||o.s===sf)
+    (!zf||o.z===zf)&&(!vtf||o.vt===vtf)&&(!sf||o.s===sf)&&
+    (!pf||(pf==='cash'?o.cash===1:o.cash===0))
   );
 }
 
@@ -303,6 +310,7 @@ function sortData(d){
     if(sortCol==='status'){av=SO.indexOf(a.s);bv=SO.indexOf(b.s);return(av-bv)*sortDir;}
     if(sortCol==='deadline'){if(a.dm==null)return 1;if(b.dm==null)return-1;return(a.dm-b.dm)*sortDir;}
     if(sortCol==='zone'){return a.z.localeCompare(b.z)*sortDir;}
+    if(sortCol==='payment'){return(b.cash-a.cash)*sortDir;}
     if(sortCol==='courier'){return a.c.localeCompare(b.c)*sortDir;}
     return 0;
   });
@@ -332,7 +340,7 @@ function buildHead(){
     {key:'status',label:'Status',w:'115px'},
     {key:'zone',label:'Zone',w:'100px'},
     {key:'type',label:'Type',w:'85px'},
-    {key:'cash',label:'Cash',w:'55px',noSort:true},
+    {key:'payment',label:'Payment',w:'80px'},
     {key:'agent',label:'Agent',noSort:true},
   ];
   const ths=cols.map(c=>{
