@@ -87,7 +87,9 @@ tr.sel td{background:var(--blue-bg)}
 .s-queued{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border)}.s-queued::before{background:var(--purple)}
 .s-accepted{background:#F9FAFB;color:#6B7280;border:1px solid #E5E7EB}.s-accepted::before{background:#9CA3AF}
 .s-near_pickup{background:var(--pink-bg);color:var(--pink);border:1px solid var(--pink-border)}.s-near_pickup::before{background:var(--pink)}
-.cash-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:600;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);padding:2px 7px;border-radius:4px}
+.cash-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;white-space:nowrap}
+.cash-yes{color:#15803D;background:#F0FDF4;border:1px solid #BBF7D0}
+.cash-no{color:#9CA3AF;background:#F9FAFB;border:1px solid #E5E7EB}
 select.ag{height:28px;padding:0 6px;font-size:11px;border-radius:6px;min-width:100px;background:var(--bg);border-color:var(--border)}
 .zt{font-size:11px;color:var(--text2);font-weight:500}
 .tt{font-size:11px;color:var(--text3)}
@@ -353,7 +355,10 @@ function rowHtml(o){
     <td><span class="badge s-${o.s}">${SL[o.s]||o.s}</span></td>
     <td><span class="zt">${o.z}</span></td>
     <td><span class="tt">${o.vt||'—'}</span></td>
-    <td>${o.cash?'<span class="cash-tag">£ Cash</span>':''}</td>
+    <td>${o.cash
+        ? '<span class="cash-tag cash-yes"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Cash</span>'
+        : '<span class="cash-tag cash-no"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Visa</span>'
+      }</td>
     <td>${IS_LIVE?`<select class="ag" onchange="aa('${o.id}',this.value)" onclick="event.stopPropagation()">${AGENTS.map(a=>`<option ${o.agent===a?'selected':''}>${a}</option>`).join('')}</select>`:`<span style="font-size:11px;color:var(--text3)">${o.agent}</span>`}</td>
   </tr>`;
 }
