@@ -4,105 +4,170 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hurrier Follow-up Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-body{background:#f8f8f6;color:#1a1a18;font-size:13px;padding:12px;min-height:100vh}
-.hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #e5e5e0}
-h1{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
-.meta{font-size:11px;color:#666;margin-top:3px}
-.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:4px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.rbar-wrap{height:3px;background:#e5e5e0;border-radius:2px;margin-bottom:10px;overflow:hidden}
-.rbar{height:100%;background:#378ADD;transition:width linear 1s}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(82px,1fr));gap:5px;margin-bottom:10px}
-.stat{background:#fff;border-radius:8px;padding:7px 10px;cursor:pointer;border:2px solid transparent;transition:.12s}
-.stat:hover{border-color:#ccc}.stat.on{border-color:#378ADD}
-.stat-n{font-size:18px;font-weight:600}.stat-l{font-size:11px;color:#888;margin-top:1px}
-.controls{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
-input,select{height:32px;padding:0 8px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:12px;color:#1a1a18;outline:none}
-input:focus,select:focus{border-color:#378ADD}
-input{flex:1;min-width:150px}
-.btn{height:32px;padding:0 12px;border-radius:6px;cursor:pointer;font-size:12px;border:1px solid;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.btn:hover{opacity:.85}
-.bx{background:#E1F5EE;color:#0F6E56;border-color:#9FE1CB}
-.bs{background:#E6F1FB;color:#185FA5;border-color:#B5D4F4}
-.br{background:#f4f4f1;color:#444;border-color:#ddd}
-.bp{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
-.tbl-wrap{overflow-x:auto;border:1px solid #e5e5e0;border-radius:10px;background:#fff;margin-bottom:8px}
-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-th{background:#f4f4f1;color:#444;font-weight:600;padding:8px;text-align:left;border-bottom:1px solid #e5e5e0;white-space:nowrap;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
-td{padding:7px 8px;border-bottom:1px solid #f0f0ec;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root{
+  --bg:#F7F7F5;--surface:#FFFFFF;--border:#E8E8E4;--border2:#D4D4CE;
+  --text:#1A1A18;--text2:#6B6B65;--text3:#9B9B95;
+  --accent:#FF6B35;--accent-bg:#FFF1EC;--accent-border:#FFD4C2;
+  --blue:#2563EB;--blue-bg:#EFF6FF;--blue-border:#BFDBFE;
+  --green:#16A34A;--green-bg:#F0FDF4;--green-border:#BBF7D0;
+  --red:#DC2626;--red-bg:#FEF2F2;--red-border:#FECACA;
+  --amber:#D97706;--amber-bg:#FFFBEB;--amber-border:#FDE68A;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;--purple-border:#DDD6FE;
+  --teal:#0D9488;--teal-bg:#F0FDFA;--teal-border:#99F6E4;
+  --pink:#BE185D;--pink-bg:#FDF2F8;--pink-border:#FBCFE8;
+  --radius:8px;--radius-lg:12px;--radius-xl:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;min-height:100vh}
+/* Layout */
+.page{max-width:1400px;margin:0 auto;padding:16px 20px}
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:36px;height:36px;background:var(--accent-bg);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;border:1px solid var(--accent-border)}
+.brand-title{font-size:16px;font-weight:600;color:var(--text)}
+.brand-meta{font-size:11px;color:var(--text3);margin-top:1px;display:flex;align-items:center;gap:6px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#22C55E;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.mode-pill{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;letter-spacing:.3px;text-transform:uppercase}
+.pill-view{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.pill-live{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+/* Buttons */
+.actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.btn{height:34px;padding:0 14px;border-radius:var(--radius);font-size:12px;font-weight:500;cursor:pointer;border:1px solid;display:inline-flex;align-items:center;gap:6px;transition:all .12s;white-space:nowrap;font-family:inherit}
+.btn:hover{filter:brightness(.95)}
+.btn:active{transform:scale(.98)}
+.btn-ghost{background:var(--surface);color:var(--text2);border-color:var(--border2)}
+.btn-green{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.btn-blue{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+.btn-purple{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-border)}
+.btn-red{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+/* Progress bar */
+.pbar{height:3px;background:var(--border);border-radius:2px;margin-bottom:16px;overflow:hidden}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--blue),#60A5FA);border-radius:2px;transition:width linear 1s}
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:16px}
+.stat{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;cursor:pointer;transition:all .12s}
+.stat:hover{border-color:var(--border2);background:#FAFAF8}
+.stat.on{border-color:var(--blue);background:var(--blue-bg)}
+.stat.on .stat-n{color:var(--blue)}
+.stat.on .stat-l{color:var(--blue)}
+.stat-n{font-size:22px;font-weight:600;color:var(--text);line-height:1.2}
+.stat-l{font-size:11px;color:var(--text3);margin-top:3px;font-weight:500}
+/* Controls */
+.controls{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.search-wrap{flex:1;min-width:200px;position:relative}
+.search-wrap input{width:100%;height:36px;padding:0 12px 0 36px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);font-size:13px;color:var(--text);font-family:inherit;outline:none;transition:border-color .12s}
+.search-wrap input:focus{border-color:var(--blue)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:15px;pointer-events:none}
+select{height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);font-size:12px;color:var(--text);font-family:inherit;outline:none;cursor:pointer}
+select:focus{border-color:var(--blue)}
+/* Table */
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{position:sticky;top:0;z-index:1}
+th{background:#F4F4F0;color:var(--text3);font-weight:600;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:#fafaf8}
-tr.sel td{background:#EBF4FF}
-.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
-.s-left_pickup{background:#FAECE7;color:#993C1D}
-.s-near_dropoff{background:#E1F5EE;color:#0F6E56}
-.s-picked_up{background:#E6F1FB;color:#185FA5}
-.s-dispatched{background:#FAEEDA;color:#854F0B}
-.s-queued{background:#EEEDFE;color:#3C3489}
-.s-accepted{background:#F1EFE8;color:#5F5E5A}
-.s-near_pickup{background:#FBEAF0;color:#993556}
-.dc{color:#A32D2D;font-weight:600}.dw{color:#854F0B;font-weight:500}.dok{color:#0F6E56}
-.footer{display:flex;justify-content:space-between;padding:4px 0;font-size:11px;color:#888;flex-wrap:wrap;gap:4px}
-.toast{padding:8px 14px;border-radius:6px;font-size:12px;margin-bottom:8px;display:none;border:1px solid}
-.tok{background:#E1F5EE;color:#0F6E56;border-color:#9FE1CB}
-.terr{background:#FAECE7;color:#993C1D;border-color:#F5C4B3}
-.twarn{background:#FAEEDA;color:#854F0B;border-color:#FAC775}
-select.ag{font-size:11px;height:26px;width:100%;padding:0 4px;border-radius:4px}
-.chk{cursor:pointer;accent-color:#378ADD}
-.mode-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;margin-left:4px;vertical-align:middle}
-.mode-live{background:#dcfce7;color:#15803d}
-.mode-view{background:#dbeafe;color:#1d4ed8}
-.empty{text-align:center;color:#aaa;padding:3rem;font-size:13px;line-height:2}
-.spinner{display:inline-block;width:12px;height:12px;border:2px solid #ddd;border-top-color:#378ADD;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:4px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.push-panel{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:none}
+tr:hover td{background:#FAFAF8}
+tr.sel td{background:var(--blue-bg)}
+.chk{cursor:pointer;accent-color:var(--blue);width:14px;height:14px}
+/* Order cell */
+.order-id{font-weight:600;font-size:12px;color:var(--text)}
+.vendor-name{font-size:11px;color:var(--text3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+/* Deadline */
+.dl-crit{color:var(--red);font-weight:600;font-size:12px}
+.dl-warn{color:var(--amber);font-weight:600;font-size:12px}
+.dl-ok{color:var(--green);font-weight:500;font-size:12px}
+.dl-na{color:var(--text3);font-size:12px}
+/* Status badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.s-left_pickup{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}.s-left_pickup::before{background:var(--red)}
+.s-near_dropoff{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}.s-near_dropoff::before{background:var(--green)}
+.s-picked_up{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}.s-picked_up::before{background:var(--blue)}
+.s-dispatched{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}.s-dispatched::before{background:var(--amber)}
+.s-queued{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border)}.s-queued::before{background:var(--purple)}
+.s-accepted{background:#F9FAFB;color:#6B7280;border:1px solid #E5E7EB}.s-accepted::before{background:#9CA3AF}
+.s-near_pickup{background:var(--pink-bg);color:var(--pink);border:1px solid var(--pink-border)}.s-near_pickup::before{background:var(--pink)}
+/* Cash tag */
+.cash-tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border);padding:2px 6px;border-radius:4px}
+/* Agent select */
+select.ag{height:28px;padding:0 6px;font-size:11px;border-radius:6px;min-width:100px;background:var(--bg);border-color:var(--border)}
+/* Zone/type chips */
+.zone-text{font-size:11px;color:var(--text2);font-weight:500}
+.type-text{font-size:11px;color:var(--text3)}
+/* Footer */
+.footer{display:flex;justify-content:space-between;align-items:center;padding:10px 0 2px;font-size:11px;color:var(--text3);flex-wrap:wrap;gap:6px}
+/* Toast */
+.toast{padding:10px 16px;border-radius:var(--radius-lg);font-size:12px;font-weight:500;margin-bottom:12px;display:none;border:1px solid;display:none}
+.t-ok{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.t-err{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.t-warn{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+/* Push panel */
+.push-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:16px 20px;margin-bottom:14px;display:none}
 .push-panel h3{font-size:13px;font-weight:600;margin-bottom:10px}
-.token-row{display:flex;gap:8px;align-items:center}
-.token-row input{font-family:monospace;font-size:11px;flex:1}
-.hint{font-size:11px;color:#888;margin-top:6px}
-.mode-switch{font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#444;margin-left:4px}
+.push-row{display:flex;gap:8px;align-items:center}
+.push-row input{flex:1;height:36px;padding:0 12px;border:1px solid var(--border2);border-radius:var(--radius);font-family:monospace;font-size:12px;background:var(--bg);outline:none}
+.push-row input:focus{border-color:var(--blue)}
+.push-hint{font-size:11px;color:var(--text3);margin-top:8px}
+/* Empty */
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:13px;line-height:2}
+/* Spinner */
+.spin{width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
+<div class="page">
 
-<div id="toast" class="toast tok"></div>
+<div id="toast" class="toast t-ok"></div>
 
 <div class="hdr">
-  <div>
-    <h1>🛵 Hurrier follow-up <span id="mode-badge" class="mode-badge mode-view">View only</span></h1>
-    <div class="meta">
-      <span class="live-dot" id="live-dot" style="display:none"></span>
-      <span id="meta-text">Loading…</span>
-      &nbsp;·&nbsp;<span id="countdown"></span>
+  <div class="brand">
+    <div class="brand-icon">🛵</div>
+    <div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="brand-title">Hurrier follow-up</span>
+        <span id="mode-pill" class="mode-pill pill-view">View only</span>
+      </div>
+      <div class="brand-meta">
+        <span class="live-dot" id="ldot" style="display:none"></span>
+        <span id="meta">Loading…</span>
+        <span id="countdown" style="color:var(--text3)"></span>
+      </div>
     </div>
   </div>
-  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-    <button class="btn br" onclick="loadData()"><span class="spinner" id="spin" style="display:none"></span>↻ Refresh</button>
-    <button class="btn bx" onclick="exportCSV()">↓ CSV</button>
-    <button class="btn bs" onclick="copySlack()">📋 Slack</button>
-    <button class="btn bs" id="assign-btn" style="display:none" onclick="bulkAssign()">👥 Assign</button>
-    <button class="btn bp" id="push-btn" style="display:none" onclick="togglePush()">⬆ Push to GitHub</button>
-    <button class="mode-switch" onclick="switchToLive()" id="live-switch" style="display:none">🔴 Switch to live</button>
+  <div class="actions">
+    <button class="btn btn-ghost" onclick="loadData()"><div class="spin" id="spin" style="display:none"></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Refresh</button>
+    <button class="btn btn-green" onclick="exportCSV()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export CSV</button>
+    <button class="btn btn-blue" onclick="copySlack()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Slack</button>
+    <button class="btn btn-purple" id="assign-btn" style="display:none" onclick="bulkAssign()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Assign</button>
+    <button class="btn btn-red" id="push-btn" style="display:none" onclick="togglePush()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Push to GitHub</button>
   </div>
 </div>
 
-<div class="rbar-wrap"><div class="rbar" id="rbar" style="width:100%"></div></div>
+<div class="pbar"><div class="pbar-fill" id="pbar" style="width:100%"></div></div>
 
 <div class="push-panel" id="push-panel">
-  <h3>⬆ Push live data to GitHub (team will see it)</h3>
-  <div class="token-row">
-    <input type="password" id="gh-token" placeholder="GitHub token (ghp_...)">
-    <button class="btn bp" onclick="pushToGitHub()">Push now</button>
-    <button class="btn br" onclick="togglePush()">Cancel</button>
+  <h3>⬆ Push live data to GitHub — team sees it instantly</h3>
+  <div class="push-row">
+    <input type="password" id="gh-token" placeholder="GitHub token  (ghp_…)">
+    <button class="btn btn-red" onclick="pushToGitHub()">Push now</button>
+    <button class="btn btn-ghost" onclick="togglePush()">Cancel</button>
   </div>
-  <div class="hint">Token is never stored — only used for this push. Your team link: <strong>https://mohabatef-png.github.io/hurrier-followup-dashboard/</strong></div>
+  <div class="push-hint">Team link: <strong>https://mohabatef-png.github.io/hurrier-followup-dashboard/</strong></div>
 </div>
 
 <div class="stats" id="sr"></div>
+
 <div class="controls">
-  <input type="text" id="q" placeholder="Search order, courier, vendor, zone…" oninput="render()">
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="q" placeholder="Search order, courier, vendor, zone…" oninput="render()">
+  </div>
   <select id="zf" onchange="render()"><option value="">All zones</option></select>
   <select id="vtf" onchange="render()"><option value="">All types</option></select>
   <select id="sf" onchange="render()">
@@ -116,260 +181,219 @@ select.ag{font-size:11px;height:26px;width:100%;padding:0 4px;border-radius:4px}
 <div class="tbl-wrap">
 <table>
   <thead><tr>
-    <th style="width:28px"><input type="checkbox" class="chk" id="ca" onchange="toggleAll(this)"></th>
-    <th style="width:90px">Order #</th>
-    <th style="width:155px">Vendor</th>
-    <th style="width:72px">Overdue</th>
-    <th style="width:148px">Courier</th>
-    <th style="width:108px">Status</th>
-    <th style="width:92px">Zone</th>
-    <th style="width:75px">Type</th>
-    <th style="width:42px">Cash</th>
-    <th style="width:108px">Agent</th>
+    <th style="width:32px;padding-left:14px"><input type="checkbox" class="chk" id="ca" onchange="toggleAll(this)"></th>
+    <th style="width:100px">Order #</th>
+    <th style="width:180px">Vendor</th>
+    <th style="width:80px">Overdue</th>
+    <th style="width:160px">Courier</th>
+    <th style="width:115px">Status</th>
+    <th style="width:100px">Zone</th>
+    <th style="width:85px">Type</th>
+    <th style="width:55px">Cash</th>
+    <th>Agent</th>
   </tr></thead>
-  <tbody id="tb"><tr><td colspan="10" class="empty"><span class="spinner"></span> Loading orders…</td></tr></tbody>
+  <tbody id="tb"><tr><td colspan="10" class="empty"><div style="display:flex;justify-content:center;margin-bottom:8px"><div class="spin"></div></div>Loading orders…</td></tr></tbody>
 </table>
 </div>
-<div class="footer"><span id="cl"></span><span id="sl2"></span><span id="pushed-at"></span></div>
+
+<div class="footer">
+  <span id="cl">—</span>
+  <span id="sl2"></span>
+  <span id="pushed-at"></span>
+</div>
+
+</div><!-- .page -->
 
 <script>
-const AGENTS = ["Unassigned","Sara","Omar","Nada","Karim","Rania","Ahmed","Mohamed"];
-const SL = {left_pickup:"Left Pickup",picked_up:"Picked Up",near_dropoff:"Near Dropoff",dispatched:"Dispatched",queued:"Queued",accepted:"Accepted",near_pickup:"Near Pickup"};
-const SO = ["left_pickup","near_pickup","picked_up","near_dropoff","dispatched","queued","accepted"];
-const SP = [10130,10020,10064,10001,10002,10003,10009,10161,10174,10215,10217,10228,10227,10232];
-const REPO = "mohabatef-png/hurrier-followup-dashboard";
-const DATA_URL = "https://raw.githubusercontent.com/" + REPO + "/main/data.json";
-const REFRESH_MS = 120000;
+const AGENTS=["Unassigned","Sara","Omar","Nada","Karim","Rania","Ahmed","Mohamed"];
+const SL={left_pickup:"Left Pickup",picked_up:"Picked Up",near_dropoff:"Near Dropoff",dispatched:"Dispatched",queued:"Queued",accepted:"Accepted",near_pickup:"Near Pickup"};
+const SO=["left_pickup","near_pickup","picked_up","near_dropoff","dispatched","queued","accepted"];
+const SP=[10130,10020,10064,10001,10002,10003,10009,10161,10174,10215,10217,10228,10227,10232];
+const REPO="mohabatef-png/hurrier-followup-dashboard";
+const DATA_URL="https://raw.githubusercontent.com/"+REPO+"/main/data.json";
+const REFRESH_MS=120000;
+const IS_LIVE=window.location.search.includes('live')||window.location.hostname.includes('logisticsbackoffice')||window.location.hostname==='localhost';
 
-// Live mode: either ?live in URL OR running on logisticsbackoffice.com
-const IS_LIVE = window.location.search.includes('live') || 
-                window.location.hostname.includes('logisticsbackoffice') ||
-                window.location.hostname === 'localhost';
-
-let orders = [], sel = new Set(), agentMap = {}, nextRefresh = 0, countdownTimer = null;
+let orders=[],sel=new Set(),agentMap={},nextRefresh=0,timer=null;
 
 function dlL(m){if(m==null)return'—';const a=Math.abs(m),h=Math.floor(a/60),n=a%60,t=h>0?h+'h'+n+'m':n+'m';return m<0?'-'+t:'+'+t}
-function dlC(m){if(m==null)return'';if(m<-60)return'dc';if(m<0)return'dw';return'dok'}
+function dlC(m){if(m==null)return'dl-na';if(m<-60)return'dl-crit';if(m<0)return'dl-warn';return'dl-ok'}
 
 async function fetchFromHurrier(){
-  // Get token from Hurrier's localStorage
-  let token = null;
-  try {
-    // If opened from Hurrier page via window.open, try parent
-    const src = window.opener || window.parent;
-    if(src && src !== window){
-      for(const k of Object.keys(src.localStorage||{})){
-        const v = src.localStorage.getItem(k);
-        if(v && v.startsWith('eyJ')){token=v;break;}
-      }
-    }
-  } catch(e){}
-  // Try own localStorage (if on same domain)
-  if(!token){
-    for(const k of Object.keys(localStorage)){
-      const v=localStorage.getItem(k);
-      if(v&&v.startsWith('eyJ')){token=v;break;}
-    }
-  }
-  if(!token) throw new Error('Not on Hurrier — use the injected script instead');
-
-  const hdrs={'authorization':'Bearer '+token,'accept':'application/json','x-requested-with':'XMLHttpRequest','x-user-agent':'hurrier-dashboard-v2/0.26.1'};
-  const spQ=SP.map(id=>'starting_point_id[]='+id).join('&');
+  let tok=null;
+  for(const k of Object.keys(localStorage)){const v=localStorage.getItem(k);if(v&&v.startsWith('eyJ')){tok=v;break;}}
+  try{const src=window.opener||window.parent;if(src&&src!==window)for(const k of Object.keys(src.localStorage||{})){const v=src.localStorage.getItem(k);if(v&&v.startsWith('eyJ')){tok=v;break;}}}catch(e){}
+  if(!tok)throw new Error('Hurrier token not found — open from Hurrier tab');
+  const h={'authorization':'Bearer '+tok,'accept':'application/json','x-requested-with':'XMLHttpRequest','x-user-agent':'hurrier-dashboard-v2/0.26.1'};
+  const q=SP.map(id=>'starting_point_id[]='+id).join('&');
   const all=[];
-  for(let page=1;page<=20;page++){
-    const r=await fetch('https://eg.me.logisticsbackoffice.com/api/dispatcher-dashboard/deliveries/active?'+spQ+'&page='+page+'&per_page=100',{headers:hdrs});
-    if(!r.ok) throw new Error('Hurrier API: HTTP '+r.status);
-    const d=await r.json();
-    const rows=d.records||[];
-    const total=d?.metadata?.total_count||0;
-    const pages=total?Math.ceil(total/100):1;
-    if(!rows.length)break;
-    all.push(...rows);
-    if(page>=pages)break;
+  for(let p=1;p<=20;p++){
+    const r=await fetch('/api/dispatcher-dashboard/deliveries/active?'+q+'&page='+p+'&per_page=50',{headers:h,credentials:'include'});
+    if(!r.ok)throw new Error('Hurrier API HTTP '+r.status);
+    const d=await r.json();const rows=d.records||[];const tot=d?.metadata?.total_count||0;const pages=tot?Math.ceil(tot/50):1;
+    if(!rows.length)break;all.push(...rows);if(p>=pages)break;
   }
   const now=Date.now();
-  return all.map(d=>{
-    const o=d.order||{};
-    const dropoff=o.scheduled_dropoff_at?new Date(o.scheduled_dropoff_at).getTime():null;
-    const dm=dropoff?Math.round((dropoff-now)/60000):null;
-    return{id:o.code||String(d.id),v:(o.vendor_name||'').slice(0,50),dm,c:d.courier_name||'',s:d.status||'',z:(d.starting_points||[])[0]||'',vt:o.vertical_type||'',cash:o.is_cash_collection?1:0,ts:Date.now()};
-  });
+  return all.map(d=>{const o=d.order||{};const drop=o.scheduled_dropoff_at?new Date(o.scheduled_dropoff_at).getTime():null;const dm=drop?Math.round((drop-now)/60000):null;
+    return{id:o.code||String(d.id),v:(o.vendor_name||'').slice(0,55),dm,c:d.courier_name||'',s:d.status||'',z:(d.starting_points||[])[0]||'',vt:o.vertical_type||'',cash:o.is_cash_collection?1:0,ts:Date.now()};});
 }
 
 async function fetchFromGitHub(){
   const r=await fetch(DATA_URL+'?t='+Date.now());
-  if(!r.ok) throw new Error('No data yet — dispatcher needs to push first');
+  if(!r.ok)throw new Error('No data yet — dispatcher needs to push first');
   const d=await r.json();
-  if(!d.length) throw new Error('No orders pushed yet — ask dispatcher to push data');
+  if(!d.length)throw new Error('No orders yet — ask dispatcher to push data');
   return d;
 }
 
 async function loadData(){
-  setSpinner(true);
+  setSpin(true);
   try{
-    const raw = IS_LIVE ? await fetchFromHurrier() : await fetchFromGitHub();
+    const raw=IS_LIVE?await fetchFromHurrier():await fetchFromGitHub();
     orders=raw.map(o=>({...o,agent:agentMap[o.id]||'Unassigned'}));
     buildStats();popZones();popTypes();render();
-    const t=new Date().toLocaleTimeString();
-    document.getElementById('meta-text').textContent=orders.length+' orders · '+t;
-    document.getElementById('live-dot').style.display='inline-block';
-    if(!IS_LIVE && orders[0]?.ts){
-      document.getElementById('pushed-at').textContent='Pushed: '+new Date(orders[0].ts).toLocaleString();
-    }
+    document.getElementById('ldot').style.display='inline-block';
+    document.getElementById('meta').textContent=orders.length+' orders · '+new Date().toLocaleTimeString();
+    if(!IS_LIVE&&orders[0]?.ts)document.getElementById('pushed-at').textContent='Last pushed: '+new Date(orders[0].ts).toLocaleString();
     nextRefresh=Date.now()+REFRESH_MS;
   }catch(e){
     showToast(e.message,'err');
-    document.getElementById('meta-text').textContent='Error: '+e.message;
-    if(orders.length===0){
-      document.getElementById('tb').innerHTML='<tr><td colspan="10" class="empty">'+
-        (IS_LIVE?'Could not connect to Hurrier API.<br>Make sure this page is opened from the Hurrier tab.':
-        'No data yet.<br>Dispatcher needs to push data using the live dashboard.')+
-        '</td></tr>';
-    }
+    document.getElementById('meta').textContent='Error: '+e.message;
+    if(!orders.length)document.getElementById('tb').innerHTML='<tr><td colspan="10" class="empty">'+(IS_LIVE?'Could not connect to Hurrier API.<br>Open this page from the Hurrier tab.':'No data yet.<br>Dispatcher needs to open the live link and push data.')+'</td></tr>';
   }
-  setSpinner(false);
+  setSpin(false);
 }
 
-function startCountdown(){
-  if(countdownTimer)clearInterval(countdownTimer);
-  countdownTimer=setInterval(()=>{
+function startTimer(){
+  if(timer)clearInterval(timer);
+  timer=setInterval(()=>{
     const left=Math.max(0,nextRefresh-Date.now());
     const s=Math.ceil(left/1000),m=Math.floor(s/60),sec=s%60;
-    document.getElementById('countdown').textContent='Refresh in: '+(m>0?m+'m ':'')+sec+'s';
-    document.getElementById('rbar').style.width=(left/REFRESH_MS*100)+'%';
+    document.getElementById('countdown').textContent=' · '+( m>0?m+'m ':'')+sec+'s';
+    document.getElementById('pbar').style.width=(left/REFRESH_MS*100)+'%';
     if(left<=0)loadData();
   },1000);
 }
 
-function setSpinner(on){
-  document.getElementById('spin').style.display=on?'inline-block':'none';
-}
+function setSpin(on){document.getElementById('spin').style.display=on?'flex':'none';}
 
-function togglePush(){
-  const p=document.getElementById('push-panel');
-  p.style.display=p.style.display==='block'?'none':'block';
-}
+function togglePush(){const p=document.getElementById('push-panel');p.style.display=p.style.display==='block'?'none':'block';}
 
 async function pushToGitHub(){
-  const token=document.getElementById('gh-token').value.trim();
-  if(!token){showToast('Enter your GitHub token','err');return;}
+  const tok=document.getElementById('gh-token').value.trim();
+  if(!tok){showToast('Enter your GitHub token first','err');return;}
   if(!orders.length){showToast('No data — refresh first','err');return;}
   showToast('Pushing to GitHub…','warn');
   try{
-    let sha=null;
-    const check=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}});
-    if(check.ok){const j=await check.json();sha=j.sha;}
+    const chk=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}});
+    let sha=null;if(chk.ok){const j=await chk.json();sha=j.sha;}
     const content=btoa(unescape(encodeURIComponent(JSON.stringify(orders))));
     const body={message:'Update '+new Date().toISOString(),content,...(sha?{sha}:{})};
-    const r=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+    const r=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{method:'PUT',headers:{'Authorization':'token '+tok,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
     if(!r.ok){const e=await r.json();throw new Error(e.message);}
-    showToast('✅ Pushed! Team sees '+orders.length+' orders now','ok');
+    showToast('✅ '+orders.length+' orders pushed! Team can see them now.','ok');
     document.getElementById('gh-token').value='';
     togglePush();
   }catch(e){showToast('Push failed: '+e.message,'err');}
 }
 
-function switchToLive(){
-  window.open(window.location.href.split('?')[0]+'?live','_blank');
-}
-
 function buildStats(){
   const c={},tot=orders.length,act=document.querySelector('.stat.on')?.dataset.s||'';
   orders.forEach(o=>c[o.s]=(c[o.s]||0)+1);
-  let h=`<div class="stat ${act===''?'on':''}" data-s="" onclick="fs(this)"><div class="stat-n">${tot}</div><div class="stat-l">All</div></div>`;
+  let h=`<div class="stat ${act===''?'on':''}" data-s="" onclick="fs(this)"><div class="stat-n">${tot}</div><div class="stat-l">All orders</div></div>`;
   SO.forEach(s=>{if(!c[s])return;h+=`<div class="stat ${act===s?'on':''}" data-s="${s}" onclick="fs(this)"><div class="stat-n">${c[s]}</div><div class="stat-l">${SL[s]||s}</div></div>`;});
   document.getElementById('sr').innerHTML=h;
 }
+
 function popZones(){
-  const zones=[...new Set(orders.map(o=>o.z).filter(Boolean))].sort();
+  const z=[...new Set(orders.map(o=>o.z).filter(Boolean))].sort();
   const el=document.getElementById('zf'),cur=el.value;
-  el.innerHTML='<option value="">All zones</option>'+zones.map(z=>`<option ${z===cur?'selected':''}>${z}</option>`).join('');
+  el.innerHTML='<option value="">All zones</option>'+z.map(v=>`<option ${v===cur?'selected':''}>${v}</option>`).join('');
 }
 function popTypes(){
-  const types=[...new Set(orders.map(o=>o.vt).filter(Boolean))].sort();
+  const t=[...new Set(orders.map(o=>o.vt).filter(Boolean))].sort();
   const el=document.getElementById('vtf'),cur=el.value;
-  el.innerHTML='<option value="">All types</option>'+types.map(t=>`<option ${t===cur?'selected':''}>${t}</option>`).join('');
+  el.innerHTML='<option value="">All types</option>'+t.map(v=>`<option ${v===cur?'selected':''}>${v}</option>`).join('');
 }
+
 function getF(){
   const q=document.getElementById('q').value.toLowerCase();
   const zf=document.getElementById('zf').value;
   const vtf=document.getElementById('vtf').value;
   const sf2=document.querySelector('.stat.on')?.dataset.s||'';
-  let d=orders.filter(o=>
-    (!q||o.id.toLowerCase().includes(q)||o.c.toLowerCase().includes(q)||o.v.toLowerCase().includes(q)||o.z.toLowerCase().includes(q))&&
-    (!zf||o.z===zf)&&(!vtf||o.vt===vtf)&&(!sf2||o.s===sf2)
-  );
+  let d=orders.filter(o=>(!q||o.id.toLowerCase().includes(q)||o.c.toLowerCase().includes(q)||o.v.toLowerCase().includes(q)||o.z.toLowerCase().includes(q))&&(!zf||o.z===zf)&&(!vtf||o.vt===vtf)&&(!sf2||o.s===sf2));
   const sk=document.getElementById('sf').value;
-  d.sort((a,b)=>{
-    if(sk==='deadline'){if(a.dm==null)return 1;if(b.dm==null)return-1;return a.dm-b.dm;}
-    if(sk==='status')return SO.indexOf(a.s)-SO.indexOf(b.s);
-    if(sk==='zone')return a.z.localeCompare(b.z);
-    return(a.vt||'').localeCompare(b.vt||'');
-  });
+  d.sort((a,b)=>{if(sk==='deadline'){if(a.dm==null)return 1;if(b.dm==null)return-1;return a.dm-b.dm;}if(sk==='status')return SO.indexOf(a.s)-SO.indexOf(b.s);if(sk==='zone')return a.z.localeCompare(b.z);return(a.vt||'').localeCompare(b.vt||'');});
   return d;
 }
 function fs(el){document.querySelectorAll('.stat').forEach(s=>s.classList.remove('on'));el.classList.add('on');render();}
+
 function render(){
-  const d=getF();
-  const tb=document.getElementById('tb');
-  if(!d.length){tb.innerHTML='<tr><td colspan="10" class="empty">No orders match</td></tr>';
-    document.getElementById('cl').textContent='0 orders';return;}
-  tb.innerHTML=d.map(o=>`<tr class="${sel.has(o.id)?'sel':''}" onclick="tr2('${o.id}',event)">
-    <td><input type="checkbox" class="chk" ${sel.has(o.id)?'checked':''} onclick="tr2('${o.id}',event)"></td>
-    <td style="font-weight:600">${o.id}</td>
-    <td title="${o.v}">${o.v}</td>
-    <td><span class="${dlC(o.dm)}">${dlL(o.dm)}</span></td>
-    <td style="font-size:11px" title="${o.c}">${o.c}</td>
-    <td><span class="badge s-${o.s}">${SL[o.s]||o.s}</span></td>
-    <td style="font-size:11px">${o.z}</td>
-    <td style="font-size:11px;color:#888">${o.vt||''}</td>
-    <td style="text-align:center">${o.cash?'<b style="color:#854F0B">£</b>':''}</td>
-    <td>${IS_LIVE?`<select class="ag" onchange="aa('${o.id}',this.value)" onclick="event.stopPropagation()">${AGENTS.map(a=>`<option ${o.agent===a?'selected':''}>${a}</option>`).join('')}</select>`:`<span style="font-size:11px;color:#888">${o.agent}</span>`}</td>
-  </tr>`).join('');
-  document.getElementById('cl').textContent='Showing '+d.length+' of '+orders.length+' orders';
-  document.getElementById('sl2').textContent=sel.size?sel.size+' selected':'';
+  const d=getF(),tb=document.getElementById('tb');
+  if(!d.length){tb.innerHTML='<tr><td colspan="10" class="empty">No orders match the current filters</td></tr>';document.getElementById('cl').textContent='0 orders';return;}
+  tb.innerHTML=d.map(o=>`
+    <tr class="${sel.has(o.id)?'sel':''}" onclick="tr2('${o.id}',event)" style="cursor:pointer">
+      <td style="padding-left:14px"><input type="checkbox" class="chk" ${sel.has(o.id)?'checked':''} onclick="tr2('${o.id}',event)"></td>
+      <td>
+        <div class="order-id">${o.id}</div>
+      </td>
+      <td>
+        <div class="vendor-name" title="${o.v}">${o.v}</div>
+      </td>
+      <td><span class="${dlC(o.dm)}">${dlL(o.dm)}</span></td>
+      <td style="font-size:11px;color:var(--text2)" title="${o.c}">${o.c}</td>
+      <td><span class="badge s-${o.s}">${SL[o.s]||o.s}</span></td>
+      <td><span class="zone-text">${o.z}</span></td>
+      <td><span class="type-text">${o.vt||'—'}</span></td>
+      <td>${o.cash?'<span class="cash-tag">£ Cash</span>':''}</td>
+      <td>${IS_LIVE?`<select class="ag" onchange="aa('${o.id}',this.value)" onclick="event.stopPropagation()">${AGENTS.map(a=>`<option ${o.agent===a?'selected':''}>${a}</option>`).join('')}</select>`:`<span style="font-size:11px;color:var(--text3)">${o.agent}</span>`}</td>
+    </tr>`).join('');
+  document.getElementById('cl').textContent=`Showing ${d.length} of ${orders.length} orders`;
+  document.getElementById('sl2').textContent=sel.size?`${sel.size} selected`:'';
 }
-function tr2(id,e){if(e.target.tagName==='SELECT'||e.target.tagName==='OPTION')return;sel.has(id)?sel.delete(id):sel.add(id);render();}
+
+function tr2(id,e){if(e.target.tagName==='SELECT'||e.target.tagName==='OPTION'||e.target.type==='checkbox')return;sel.has(id)?sel.delete(id):sel.add(id);render();}
 function toggleAll(cb){const d=getF();if(cb.checked)d.forEach(o=>sel.add(o.id));else d.forEach(o=>sel.delete(o.id));render();}
 function aa(id,agent){const o=orders.find(x=>x.id===id);if(o){o.agent=agent;agentMap[id]=agent;}}
+
 function bulkAssign(){
   if(!sel.size){showToast('Select orders first','warn');return;}
-  const agent=prompt('Assign to:\n'+AGENTS.filter(a=>a!=='Unassigned').join(', '));
-  if(agent&&AGENTS.includes(agent)){sel.forEach(id=>{const o=orders.find(x=>x.id===id);if(o){o.agent=agent;agentMap[id]=agent;}});render();showToast(sel.size+' assigned to '+agent,'ok');}
+  const agent=prompt('Assign selected orders to:\n'+AGENTS.filter(a=>a!=='Unassigned').join(', '));
+  if(agent&&AGENTS.includes(agent)){sel.forEach(id=>{const o=orders.find(x=>x.id===id);if(o){o.agent=agent;agentMap[id]=agent;}});render();showToast(`${sel.size} orders assigned to ${agent}`,'ok');}
 }
+
 function exportCSV(){
   const d=getF();
   const rows=[['Order','Vendor','Overdue','Courier','Status','Zone','Type','Cash','Agent']];
   d.forEach(o=>rows.push([o.id,o.v,dlL(o.dm),o.c,SL[o.s]||o.s,o.z,o.vt||'',o.cash?'Yes':'No',o.agent]));
   const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='hurrier_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
-  showToast('CSV downloaded','ok');
+  showToast('CSV exported','ok');
 }
+
 function copySlack(){
   const d=getF().filter(o=>o.dm!=null&&o.dm<0).slice(0,25);
-  if(!d.length){showToast('No overdue orders','warn');return;}
-  const msg='*🚨 Hurrier overdue — '+new Date().toLocaleTimeString()+'*\n'+
-    d.map(o=>'• *'+o.id+'* | '+(SL[o.s]||o.s)+' | '+dlL(o.dm)+' | '+o.z+' | '+o.c.split(' ').slice(0,2).join(' ')+' | Agent: '+o.agent).join('\n');
-  navigator.clipboard.writeText(msg).then(()=>showToast('Copied — paste in Slack','ok')).catch(()=>showToast('Copy failed','err'));
+  if(!d.length){showToast('No overdue orders to share','warn');return;}
+  const msg='*🚨 Hurrier overdue orders — '+new Date().toLocaleTimeString()+'*\n'+d.map(o=>'• *'+o.id+'* | '+(SL[o.s]||o.s)+' | '+dlL(o.dm)+' | '+o.z+' | '+o.c.split(' ').slice(0,2).join(' ')+' | Agent: '+o.agent).join('\n');
+  navigator.clipboard.writeText(msg).then(()=>showToast('Copied to clipboard — paste in Slack','ok')).catch(()=>showToast('Copy failed','err'));
 }
+
 function showToast(msg,type){
   const t=document.getElementById('toast');
   t.textContent=msg;t.style.display='block';
-  t.className='toast '+(type==='err'?'terr':type==='warn'?'twarn':'tok');
-  setTimeout(()=>t.style.display='none',4000);
+  t.className='toast '+(type==='err'?'t-err':type==='warn'?'t-warn':'t-ok');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',4000);
 }
 
 // Init
 if(IS_LIVE){
-  document.getElementById('mode-badge').textContent='Live';
-  document.getElementById('mode-badge').className='mode-badge mode-live';
-  document.getElementById('push-btn').style.display='flex';
-  document.getElementById('assign-btn').style.display='flex';
-} else {
-  document.getElementById('live-switch').style.display='inline-flex';
+  document.getElementById('mode-pill').textContent='Live';
+  document.getElementById('mode-pill').className='mode-pill pill-live';
+  document.getElementById('push-btn').style.display='inline-flex';
+  document.getElementById('assign-btn').style.display='inline-flex';
 }
 loadData();
-startCountdown();
+startTimer();
 </script>
 </body>
 </html>
