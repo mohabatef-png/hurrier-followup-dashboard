@@ -260,9 +260,10 @@ async function fetchFromHurrier(){
 }
 
 async function fetchFromGitHub(){
-  // Use GitHub API (no cache) instead of raw.githubusercontent
-  const apiUrl='https://api.github.com/repos/'+REPO+'/contents/data.json';
-  const r=await fetch(apiUrl,{headers:{'Accept':'application/vnd.github.v3.raw','Cache-Control':'no-cache'},cache:'no-store'});
+  // Use raw URL with strong cache-busting (timestamp + random)
+  const bust=Date.now()+'_'+Math.random().toString(36).slice(2);
+  const url='https://raw.githubusercontent.com/'+REPO+'/main/data.json?v='+bust;
+  const r=await fetch(url,{cache:'no-store',headers:{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'}});
   if(!r.ok)throw new Error('No data yet — dispatcher needs to push first');
   const text=await r.text();
   if(!text||text.trim()==='[]'||text.trim()==='')throw new Error('No orders yet — dispatcher needs to push data');
