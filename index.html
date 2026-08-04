@@ -300,11 +300,26 @@ async function pushGH(){
   }catch(e){showToast('Push failed: '+e.message,'err');}
 }
 
-function buildStats(){
-  const c={},tot=orders.length,act=document.querySelector('.stat.on')?.dataset.s||'';
-  orders.forEach(o=>c[o.s]=(c[o.s]||0)+1);
+function buildStats(filtered){
+  // Use filtered data for counts (excluding status filter so clicking still works)
+  const q=document.getElementById('q')?.value.toLowerCase()||'';
+  const zf=document.getElementById('zf')?.value||'';
+  const vtf=document.getElementById('vtf')?.value||'';
+  const pf=document.getElementById('pf')?.value||'';
+  // Count across all statuses but respecting other filters
+  const visible=orders.filter(o=>
+    (!q||o.id.toLowerCase().includes(q)||o.c.toLowerCase().includes(q)||o.v.toLowerCase().includes(q)||o.z.toLowerCase().includes(q))&&
+    (!zf||o.z===zf)&&(!vtf||o.vt===vtf)&&
+    (!pf||(pf==='cash'?o.cash===1:o.cash===0))
+  );
+  const c={},tot=visible.length,act=document.querySelector('.stat.on')?.dataset.s||'';
+  visible.forEach(o=>c[o.s]=(c[o.s]||0)+1);
   let h=`<div class="stat ${act===''?'on':''}" data-s="" onclick="fs(this)"><div class="sn">${tot}</div><div class="sl">All orders</div></div>`;
-  SO.forEach(s=>{if(!c[s])return;h+=`<div class="stat ${act===s?'on':''}" data-s="${s}" onclick="fs(this)"><div class="sn">${c[s]}</div><div class="sl">${SL[s]||s}</div></div>`;});
+  SO.forEach(s=>{
+    const count=c[s]||0;
+    if(!count&&act!==s)return;
+    h+=`<div class="stat ${act===s?'on':''}" data-s="${s}" onclick="fs(this)"><div class="sn">${count}</div><div class="sl">${SL[s]||s}</div></div>`;
+  });
   document.getElementById('sr').innerHTML=h;
 }
 function popZones(){
@@ -400,6 +415,7 @@ function rowHtml(o){
 }
 
 function render(){
+  buildStats();
   buildHead();
   const data=sortData(getF());
   const tb=document.getElementById('tb');
