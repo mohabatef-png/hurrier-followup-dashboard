@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hurrier Follow-up Dashboard</title><!-- v5 -->
+<title>Hurrier Follow-up Dashboard</title><!-- v6 - paste-based, no token scraping -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -47,7 +47,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;
 .pbar{height:3px;background:var(--border);border-radius:2px;margin-bottom:14px;overflow:hidden}
 .pbar-f{height:100%;background:var(--blue);border-radius:2px;transition:width linear 1s}
 
-/* Stats - scrollable on mobile */
+/* Stats */
 .stats-wrap{overflow-x:auto;margin-bottom:14px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .stats-wrap::-webkit-scrollbar{display:none}
 .stats{display:flex;gap:8px;min-width:max-content}
@@ -70,7 +70,7 @@ select:focus{border-color:var(--blue)}
 .vtog button{height:36px;padding:0 12px;font-size:12px;font-weight:500;border:none;background:transparent;cursor:pointer;color:var(--text2);font-family:inherit}
 .vtog button.on{background:var(--blue);color:#fff}
 
-/* Table wrapper - horizontal scroll on mobile */
+/* Table */
 .tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--rxl);overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;min-width:700px}
 thead{position:sticky;top:0;z-index:2}
@@ -84,7 +84,6 @@ tr:last-child td{border-bottom:none}
 tr:hover td{background:#FAFAF8}
 tr.sel td{background:var(--blue-bg)}
 
-/* Vendor group */
 .vg-row td{background:#F9F9F7;font-weight:600;font-size:12px;color:var(--text);padding:8px 12px;border-bottom:1px solid var(--border);cursor:pointer}
 .vg-row:hover td{background:#F4F4F0}
 .vg-count{font-size:11px;font-weight:400;color:var(--text3);margin-left:6px}
@@ -119,24 +118,23 @@ select.ag{height:28px;padding:0 4px;font-size:11px;border-radius:6px;min-width:9
 .terr{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
 .twrn{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
 
-.push-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rxl);padding:14px 16px;margin-bottom:12px;display:none}
-.push-panel h3{font-size:13px;font-weight:600;margin-bottom:10px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rxl);padding:14px 16px;margin-bottom:12px;display:none}
+.panel h3{font-size:13px;font-weight:600;margin-bottom:10px}
 .pr{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .pr input{flex:1;min-width:200px;height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--r);font-family:monospace;font-size:12px;background:var(--bg);outline:none}
 .pr input:focus{border-color:var(--blue)}
 .ph{font-size:11px;color:var(--text3);margin-top:8px;word-break:break-all}
+.paste-area{width:100%;height:220px;box-sizing:border-box;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;padding:10px;border:1px solid var(--border2);border-radius:var(--r);resize:vertical;background:var(--bg);margin-bottom:10px}
 
 .empty{text-align:center;padding:2.5rem 1rem;color:var(--text3);font-size:13px;line-height:2}
 .spin{width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:sp .6s linear infinite;display:none}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-/* Mobile responsive */
 @media(max-width:640px){
   .page{padding:10px 12px}
   .hdr{gap:8px}
   .brand-title{font-size:14px}
   .btn{height:30px;padding:0 9px;font-size:11px}
-  /* Hide less important buttons on mobile */
   .btn-hide-mobile{display:none}
   .controls{gap:5px}
   .sw{min-width:100%;order:-1}
@@ -169,23 +167,39 @@ select.ag{height:28px;padding:0 4px;font-size:11px;border-radius:6px;min-width:9
     </div>
   </div>
   <div class="actions">
-    <button class="btn bg" onclick="loadData()"><div class="spin" id="spin"></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Refresh</button>
+    <button class="btn bg" onclick="loadFromGitHub()"><div class="spin" id="spin"></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Refresh</button>
     <button class="btn bgr" onclick="exportCSV()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
     <button class="btn bbl btn-hide-mobile" onclick="copySlack()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Slack</button>
-    <button class="btn bpu btn-hide-mobile" id="asgn-btn" style="display:none" onclick="bulkAssign()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Assign</button>
-    <button class="btn bred" id="push-btn" style="display:none" onclick="togglePush()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Push to GitHub</button>
+    <button class="btn bpu btn-hide-mobile" onclick="bulkAssign()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Assign</button>
+    <button class="btn bpu" onclick="togglePaste()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Paste Data</button>
+    <button class="btn bred" onclick="togglePush()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Push to GitHub</button>
   </div>
 </div>
 
 <div class="pbar"><div class="pbar-f" id="pbar" style="width:100%"></div></div>
 
-<div class="push-panel" id="ppanel">
-  <h3>⬆ Push live data to GitHub — team sees it instantly</h3>
+<div class="panel" id="pastepanel">
+  <h3>📋 Paste data from Hurrier</h3>
+  <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Copy the "Active Deliveries" table text from the Hurrier page and paste it below, then click Parse.</div>
+  <textarea class="paste-area" id="pasteInput" placeholder="Paste the raw copied text here..."></textarea>
   <div class="pr">
-    <input type="password" id="ghtok" placeholder="GitHub token (ghp_…)">
+    <button class="btn bpu" onclick="parsePasted()">Parse &amp; Load</button>
+    <button class="btn bg" onclick="togglePaste()">Cancel</button>
+  </div>
+</div>
+
+<div class="panel" id="ppanel">
+  <h3>⬆ Push current data to GitHub — team sees it instantly</h3>
+  <div class="pr">
+    <input type="password" id="ghtok" placeholder="GitHub token (ghp_…) — yours only, never stored on the page">
     <button class="btn bred" onclick="pushGH()">Push now</button>
     <button class="btn bg" onclick="togglePush()">Cancel</button>
   </div>
+  <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);margin-top:10px">
+    <input type="checkbox" id="rememberTok" class="chk">
+    Remember token for this browser session &amp; auto-push whenever I load new data
+  </label>
+  <div class="ph">Only kept in your browser tab (sessionStorage) — cleared when you close it. Never written into the page or seen by team members.</div>
   <div class="ph">Team link: <strong>https://mohabatef-png.github.io/hurrier-followup-dashboard/</strong></div>
 </div>
 
@@ -226,77 +240,129 @@ select.ag{height:28px;padding:0 4px;font-size:11px;border-radius:6px;min-width:9
 const AGENTS=["Unassigned","Sara","Omar","Nada","Karim","Rania","Ahmed","Mohamed"];
 const SL={left_pickup:"Left Pickup",picked_up:"Picked Up",near_dropoff:"Near Dropoff",dispatched:"Dispatched",queued:"Queued",accepted:"Accepted",near_pickup:"Near Pickup"};
 const SO=["left_pickup","near_pickup","picked_up","near_dropoff","dispatched","queued","accepted"];
-const SP=[10130,10020,10064,10001,10002,10003,10009,10161,10174,10215,10217,10228,10227,10232];
+const STATUS_TO_KEY={"left pickup":"left_pickup","picked up":"picked_up","near dropoff":"near_dropoff","dispatched":"dispatched","queued":"queued","accepted":"accepted","near pickup":"near_pickup"};
 const REPO="mohabatef-png/hurrier-followup-dashboard";
-const DATA_URL="https://raw.githubusercontent.com/"+REPO+"/main/data.json";
-const RM=120000;
-const IS_LIVE=window.location.search.includes('live')||window.location.hostname.includes('logisticsbackoffice')||window.location.hostname==='localhost';
 
 let orders=[],sel=new Set(),agentMap={},nextR=0,timer=null;
-let sortCol='deadline',sortDir=1; // 1=asc -1=desc
+let sortCol='deadline',sortDir=1;
 let viewMode='flat';
 let collapsed={};
 
 function dlL(m){if(m==null)return'—';const a=Math.abs(m),h=Math.floor(a/60),n=a%60,t=h>0?h+'h'+n+'m':n+'m';return m<0?'-'+t:'+'+t}
 function dlC(m){if(m==null)return'dna';if(m<-60)return'dc';if(m<0)return'dw';return'dok'}
 
-async function fetchFromHurrier(){
-  let tok=null;
-  for(const k of Object.keys(localStorage)){const v=localStorage.getItem(k);if(v&&v.startsWith('eyJ')){tok=v;break;}}
-  try{const s=window.opener||window.parent;if(s&&s!==window)for(const k of Object.keys(s.localStorage||{})){const v=s.localStorage.getItem(k);if(v&&v.startsWith('eyJ')){tok=v;break;}}}catch(e){}
-  if(!tok)throw new Error('Hurrier token not found — open from Hurrier tab');
-  const h={'authorization':'Bearer '+tok,'accept':'application/json','x-requested-with':'XMLHttpRequest','x-user-agent':'hurrier-dashboard-v2/0.26.1'};
-  const q=SP.map(id=>'starting_point_id[]='+id).join('&');
-  const all=[];
-  for(let p=1;p<=20;p++){
-    const r=await fetch('/api/dispatcher-dashboard/deliveries/active?'+q+'&page='+p+'&per_page=50',{headers:h,credentials:'include'});
-    if(!r.ok)throw new Error('Hurrier API HTTP '+r.status);
-    const d=await r.json();const rows=d.records||[];const tot=d?.metadata?.total_count||0;const pages=tot?Math.ceil(tot/50):1;
-    if(!rows.length)break;all.push(...rows);if(p>=pages)break;
-  }
-  const now=Date.now();
-  return all.map(d=>{const o=d.order||{};const drop=o.scheduled_dropoff_at?new Date(o.scheduled_dropoff_at).getTime():null;const dm=drop?Math.round((drop-now)/60000):null;
-    return{id:o.code||String(d.id),v:(o.vendor_name||'').slice(0,60),dm,c:d.courier_name||'',s:d.status||'',z:(d.starting_points||[])[0]||'',vt:o.vertical_type||'',cash:o.is_cash_collection?1:0,ts:Date.now()};});
-}
-
+/* ---------- Load published data from GitHub (public read, no token needed) ---------- */
 async function fetchFromGitHub(){
-  // Use raw URL with strong cache-busting (timestamp + random)
   const bust=Date.now()+'_'+Math.random().toString(36).slice(2);
   const url='https://raw.githubusercontent.com/'+REPO+'/main/data.json?v='+bust;
   const r=await fetch(url,{cache:'no-store',headers:{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'}});
-  if(!r.ok)throw new Error('No data yet — dispatcher needs to push first');
+  if(!r.ok)throw new Error('No data yet — paste and push data first');
   const text=await r.text();
-  if(!text||text.trim()==='[]'||text.trim()==='')throw new Error('No orders yet — dispatcher needs to push data');
+  if(!text||text.trim()==='[]'||text.trim()==='')throw new Error('No orders yet — paste and push data first');
   const d=JSON.parse(text);
-  if(!Array.isArray(d)||!d.length)throw new Error('No orders yet — dispatcher needs to push data');
+  if(!Array.isArray(d)||!d.length)throw new Error('No orders yet — paste and push data first');
   return d;
 }
 
-async function loadData(){
+async function loadFromGitHub(){
   setSpin(true);
   try{
-    const raw=IS_LIVE?await fetchFromHurrier():await fetchFromGitHub();
-    orders=raw.map(o=>({...o,agent:agentMap[o.id]||'Unassigned'}));
-    buildStats();popZones();popTypes();render();
-    document.getElementById('ldot').style.display='inline-block';
-    document.getElementById('meta').textContent=orders.length+' orders · '+new Date().toLocaleTimeString();
-    if(!IS_LIVE&&orders[0]?.ts)document.getElementById('pat').textContent='Pushed: '+new Date(orders[0].ts).toLocaleString();
-    nextR=Date.now()+RM;
-    // Auto-push to GitHub in live mode if token stored
-    // Init session token
-const _t=['ghp_hhx7sdHW','ScbWLpnzIuoLK0u7NJpb2J3AouQl'].join('');
-if(!sessionStorage.getItem('gh_token'))sessionStorage.setItem('gh_token',_t);
-
-if(IS_LIVE){
-      const savedTok=sessionStorage.getItem('gh_token');
-      if(savedTok) autoPush(savedTok);
-    }
+    const raw=await fetchFromGitHub();
+    orders=raw.map(o=>({...o,agent:agentMap[o.id]||o.agent||'Unassigned'}));
+    afterLoad();
   }catch(e){
     showToast(e.message,'err');
     document.getElementById('meta').textContent='Error: '+e.message;
-    if(!orders.length)document.getElementById('tb').innerHTML='<tr><td colspan="10" class="empty">'+(IS_LIVE?'Could not connect to Hurrier.<br>Open this from the Hurrier tab.':'No data yet.<br>Dispatcher needs to push data.')+'</td></tr>';
+    if(!orders.length)document.getElementById('tb').innerHTML='<tr><td colspan="10" class="empty">No data yet.<br>Use "Paste Data" to load orders, then "Push to GitHub" to publish.</td></tr>';
   }
   setSpin(false);
+}
+
+function afterLoad(){
+  buildStats();popZones();popTypes();render();
+  document.getElementById('ldot').style.display='inline-block';
+  document.getElementById('meta').textContent=orders.length+' orders · '+new Date().toLocaleTimeString();
+  if(orders[0]?.ts)document.getElementById('pat').textContent='Data as of: '+new Date(orders[0].ts).toLocaleString();
+  nextR=Date.now()+120000;
+}
+
+/* ---------- Paste-based data entry (replaces token-scraping fetch) ---------- */
+function togglePaste(){const p=document.getElementById('pastepanel');p.style.display=p.style.display==='block'?'none':'block';}
+
+function parseDeadlineToMinutes(txt){
+  if(!txt)return null;
+  const neg=txt.trim().startsWith('-');
+  const hMatch=txt.match(/(\d+)\s*h/);
+  const mMatch=txt.match(/(\d+)\s*min/);
+  const h=hMatch?parseInt(hMatch[1],10):0;
+  const m=mMatch?parseInt(mMatch[1],10):0;
+  const total=h*60+m;
+  return neg?-total:total;
+}
+
+function parsePastedText(text){
+  const rawLines=text.split(/\r?\n/).map(l=>l.trim());
+  const lines=[];
+  for(const l of rawLines){
+    if(l==='')continue;
+    if(/^Active Deliveries/i.test(l))continue;
+    if(/^Order\s+Deadline/i.test(l))continue;
+    lines.push(l);
+  }
+  const out=[];
+  let i=0;const n=lines.length;
+  while(i<n){
+    const orderId=lines[i];i++;
+    if(i<n&&lines[i]==='ⓘ')i++;
+    const voLine=i<n?lines[i]:'';i++;
+    const deadline=i<n?lines[i]:'';i++;
+    const courier=i<n?lines[i]:'';i++;
+    const statusRaw=i<n?lines[i]:'';i++;
+    const inLine=i<n?lines[i]:'';i++;   // unused directly, deadline already carries it
+    const atLine=i<n?lines[i]:'';i++;
+    const zoneLine=i<n?lines[i]:'';i++;
+    if(i<n&&lines[i]==='ⓘ')i++;
+
+    if(!orderId)continue;
+    const voMatch=voLine.match(/^VO\s*#(\d+)\s*-\s*(.*)$/);
+    const vendorArea=voMatch?voMatch[2]:voLine;
+    const statusKey=STATUS_TO_KEY[statusRaw.toLowerCase()]||'queued';
+    const firstZone=zoneLine?zoneLine.split(',')[0].trim():'';
+
+    out.push({
+      id:orderId,
+      v:vendorArea,
+      dm:parseDeadlineToMinutes(deadline),
+      c:courier,
+      s:statusKey,
+      z:firstZone,
+      vt:'',
+      cash:0,
+      ts:Date.now(),
+      agent:'Unassigned'
+    });
+  }
+  return out;
+}
+
+function parsePasted(){
+  const text=document.getElementById('pasteInput').value;
+  if(!text.trim()){showToast('Paste some data first','err');return;}
+  try{
+    const parsed=parsePastedText(text);
+    if(!parsed.length){showToast('No records found — check the pasted format','err');return;}
+    orders=parsed.map(o=>({...o,agent:agentMap[o.id]||'Unassigned'}));
+    afterLoad();
+    togglePaste();
+    if(sessionStorage.getItem('gh_token')){
+      showToast('Loaded '+orders.length+' orders — auto-pushing…','ok');
+      maybeAutoPush();
+    } else {
+      showToast('Loaded '+orders.length+' orders from paste — click "Push to GitHub" to publish','ok');
+    }
+  }catch(e){
+    showToast('Parse error: '+e.message,'err');
+  }
 }
 
 function startTimer(){
@@ -305,51 +371,61 @@ function startTimer(){
     const left=Math.max(0,nextR-Date.now());
     const s=Math.ceil(left/1000),m=Math.floor(s/60),sec=s%60;
     document.getElementById('cdown').textContent=' · '+(m>0?m+'m ':'')+sec+'s';
-    document.getElementById('pbar').style.width=(left/RM*100)+'%';
-    if(left<=0)loadData();
+    document.getElementById('pbar').style.width=(left/120000*100)+'%';
   },1000);
 }
 
 function setSpin(on){document.getElementById('spin').style.display=on?'block':'none';}
 function togglePush(){const p=document.getElementById('ppanel');p.style.display=p.style.display==='block'?'none':'block';}
 
-async function autoPush(tok){
-  if(!orders.length)return;
-  try{
-    const chk=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}});
-    let sha=null;if(chk.ok){const j=await chk.json();sha=j.sha;}
-    const content=btoa(unescape(encodeURIComponent(JSON.stringify(orders))));
-    const body={message:'Auto-update '+new Date().toISOString(),content,...(sha?{sha}:{})};
-    const r=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{method:'PUT',headers:{'Authorization':'token '+tok,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
-    if(r.ok)showToast('✅ Auto-pushed '+orders.length+' orders to team','ok');
-  }catch(e){console.error('Auto-push failed:',e);}
+/* ---------- Manual, explicit push — token typed by the user each time, never embedded or auto-sent ---------- */
+async function doPush(tok,{silent}={}){
+  if(!tok)throw new Error('No token available');
+  if(!orders.length)throw new Error('No data loaded');
+  const chk=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}});
+  let sha=null;if(chk.ok){const j=await chk.json();sha=j.sha;}
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify(orders))));
+  const body={message:'Update '+new Date().toISOString(),content,...(sha?{sha}:{})};
+  const r=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{method:'PUT',headers:{'Authorization':'token '+tok,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+  if(!r.ok){
+    const e=await r.json().catch(()=>({message:'HTTP '+r.status}));
+    if(r.status===401){sessionStorage.removeItem('gh_token');} // bad/expired token — stop relying on it
+    throw new Error(e.message);
+  }
 }
 
 async function pushGH(){
   const tok=document.getElementById('ghtok').value.trim();
-  if(!tok){showToast('Enter GitHub token first','err');return;}
-  if(!orders.length){showToast('No data — refresh first','err');return;}
+  const remember=document.getElementById('rememberTok').checked;
+  if(!tok){showToast('Enter your GitHub token first','err');return;}
+  if(!orders.length){showToast('No data loaded — paste data first','err');return;}
   showToast('Pushing…','wrn');
   try{
-    const chk=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}});
-    let sha=null;if(chk.ok){const j=await chk.json();sha=j.sha;}
-    const content=btoa(unescape(encodeURIComponent(JSON.stringify(orders))));
-    const body={message:'Update '+new Date().toISOString(),content,...(sha?{sha}:{})};
-    const r=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{method:'PUT',headers:{'Authorization':'token '+tok,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
-    if(!r.ok){const e=await r.json();throw new Error(e.message);}
-    sessionStorage.setItem('gh_token', tok);
-    showToast('✅ '+orders.length+' orders pushed! Auto-push enabled for this session.','ok');
+    await doPush(tok);
+    if(remember)sessionStorage.setItem('gh_token',tok);
+    showToast('✅ '+orders.length+' orders pushed!'+(remember?' Auto-push is now on for this session.':''),'ok');
     document.getElementById('ghtok').value='';togglePush();
   }catch(e){showToast('Push failed: '+e.message,'err');}
 }
 
-function buildStats(filtered){
-  // Use filtered data for counts (excluding status filter so clicking still works)
+/* Auto-push only fires if the user explicitly opted in above and saved a token
+   in THIS browser's session — it's never pre-filled, hardcoded, or shared. */
+async function maybeAutoPush(){
+  const tok=sessionStorage.getItem('gh_token');
+  if(!tok)return;
+  try{
+    await doPush(tok,{silent:true});
+    showToast('✅ Auto-pushed '+orders.length+' orders to team view','ok');
+  }catch(e){
+    showToast('Auto-push failed: '+e.message+' — push manually or re-enter your token','err');
+  }
+}
+
+function buildStats(){
   const q=document.getElementById('q')?.value.toLowerCase()||'';
   const zf=document.getElementById('zf')?.value||'';
   const vtf=document.getElementById('vtf')?.value||'';
   const pf=document.getElementById('pf')?.value||'';
-  // Count across all statuses but respecting other filters
   const visible=orders.filter(o=>
     (!q||o.id.toLowerCase().includes(q)||o.c.toLowerCase().includes(q)||o.v.toLowerCase().includes(q)||o.z.toLowerCase().includes(q))&&
     (!zf||o.z===zf)&&(!vtf||o.vt===vtf)&&
@@ -453,7 +529,7 @@ function rowHtml(o){
         ? '<span class="cash-tag cash-yes"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Cash</span>'
         : '<span class="cash-tag cash-no"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Visa</span>'
       }</td>
-    <td>${IS_LIVE?`<select class="ag" onchange="aa('${o.id}',this.value)" onclick="event.stopPropagation()">${AGENTS.map(a=>`<option ${o.agent===a?'selected':''}>${a}</option>`).join('')}</select>`:`<span style="font-size:11px;color:var(--text3)">${o.agent}</span>`}</td>
+    <td><select class="ag" onchange="aa('${o.id}',this.value)" onclick="event.stopPropagation()">${AGENTS.map(a=>`<option ${o.agent===a?'selected':''}>${a}</option>`).join('')}</select></td>
   </tr>`;
 }
 
@@ -465,11 +541,9 @@ function render(){
   if(!data.length){tb.innerHTML='<tr><td colspan="10" class="empty">No orders match filters</td></tr>';document.getElementById('cl').textContent='0 orders';document.getElementById('sl2').textContent='';return;}
 
   if(viewMode==='vendor'){
-    // Group by vendor name
     const groups={};
     data.forEach(o=>{const k=o.v||'Unknown';if(!groups[k])groups[k]=[];groups[k].push(o);});
     const keys=Object.keys(groups).sort((a,b)=>{
-      // Sort groups by most critical order inside
       const minA=Math.min(...groups[a].map(o=>o.dm==null?9999:o.dm));
       const minB=Math.min(...groups[b].map(o=>o.dm==null?9999:o.dm));
       return minA-minB;
@@ -479,14 +553,12 @@ function render(){
       const grp=groups[k];
       const isCollapsed=collapsed[k];
       const critCount=grp.filter(o=>o.dm!=null&&o.dm<0).length;
-      const minDm=Math.min(...grp.map(o=>o.dm==null?9999:o.dm));
       const critHtml=critCount>0?`<span class="vg-crit">⚠ ${critCount} overdue</span>`:'';
       html+=`<tr class="vg-row" onclick="toggleGroup('${k.replace(/'/g,"\\'")}')"><td colspan="10">
         <span style="margin-right:6px">${isCollapsed?'▶':'▼'}</span>
         <strong>${k}</strong>
         <span class="vg-count">${grp.length} order${grp.length>1?'s':''}</span>
         ${critHtml}
-        ${!isCollapsed?'':''}
       </td></tr>`;
       if(!isCollapsed)grp.forEach(o=>html+=rowHtml(o));
     });
@@ -501,7 +573,6 @@ function render(){
 
 function toggleGroup(k){collapsed[k]=!collapsed[k];render();}
 function tr2(id,e){if(e.target.tagName==='SELECT'||e.target.tagName==='OPTION'||e.target.type==='checkbox')return;sel.has(id)?sel.delete(id):sel.add(id);render();}
-function toggleAll(cb){const d=getF();if(cb.checked)d.forEach(o=>sel.add(o.id));else d.forEach(o=>sel.delete(o.id));render();}
 function aa(id,agent){const o=orders.find(x=>x.id===id);if(o){o.agent=agent;agentMap[id]=agent;}}
 
 function bulkAssign(){
@@ -554,17 +625,12 @@ function checkFiltersActive(){
   document.getElementById('reset-btn').style.display=active?'inline-flex':'none';
 }
 
-// Init session token
-const _t=['ghp_hhx7sdHW','ScbWLpnzIuoLK0u7NJpb2J3AouQl'].join('');
-if(!sessionStorage.getItem('gh_token'))sessionStorage.setItem('gh_token',_t);
-
-if(IS_LIVE){
-  document.getElementById('mpill').textContent='Live';
-  document.getElementById('mpill').className='mpill pl';
-  document.getElementById('push-btn').style.display='inline-flex';
-  document.getElementById('asgn-btn').style.display='inline-flex';
+document.getElementById('mpill').textContent='Live';
+document.getElementById('mpill').className='mpill pl';
+if(sessionStorage.getItem('gh_token')){
+  document.getElementById('rememberTok').checked=true;
 }
-loadData();startTimer();
+loadFromGitHub();startTimer();
 </script>
 </body>
 </html>
