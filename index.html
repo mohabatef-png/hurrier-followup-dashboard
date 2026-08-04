@@ -154,11 +154,11 @@ select.ag{height:28px;padding:0 6px;font-size:11px;border-radius:6px;min-width:1
 <div class="controls">
   <div class="sw">
     <svg class="si" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" id="q" placeholder="Search order, courier, vendor, zone…" oninput="render()">
+    <input type="text" id="q" placeholder="Search order, courier, vendor, zone…" oninput="checkFiltersActive();render()">
   </div>
-  <select id="zf" onchange="render()"><option value="">All zones</option></select>
-  <select id="vtf" onchange="render()"><option value="">All types</option></select>
-  <select id="pf" onchange="render()" style="border-color:#BBF7D0;background:#F0FDF4;color:#15803D;font-weight:500">
+  <select id="zf" onchange="checkFiltersActive();render()"><option value="">All zones</option></select>
+  <select id="vtf" onchange="checkFiltersActive();render()"><option value="">All types</option></select>
+  <select id="pf" onchange="checkFiltersActive();render()" style="border-color:#BBF7D0;background:#F0FDF4;color:#15803D;font-weight:500">
     <option value="" style="color:var(--text);background:white;font-weight:400">All payments</option>
     <option value="cash" style="color:#15803D;background:white">💚 Cash</option>
     <option value="visa" style="color:#6B7280;background:white">💳 Visa</option>
@@ -167,6 +167,10 @@ select.ag{height:28px;padding:0 6px;font-size:11px;border-radius:6px;min-width:1
     <button id="vt-flat" class="on" onclick="setView('flat')">Flat list</button>
     <button id="vt-vendor" onclick="setView('vendor')">By vendor</button>
   </div>
+  <button class="btn" id="reset-btn" onclick="resetFilters()" style="background:#FEF2F2;color:#DC2626;border-color:#FECACA;display:none">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    Reset filters
+  </button>
 </div>
 
 <div class="tbl-wrap">
@@ -328,7 +332,7 @@ function setView(v){
   render();
 }
 
-function fs(el){document.querySelectorAll('.stat').forEach(s=>s.classList.remove('on'));el.classList.add('on');render();}
+function fs(el){document.querySelectorAll('.stat').forEach(s=>s.classList.remove('on'));el.classList.add('on');checkFiltersActive();render();}
 
 function buildHead(){
   const cols=[
@@ -444,6 +448,27 @@ function showToast(msg,type){
   t.textContent=msg;t.style.display='block';
   t.className='toast '+(type==='err'?'terr':type==='wrn'?'twrn':'tok');
   clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',4000);
+}
+
+function resetFilters(){
+  document.getElementById('q').value='';
+  document.getElementById('zf').value='';
+  document.getElementById('vtf').value='';
+  document.getElementById('pf').value='';
+  document.querySelector('.stat.on')?.classList.remove('on');
+  document.querySelector('.stat[data-s=""]')?.classList.add('on');
+  document.getElementById('reset-btn').style.display='none';
+  render();
+}
+
+function checkFiltersActive(){
+  const q=document.getElementById('q').value;
+  const zf=document.getElementById('zf').value;
+  const vtf=document.getElementById('vtf').value;
+  const pf=document.getElementById('pf').value;
+  const sf=document.querySelector('.stat.on')?.dataset.s||'';
+  const active=q||zf||vtf||pf||sf;
+  document.getElementById('reset-btn').style.display=active?'inline-flex':'none';
 }
 
 if(IS_LIVE){
