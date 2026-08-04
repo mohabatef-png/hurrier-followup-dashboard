@@ -236,6 +236,9 @@ td{
 @keyframes spin{to{transform:rotate(360deg)}}
 
 textarea#clipboard{position:fixed;left:-9999px;top:0;}
+.sort-ico{font-size:10px;opacity:.5;margin-left:3px;}
+thead th{cursor:pointer;}
+thead th:hover .sort-ico{opacity:1;}
 </style>
 </head>
 <body>
@@ -276,6 +279,9 @@ textarea#clipboard{position:fixed;left:-9999px;top:0;}
   <select class="filter-select" id="f-type" onchange="applyFilters()">
     <option value="">All types</option>
   </select>
+  <select class="filter-select" id="f-vendor" onchange="applyFilters()">
+    <option value="">All vendors</option>
+  </select>
   <select class="filter-select" id="f-sort" onchange="applyFilters()">
     <option value="overdue">Most overdue first</option>
     <option value="deadline_asc">Deadline soonest</option>
@@ -290,13 +296,14 @@ textarea#clipboard{position:fixed;left:-9999px;top:0;}
   <table>
     <thead>
       <tr>
-        <th>Order</th>
-        <th>Deadline</th>
-        <th>Courier</th>
-        <th>Status</th>
-        <th>Zone</th>
-        <th>Tags</th>
-        <th>Agent</th>
+        <th onclick="sortCol('id')" id="th-id">ORDER <span class="sort-ico">↕</span></th>
+        <th onclick="sortCol('v')" id="th-v">VENDOR <span class="sort-ico">↕</span></th>
+        <th onclick="sortCol('dm')" id="th-dm">DEADLINE <span class="sort-ico">↕</span></th>
+        <th onclick="sortCol('c')" id="th-c">COURIER <span class="sort-ico">↕</span></th>
+        <th onclick="sortCol('s')" id="th-s">STATUS <span class="sort-ico">↕</span></th>
+        <th onclick="sortCol('z')" id="th-z">ZONE <span class="sort-ico">↕</span></th>
+        <th>TAGS</th>
+        <th onclick="sortCol('agent')" id="th-agent">AGENT <span class="sort-ico">↕</span></th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -350,6 +357,8 @@ const STATUS_TABS = [
 
 // ─── STATE ────────────────────────────────────
 let allOrders  = [];
+let sortColKey = 'dm';
+let sortDir    = 1;
 let filtered   = [];
 let activeTab  = 'all';
 let agentMap   = {};
@@ -432,6 +441,8 @@ function populateSelects(){
   const zones = [...new Set(allOrders.map(o=>o.z).filter(Boolean))].sort();
   const types = [...new Set(allOrders.map(o=>o.vt).filter(Boolean))].sort();
   repop('f-zone', zones, 'All zones');
+  const vendors = [...new Set(allOrders.map(o=>o.v).filter(Boolean))].sort();
+  repop('f-vendor', vendors, 'All vendors');
   repop('f-type', types, 'All types');
 }
 
@@ -443,6 +454,24 @@ function repop(id, items, placeholder){
 }
 
 // ─── FILTERS & TABS ───────────────────────────
+function sortCol(key){
+  if(sortColKey===key) sortDir*=-1;
+  else { sortColKey=key; sortDir=1; }
+  // Update header arrows
+  document.querySelectorAll('thead th').forEach(th=>{
+    th.style.color='';
+    const ico=th.querySelector('.sort-ico');
+    if(ico) ico.textContent='↕';
+  });
+  const th=document.getElementById('th-'+key);
+  if(th){
+    th.style.color='var(--accent)';
+    const ico=th.querySelector('.sort-ico');
+    if(ico) ico.textContent=sortDir===1?'↓':'↑';
+  }
+  applyFilters();
+}
+
 function applyFilters(){
   const q      = document.getElementById('search').value.toLowerCase();
   const zone   = document.getElementById('f-zone').value;
@@ -453,22 +482,24 @@ function applyFilters(){
     if(activeTab!=='all' && o._status!==activeTab) return false;
     if(q && !`${o.id} ${o.v} ${o.c} ${o.z}`.toLowerCase().includes(q)) return false;
     if(zone && o.z!==zone) return false;
+    const vendor = document.getElementById('f-vendor').value;
+    if(vendor && o.v!==vendor) return false;
     if(type && o.vt!==type) return false;
     return true;
   });
 
-  // sort
+  // sort by dropdown first, then by column sort
   filtered.sort((a,b)=>{
-    if(sort==='overdue'){
-      const av=a.dm??999, bv=b.dm??999; return av-bv;
+    // column sort takes priority if user clicked a header
+    let av=a[sortColKey], bv=b[sortColKey];
+    if(sortColKey==='dm'){
+      av=a.dm??999; bv=b.dm??999;
+      return (av-bv)*sortDir;
     }
-    if(sort==='deadline_asc'){
-      const av=a.dm??999, bv=b.dm??999; return av-bv;
-    }
-    if(sort==='order_desc') return String(b.id).localeCompare(String(a.id));
-    if(sort==='order_asc')  return String(a.id).localeCompare(String(b.id));
-    if(sort==='zone')       return (a.z||'').localeCompare(b.z||'');
-    return 0;
+    if(av===null||av===undefined) return 1;
+    if(bv===null||bv===undefined) return -1;
+    if(typeof av==='string') av=av.toLowerCase(), bv=(bv||'').toLowerCase();
+    return av<bv?-sortDir:av>bv?sortDir:0;
   });
 
   renderTabs();
@@ -512,8 +543,8 @@ function renderTable(){
     <tr>
       <td>
         <span class="order-num">${o.id}</span>
-        <div class="order-vendor" title="${o.v||''}">${o.v||'—'}</div>
       </td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:#374151" title="${o.v||''}">${o.v||'—'}</td>
       <td>${deadlineCell(o.dm)}</td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#374151" title="${o.c||''}">${o.c||'<span style="color:#d1d5db;font-style:italic">No courier</span>'}</td>
       <td>${statusBadge(o.s)}</td>
