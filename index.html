@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hurrier Follow-up Dashboard</title>
+<title>Hurrier Follow-up Dashboard</title><!-- v5 -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -221,9 +221,11 @@ async function fetchFromHurrier(){
 
 async function fetchFromGitHub(){
   const r=await fetch(DATA_URL+'?t='+Date.now());
-  if(!r.ok)throw new Error('No data yet');
-  const d=await r.json();
-  if(!d.length)throw new Error('No orders yet — dispatcher needs to push data');
+  if(!r.ok)throw new Error('No data yet — dispatcher needs to push first');
+  const text=await r.text();
+  if(!text||text.trim()==='[]'||text.trim()==='')throw new Error('No orders yet — dispatcher needs to push data');
+  const d=JSON.parse(text);
+  if(!Array.isArray(d)||!d.length)throw new Error('No orders yet — dispatcher needs to push data');
   return d;
 }
 
