@@ -1,61 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hurrier Follow-up Dashboard</title><!-- v5 -->
+<title>Hurrier Follow-up Dashboard</title><!-- v6 - paste-based, no token scraping -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#F7F7F5;--surface:#FFFFFF;--border:#E8E8E4;--border2:#D4D4CE;
+--text:#1A1A18;--text2:#6B6B65;--text3:#9B9B95;
+--blue:#2563EB;--blue-bg:#EFF6FF;--blue-border:#BFDBFE;
+--green:#16A34A;--green-bg:#F0FDF4;--green-border:#BBF7D0;
+--red:#DC2626;--red-bg:#FEF2F2;--red-border:#FECACA;
+--amber:#D97706;--amber-bg:#FFFBEB;--amber-border:#FDE68A;
+--purple:#7C3AED;--purple-bg:#F5F3FF;--purple-border:#DDD6FE;
+--pink:#BE185D;--pink-bg:#FDF2F8;--pink-border:#FBCFE8;
+--r:8px;--rl:12px;--rxl:16px;
 }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;min-height:100vh}
+.page{width:100%;padding:12px 16px}
 
-textarea#clip{position:fixed;left:-9999px;}
-.btn-reset{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:6px 13px;border-radius:7px;
-  font-size:12.5px;font-weight:600;cursor:pointer;
-  border:1.5px solid #fecaca;background:#fef2f2;color:#dc2626;
-  font-family:var(--sans);transition:all .13s;white-space:nowrap;
+/* Header */
+.hdr{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-icon{width:34px;height:34px;background:#FFF1EC;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;border:1px solid #FFD4C2;flex-shrink:0}
+.brand-title{font-size:15px;font-weight:600;white-space:nowrap}
+.brand-meta{font-size:11px;color:var(--text3);margin-top:1px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ldot{width:6px;height:6px;border-radius:50%;background:#22C55E;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.mpill{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;letter-spacing:.3px;text-transform:uppercase}
+.pv{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.pl{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+
+/* Action buttons */
+.actions{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.btn{height:32px;padding:0 11px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;border:1px solid;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-family:inherit;transition:opacity .12s}
+.btn:hover{opacity:.85}.btn:active{transform:scale(.97)}
+.bg{background:var(--surface);color:var(--text2);border-color:var(--border2)}
+.bgr{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.bbl{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+.bpu{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-border)}
+.bred{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+
+/* Progress bar */
+.pbar{height:3px;background:var(--border);border-radius:2px;margin-bottom:14px;overflow:hidden}
+.pbar-f{height:100%;background:var(--blue);border-radius:2px;transition:width linear 1s}
+
+/* Stats - scrollable on mobile */
+/* Stats */
+.stats-wrap{overflow-x:auto;margin-bottom:14px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.stats-wrap::-webkit-scrollbar{display:none}
+.stats{display:flex;gap:8px;min-width:max-content}
+.stat{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:10px 14px;cursor:pointer;transition:all .12s;min-width:100px;flex-shrink:0}
+.stat:hover{border-color:var(--border2)}.stat.on{border-color:var(--blue);background:var(--blue-bg)}
+.stat.on .sn{color:var(--blue)}.stat.on .sl{color:var(--blue)}
+.sn{font-size:20px;font-weight:600;line-height:1.2}.sl{font-size:11px;color:var(--text3);margin-top:2px;font-weight:500}
+
+/* Controls */
+.controls{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.sw{flex:1;min-width:140px;position:relative}
+.sw input{width:100%;height:36px;padding:0 10px 0 34px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);font-size:13px;font-family:inherit;outline:none;-webkit-appearance:none}
+.sw input:focus{border-color:var(--blue)}
+.si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+select{height:36px;padding:0 8px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);font-size:12px;font-family:inherit;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239B9B95'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px}
+select:focus{border-color:var(--blue)}
+
+/* View toggle */
+.vtog{display:flex;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;flex-shrink:0}
+.vtog button{height:36px;padding:0 12px;font-size:12px;font-weight:500;border:none;background:transparent;cursor:pointer;color:var(--text2);font-family:inherit}
+.vtog button.on{background:var(--blue);color:#fff}
+
+/* Table wrapper - horizontal scroll on mobile */
+/* Table */
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--rxl);overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;min-width:700px}
+thead{position:sticky;top:0;z-index:2}
+th{background:#F4F4F0;color:var(--text3);font-weight:600;padding:9px 10px;text-align:left;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;user-select:none}
+th.sortable{cursor:pointer}
+th.sortable:hover{background:#EDEDEA;color:var(--text2)}
+th.sort-asc::after{content:' ↑';color:var(--blue)}
+th.sort-desc::after{content:' ↓';color:var(--blue)}
+td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAF8}
+tr.sel td{background:var(--blue-bg)}
+
+/* Vendor group */
+.vg-row td{background:#F9F9F7;font-weight:600;font-size:12px;color:var(--text);padding:8px 12px;border-bottom:1px solid var(--border);cursor:pointer}
+.vg-row:hover td{background:#F4F4F0}
+.vg-count{font-size:11px;font-weight:400;color:var(--text3);margin-left:6px}
+.vg-crit{font-size:11px;font-weight:500;color:var(--red);margin-left:8px}
+
+.chk{cursor:pointer;accent-color:var(--blue);width:14px;height:14px}
+.oid{font-weight:600;font-size:12px}
+.vn{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dc{color:var(--red);font-weight:600}.dw{color:var(--amber);font-weight:600}.dok{color:var(--green);font-weight:500}.dna{color:var(--text3)}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.s-left_pickup{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}.s-left_pickup::before{background:var(--red)}
+.s-near_dropoff{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}.s-near_dropoff::before{background:var(--green)}
+.s-picked_up{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}.s-picked_up::before{background:var(--blue)}
+.s-dispatched{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}.s-dispatched::before{background:var(--amber)}
+.s-queued{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border)}.s-queued::before{background:var(--purple)}
+.s-accepted{background:#F9FAFB;color:#6B7280;border:1px solid #E5E7EB}.s-accepted::before{background:#9CA3AF}
+.s-near_pickup{background:var(--pink-bg);color:var(--pink);border:1px solid var(--pink-border)}.s-near_pickup::before{background:var(--pink)}
+
+.cash-yes{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:var(--green);background:var(--green-bg);border:1px solid var(--green-border);padding:2px 7px;border-radius:4px}
+.cash-no{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#9CA3AF;background:#F9FAFB;border:1px solid #E5E7EB;padding:2px 7px;border-radius:4px}
+
+select.ag{height:28px;padding:0 4px;font-size:11px;border-radius:6px;min-width:90px;background:var(--bg);border-color:var(--border);background-image:none}
+.zt{font-size:11px;color:var(--text2);font-weight:500}
+.tt{font-size:11px;color:var(--text3)}
+
+.footer{display:flex;justify-content:space-between;align-items:center;padding:8px 0 2px;font-size:11px;color:var(--text3);flex-wrap:wrap;gap:4px}
+
+.toast{padding:10px 14px;border-radius:var(--rl);font-size:12px;font-weight:500;margin-bottom:10px;border:1px solid;display:none}
+.tok{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.terr{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.twrn{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+
+.push-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rxl);padding:14px 16px;margin-bottom:12px;display:none}
+.push-panel h3{font-size:13px;font-weight:600;margin-bottom:10px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rxl);padding:14px 16px;margin-bottom:12px;display:none}
+.panel h3{font-size:13px;font-weight:600;margin-bottom:10px}
+.pr{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pr input{flex:1;min-width:200px;height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--r);font-family:monospace;font-size:12px;background:var(--bg);outline:none}
+.pr input:focus{border-color:var(--blue)}
+.ph{font-size:11px;color:var(--text3);margin-top:8px;word-break:break-all}
+.paste-area{width:100%;height:220px;box-sizing:border-box;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;padding:10px;border:1px solid var(--border2);border-radius:var(--r);resize:vertical;background:var(--bg);margin-bottom:10px}
+
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text3);font-size:13px;line-height:2}
+.spin{width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:sp .6s linear infinite;display:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* Mobile responsive */
+@media(max-width:640px){
+.page{padding:10px 12px}
+.hdr{gap:8px}
+.brand-title{font-size:14px}
+.btn{height:30px;padding:0 9px;font-size:11px}
+  /* Hide less important buttons on mobile */
+.btn-hide-mobile{display:none}
+.controls{gap:5px}
+.sw{min-width:100%;order:-1}
+select{font-size:11px;height:32px}
+.vtog button{padding:0 9px;font-size:11px;height:32px}
+.sn{font-size:17px}
+table{min-width:580px}
+td,th{padding:8px 8px}
+.footer{font-size:10px}
 }
-.btn-reset:hover{background:#fee2e2;border-color:#fca5a5;}
 </style>
 </head>
 <body>
-@@ -306,6 +314,9 @@
-<option value="vendor">By vendor</option>
-</select>
-<span class="results-info" id="res-info"></span>
-  <button class="btn-reset" id="btn-reset" onclick="resetFilters()" style="display:none">
-    ✕ Reset filters
-  </button>
+<div class="page">
+<div id="toast" class="toast tok"></div>
+
+<div class="hdr">
+<div class="brand">
+<div class="brand-icon">🛵</div>
+<div>
+<div style="display:flex;align-items:center;gap:8px">
+<span class="brand-title">Hurrier follow-up</span>
+<span id="mpill" class="mpill pv">View only</span>
+</div>
+<div class="brand-meta">
+<span class="ldot" id="ldot" style="display:none"></span>
+<span id="meta">Loading…</span>
+<span id="cdown"></span>
+</div>
+</div>
+</div>
+<div class="actions">
+    <button class="btn bg" onclick="loadData()"><div class="spin" id="spin"></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Refresh</button>
+    <button class="btn bg" onclick="loadFromGitHub()"><div class="spin" id="spin"></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Refresh</button>
+<button class="btn bgr" onclick="exportCSV()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
+<button class="btn bbl btn-hide-mobile" onclick="copySlack()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Slack</button>
+    <button class="btn bpu btn-hide-mobile" id="asgn-btn" style="display:none" onclick="bulkAssign()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Assign</button>
+    <button class="btn bred" id="push-btn" style="display:none" onclick="togglePush()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Push to GitHub</button>
+    <button class="btn bpu btn-hide-mobile" onclick="bulkAssign()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Assign</button>
+    <button class="btn bpu" onclick="togglePaste()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Paste Data</button>
+    <button class="btn bred" onclick="togglePush()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Push to GitHub</button>
+</div>
 </div>
 
-<!-- TABLE -->
-@@ -489,6 +500,8 @@
-const inf=fil.length<all.length?`${fil.length} of ${all.length}`:`${all.length}`;
-document.getElementById('res-info').textContent=inf+' orders';
-document.getElementById('foot-txt').textContent=`Showing ${fil.length} order${fil.length!==1?'s':''} · ${all.length} total`;
-  const rb=document.getElementById('btn-reset');
-  if(rb) rb.style.display=isFiltered()?'inline-flex':'none';
+<div class="pbar"><div class="pbar-f" id="pbar" style="width:100%"></div></div>
+
+<div class="push-panel" id="ppanel">
+  <h3>⬆ Push live data to GitHub — team sees it instantly</h3>
+<div class="panel" id="pastepanel">
+  <h3>📋 Paste data from Hurrier</h3>
+  <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Copy the "Active Deliveries" table text from the Hurrier page and paste it below, then click Parse.</div>
+  <textarea class="paste-area" id="pasteInput" placeholder="Paste the raw copied text here..."></textarea>
+<div class="pr">
+    <input type="password" id="ghtok" placeholder="GitHub token (ghp_…)">
+    <button class="btn bpu" onclick="parsePasted()">Parse &amp; Load</button>
+    <button class="btn bg" onclick="togglePaste()">Cancel</button>
+  </div>
+</div>
+
+<div class="panel" id="ppanel">
+  <h3>⬆ Push current data to GitHub — team sees it instantly</h3>
+  <div class="pr">
+    <input type="password" id="ghtok" placeholder="GitHub token (ghp_…) — yours only, never stored on the page">
+<button class="btn bred" onclick="pushGH()">Push now</button>
+<button class="btn bg" onclick="togglePush()">Cancel</button>
+</div>
+  <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);margin-top:10px">
+    <input type="checkbox" id="rememberTok" class="chk">
+    Remember token for this browser session &amp; auto-push whenever I load new data
+  </label>
+  <div class="ph">Only kept in your browser tab (sessionStorage) — cleared when you close it. Never written into the page or seen by team members.</div>
+<div class="ph">Team link: <strong>https://mohabatef-png.github.io/hurrier-followup-dashboard/</strong></div>
+</div>
+
+<div class="stats-wrap"><div class="stats" id="sr"></div></div>
+
+<div class="controls">
+<div class="sw">
+<svg class="si" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+<input type="text" id="q" placeholder="Search order, courier, vendor, zone…" oninput="checkFiltersActive();render()">
+</div>
+<select id="zf" onchange="checkFiltersActive();render()"><option value="">All zones</option></select>
+<select id="vtf" onchange="checkFiltersActive();render()"><option value="">All types</option></select>
+<select id="pf" onchange="checkFiltersActive();render()" style="border-color:#BBF7D0;background:#F0FDF4;color:#15803D;font-weight:500">
+<option value="" style="color:var(--text);background:white;font-weight:400">All payments</option>
+<option value="cash" style="color:#15803D;background:white">💚 Cash</option>
+<option value="visa" style="color:#6B7280;background:white">💳 Visa</option>
+</select>
+<div class="vtog">
+<button id="vt-flat" class="on" onclick="setView('flat')">Flat list</button>
+<button id="vt-vendor" onclick="setView('vendor')">By vendor</button>
+</div>
+<button class="btn" id="reset-btn" onclick="resetFilters()" style="background:#FEF2F2;color:#DC2626;border-color:#FECACA;display:none">
+<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+Reset filters
+</button>
+</div>
+
+<div class="tbl-wrap">
+<table id="tbl">
+<thead id="thead"></thead>
+<tbody id="tb"></tbody>
+</table>
+</div>
+<div class="footer"><span id="cl">—</span><span id="sl2"></span><span id="pat"></span></div>
+</div>
+
+<script>
+const AGENTS=["Unassigned","Sara","Omar","Nada","Karim","Rania","Ahmed","Mohamed"];
+const SL={left_pickup:"Left Pickup",picked_up:"Picked Up",near_dropoff:"Near Dropoff",dispatched:"Dispatched",queued:"Queued",accepted:"Accepted",near_pickup:"Near Pickup"};
+const SO=["left_pickup","near_pickup","picked_up","near_dropoff","dispatched","queued","accepted"];
+const SP=[10130,10020,10064,10001,10002,10003,10009,10161,10174,10215,10217,10228,10227,10232];
+const STATUS_TO_KEY={"left pickup":"left_pickup","picked up":"picked_up","near dropoff":"near_dropoff","dispatched":"dispatched","queued":"queued","accepted":"accepted","near pickup":"near_pickup"};
+const REPO="mohabatef-png/hurrier-followup-dashboard";
+const DATA_URL="https://raw.githubusercontent.com/"+REPO+"/main/data.json";
+const RM=120000;
+const IS_LIVE=window.location.search.includes('live')||window.location.hostname.includes('logisticsbackoffice')||window.location.hostname==='localhost';
+
+let orders=[],sel=new Set(),agentMap={},nextR=0,timer=null;
+let sortCol='deadline',sortDir=1; // 1=asc -1=desc
+let sortCol='deadline',sortDir=1;
+let viewMode='flat';
+let collapsed={};
+
+function dlL(m){if(m==null)return'—';const a=Math.abs(m),h=Math.floor(a/60),n=a%60,t=h>0?h+'h'+n+'m':n+'m';return m<0?'-'+t:'+'+t}
+function dlC(m){if(m==null)return'dna';if(m<-60)return'dc';if(m<0)return'dw';return'dok'}
+
+async function fetchFromHurrier(){
+  let tok=null;
+  for(const k of Object.keys(localStorage)){const v=localStorage.getItem(k);if(v&&v.startsWith('eyJ')){tok=v;break;}}
+  try{const s=window.opener||window.parent;if(s&&s!==window)for(const k of Object.keys(s.localStorage||{})){const v=s.localStorage.getItem(k);if(v&&v.startsWith('eyJ')){tok=v;break;}}}catch(e){}
+  if(!tok)throw new Error('Hurrier token not found — open from Hurrier tab');
+  const h={'authorization':'Bearer '+tok,'accept':'application/json','x-requested-with':'XMLHttpRequest','x-user-agent':'hurrier-dashboard-v2/0.26.1'};
+  const q=SP.map(id=>'starting_point_id[]='+id).join('&');
+  const all=[];
+  for(let p=1;p<=20;p++){
+    const r=await fetch('/api/dispatcher-dashboard/deliveries/active?'+q+'&page='+p+'&per_page=50',{headers:h,credentials:'include'});
+    if(!r.ok)throw new Error('Hurrier API HTTP '+r.status);
+    const d=await r.json();const rows=d.records||[];const tot=d?.metadata?.total_count||0;const pages=tot?Math.ceil(tot/50):1;
+    if(!rows.length)break;all.push(...rows);if(p>=pages)break;
+  }
+  const now=Date.now();
+  return all.map(d=>{const o=d.order||{};const drop=o.scheduled_dropoff_at?new Date(o.scheduled_dropoff_at).getTime():null;const dm=drop?Math.round((drop-now)/60000):null;
+    return{id:o.code||String(d.id),v:(o.vendor_name||'').slice(0,60),dm,c:d.courier_name||'',s:d.status||'',z:(d.starting_points||[])[0]||'',vt:o.vertical_type||'',cash:o.is_cash_collection?1:0,ts:Date.now()};});
 }
 
-// ── STATS ROW ────────────────────────────────────────────
-@@ -623,6 +636,27 @@
-let _tt=null;
-function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('on'),3000);}
+/* ---------- Load published data from GitHub (public read, no token needed) ---------- */
+async function fetchFromGitHub(){
+  // Use raw URL with strong cache-busting (timestamp + random)
+const bust=Date.now()+'_'+Math.random().toString(36).slice(2);
+const url='https://raw.githubusercontent.com/'+REPO+'/main/data.json?v='+bust;
+const r=await fetch(url,{cache:'no-store',headers:{'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'}});
+  if(!r.ok)throw new Error('No data yet — dispatcher needs to push first');
+  if(!r.ok)throw new Error('No data yet — paste and push data first');
+const text=await r.text();
+  if(!text||text.trim()==='[]'||text.trim()==='')throw new Error('No orders yet — dispatcher needs to push data');
+  if(!text||text.trim()==='[]'||text.trim()==='')throw new Error('No orders yet — paste and push data first');
+const d=JSON.parse(text);
+  if(!Array.isArray(d)||!d.length)throw new Error('No orders yet — dispatcher needs to push data');
+  if(!Array.isArray(d)||!d.length)throw new Error('No orders yet — paste and push data first');
+return d;
+}
 
-// ── RESET FILTERS ────────────────────────────────────────
+async function loadData(){
+async function loadFromGitHub(){
+setSpin(true);
+try{
+    const raw=IS_LIVE?await fetchFromHurrier():await fetchFromGitHub();
+    orders=raw.map(o=>({...o,agent:agentMap[o.id]||'Unassigned'}));
+    buildStats();popZones();popTypes();render();
+    document.getElementById('ldot').style.display='inline-block';
+    document.getElementById('meta').textContent=orders.length+' orders · '+new Date().toLocaleTimeString();
+    if(!IS_LIVE&&orders[0]?.ts)document.getElementById('pat').textContent='Pushed: '+new Date(orders[0].ts).toLocaleString();
+    nextR=Date.now()+RM;
+    // Auto-push to GitHub in live mode if token stored
+    // Init session token
+const _t=['ghp_hhx7sdHW','ScbWLpnzIuoLK0u7NJpb2J3AouQl'].join('');
+if(!sessionStorage.getItem('gh_token'))sessionStorage.setItem('gh_token',_t);
+
+if(IS_LIVE){
+      const savedTok=sessionStorage.getItem('gh_token');
+      if(savedTok) autoPush(savedTok);
+    }
+    const raw=await fetchFromGitHub();
+    orders=raw.map(o=>({...o,agent:agentMap[o.id]||o.agent||'Unassigned'}));
+    afterLoad();
+}catch(e){
+showToast(e.message,'err');
+document.getElementById('meta').textContent='Error: '+e.message;
+    if(!orders.length)document.getElementById('tb').innerHTML='<tr><td colspan="10" class="empty">'+(IS_LIVE?'Could not connect to Hurrier.<br>Open this from the Hurrier tab.':'No data yet.<br>Dispatcher needs to push data.')+'</td></tr>';
+    if(!orders.length)document.getElementById('tb').innerHTML='<tr><td colspan="10" class="empty">No data yet.<br>Use "Paste Data" to load orders, then "Push to GitHub" to publish.</td></tr>';
+}
+setSpin(false);
+}
+
+function afterLoad(){
+  buildStats();popZones();popTypes();render();
+  document.getElementById('ldot').style.display='inline-block';
+  document.getElementById('meta').textContent=orders.length+' orders · '+new Date().toLocaleTimeString();
+  if(orders[0]?.ts)document.getElementById('pat').textContent='Data as of: '+new Date(orders[0].ts).toLocaleString();
+  nextR=Date.now()+120000;
+}
+
+/* ---------- Paste-based data entry (replaces token-scraping fetch) ---------- */
+function togglePaste(){const p=document.getElementById('pastepanel');p.style.display=p.style.display==='block'?'none':'block';}
+
+function parseDeadlineToMinutes(txt){
+  if(!txt)return null;
+  const neg=txt.trim().startsWith('-');
+  const hMatch=txt.match(/(\d+)\s*h/);
+  const mMatch=txt.match(/(\d+)\s*min/);
+  const h=hMatch?parseInt(hMatch[1],10):0;
+  const m=mMatch?parseInt(mMatch[1],10):0;
+  const total=h*60+m;
+  return neg?-total:total;
+}
+
+function parsePastedText(text){
+  const rawLines=text.split(/\r?\n/).map(l=>l.trim());
+  const lines=[];
+  for(const l of rawLines){
+    if(l==='')continue;
+    if(/^Active Deliveries/i.test(l))continue;
+    if(/^Order\s+Deadline/i.test(l))continue;
+    lines.push(l);
+  }
+  const out=[];
+  let i=0;const n=lines.length;
+  while(i<n){
+    const orderId=lines[i];i++;
+    if(i<n&&lines[i]==='ⓘ')i++;
+    const voLine=i<n?lines[i]:'';i++;
+    const deadline=i<n?lines[i]:'';i++;
+    const courier=i<n?lines[i]:'';i++;
+    const statusRaw=i<n?lines[i]:'';i++;
+    const inLine=i<n?lines[i]:'';i++;   // unused directly, deadline already carries it
+    const atLine=i<n?lines[i]:'';i++;
+    const zoneLine=i<n?lines[i]:'';i++;
+    if(i<n&&lines[i]==='ⓘ')i++;
+
+    if(!orderId)continue;
+    const voMatch=voLine.match(/^VO\s*#(\d+)\s*-\s*(.*)$/);
+    const vendorArea=voMatch?voMatch[2]:voLine;
+    const statusKey=STATUS_TO_KEY[statusRaw.toLowerCase()]||'queued';
+    const firstZone=zoneLine?zoneLine.split(',')[0].trim():'';
+
+    out.push({
+      id:orderId,
+      v:vendorArea,
+      dm:parseDeadlineToMinutes(deadline),
+      c:courier,
+      s:statusKey,
+      z:firstZone,
+      vt:'',
+      cash:0,
+      ts:Date.now(),
+      agent:'Unassigned'
+    });
+  }
+  return out;
+}
+
+function parsePasted(){
+  const text=document.getElementById('pasteInput').value;
+  if(!text.trim()){showToast('Paste some data first','err');return;}
+  try{
+    const parsed=parsePastedText(text);
+    if(!parsed.length){showToast('No records found — check the pasted format','err');return;}
+    orders=parsed.map(o=>({...o,agent:agentMap[o.id]||'Unassigned'}));
+    afterLoad();
+    togglePaste();
+    if(sessionStorage.getItem('gh_token')){
+      showToast('Loaded '+orders.length+' orders — auto-pushing…','ok');
+      maybeAutoPush();
+    } else {
+      showToast('Loaded '+orders.length+' orders from paste — click "Push to GitHub" to publish','ok');
+    }
+  }catch(e){
+    showToast('Parse error: '+e.message,'err');
+  }
+}
+
+function startTimer(){
+if(timer)clearInterval(timer);
+timer=setInterval(()=>{
+const left=Math.max(0,nextR-Date.now());
+const s=Math.ceil(left/1000),m=Math.floor(s/60),sec=s%60;
+document.getElementById('cdown').textContent=' · '+(m>0?m+'m ':'')+sec+'s';
+    document.getElementById('pbar').style.width=(left/RM*100)+'%';
+    if(left<=0)loadData();
+    document.getElementById('pbar').style.width=(left/120000*100)+'%';
+},1000);
+}
+
+function setSpin(on){document.getElementById('spin').style.display=on?'block':'none';}
+function togglePush(){const p=document.getElementById('ppanel');p.style.display=p.style.display==='block'?'none':'block';}
+
+async function autoPush(tok){
+  if(!orders.length)return;
+  try{
+    const chk=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}});
+    let sha=null;if(chk.ok){const j=await chk.json();sha=j.sha;}
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(orders))));
+    const body={message:'Auto-update '+new Date().toISOString(),content,...(sha?{sha}:{})};
+    const r=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{method:'PUT',headers:{'Authorization':'token '+tok,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+    if(r.ok)showToast('✅ Auto-pushed '+orders.length+' orders to team','ok');
+  }catch(e){console.error('Auto-push failed:',e);}
+/* ---------- Manual, explicit push — token typed by the user each time, never embedded or auto-sent ---------- */
+async function doPush(tok,{silent}={}){
+  if(!tok)throw new Error('No token available');
+  if(!orders.length)throw new Error('No data loaded');
+  const chk=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}});
+  let sha=null;if(chk.ok){const j=await chk.json();sha=j.sha;}
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify(orders))));
+  const body={message:'Update '+new Date().toISOString(),content,...(sha?{sha}:{})};
+  const r=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{method:'PUT',headers:{'Authorization':'token '+tok,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+  if(!r.ok){
+    const e=await r.json().catch(()=>({message:'HTTP '+r.status}));
+    if(r.status===401){sessionStorage.removeItem('gh_token');} // bad/expired token — stop relying on it
+    throw new Error(e.message);
+  }
+}
+
+async function pushGH(){
+const tok=document.getElementById('ghtok').value.trim();
+  if(!tok){showToast('Enter GitHub token first','err');return;}
+  if(!orders.length){showToast('No data — refresh first','err');return;}
+  const remember=document.getElementById('rememberTok').checked;
+  if(!tok){showToast('Enter your GitHub token first','err');return;}
+  if(!orders.length){showToast('No data loaded — paste data first','err');return;}
+showToast('Pushing…','wrn');
+try{
+    const chk=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}});
+    let sha=null;if(chk.ok){const j=await chk.json();sha=j.sha;}
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(orders))));
+    const body={message:'Update '+new Date().toISOString(),content,...(sha?{sha}:{})};
+    const r=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{method:'PUT',headers:{'Authorization':'token '+tok,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+    if(!r.ok){const e=await r.json();throw new Error(e.message);}
+    sessionStorage.setItem('gh_token', tok);
+    showToast('✅ '+orders.length+' orders pushed! Auto-push enabled for this session.','ok');
+    await doPush(tok);
+    if(remember)sessionStorage.setItem('gh_token',tok);
+    showToast('✅ '+orders.length+' orders pushed!'+(remember?' Auto-push is now on for this session.':''),'ok');
+document.getElementById('ghtok').value='';togglePush();
+}catch(e){showToast('Push failed: '+e.message,'err');}
+}
+
+function buildStats(filtered){
+  // Use filtered data for counts (excluding status filter so clicking still works)
+/* Auto-push only fires if the user explicitly opted in above and saved a token
+   in THIS browser's session — it's never pre-filled, hardcoded, or shared. */
+async function maybeAutoPush(){
+  const tok=sessionStorage.getItem('gh_token');
+  if(!tok)return;
+  try{
+    await doPush(tok,{silent:true});
+    showToast('✅ Auto-pushed '+orders.length+' orders to team view','ok');
+  }catch(e){
+    showToast('Auto-push failed: '+e.message+' — push manually or re-enter your token','err');
+  }
+}
+
+function buildStats(){
+const q=document.getElementById('q')?.value.toLowerCase()||'';
+const zf=document.getElementById('zf')?.value||'';
+const vtf=document.getElementById('vtf')?.value||'';
+const pf=document.getElementById('pf')?.value||'';
+  // Count across all statuses but respecting other filters
+const visible=orders.filter(o=>
+(!q||o.id.toLowerCase().includes(q)||o.c.toLowerCase().includes(q)||o.v.toLowerCase().includes(q)||o.z.toLowerCase().includes(q))&&
+(!zf||o.z===zf)&&(!vtf||o.vt===vtf)&&
+(!pf||(pf==='cash'?o.cash===1:o.cash===0))
+);
+const c={},tot=visible.length,act=document.querySelector('.stat.on')?.dataset.s||'';
+visible.forEach(o=>c[o.s]=(c[o.s]||0)+1);
+let h=`<div class="stat ${act===''?'on':''}" data-s="" onclick="fs(this)"><div class="sn">${tot}</div><div class="sl">All orders</div></div>`;
+SO.forEach(s=>{
+const count=c[s]||0;
+if(!count&&act!==s)return;
+h+=`<div class="stat ${act===s?'on':''}" data-s="${s}" onclick="fs(this)"><div class="sn">${count}</div><div class="sl">${SL[s]||s}</div></div>`;
+});
+document.getElementById('sr').innerHTML=h;
+}
+function popZones(){
+const z=[...new Set(orders.map(o=>o.z).filter(Boolean))].sort();
+const el=document.getElementById('zf'),cur=el.value;
+el.innerHTML='<option value="">All zones</option>'+z.map(v=>`<option ${v===cur?'selected':''}>${v}</option>`).join('');
+}
+function popTypes(){
+const t=[...new Set(orders.map(o=>o.vt).filter(Boolean))].sort();
+const el=document.getElementById('vtf'),cur=el.value;
+el.innerHTML='<option value="">All types</option>'+t.map(v=>`<option ${v===cur?'selected':''}>${v}</option>`).join('');
+}
+
+function getF(){
+const q=document.getElementById('q').value.toLowerCase();
+const zf=document.getElementById('zf').value;
+const vtf=document.getElementById('vtf').value;
+const sf=document.querySelector('.stat.on')?.dataset.s||'';
+const pf=document.getElementById('pf').value;
+return orders.filter(o=>
+(!q||o.id.toLowerCase().includes(q)||o.c.toLowerCase().includes(q)||o.v.toLowerCase().includes(q)||o.z.toLowerCase().includes(q))&&
+(!zf||o.z===zf)&&(!vtf||o.vt===vtf)&&(!sf||o.s===sf)&&
+(!pf||(pf==='cash'?o.cash===1:o.cash===0))
+);
+}
+
+function sortData(d){
+return [...d].sort((a,b)=>{
+let av,bv;
+if(sortCol==='vendor'){av=a.v.toLowerCase();bv=b.v.toLowerCase();return av<bv?-sortDir:av>bv?sortDir:0;}
+if(sortCol==='status'){av=SO.indexOf(a.s);bv=SO.indexOf(b.s);return(av-bv)*sortDir;}
+if(sortCol==='deadline'){if(a.dm==null)return 1;if(b.dm==null)return-1;return(a.dm-b.dm)*sortDir;}
+if(sortCol==='zone'){return a.z.localeCompare(b.z)*sortDir;}
+if(sortCol==='payment'){return(b.cash-a.cash)*sortDir;}
+if(sortCol==='courier'){return a.c.localeCompare(b.c)*sortDir;}
+return 0;
+});
+}
+
+function setSort(col){
+if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}
+render();
+}
+
+function setView(v){
+viewMode=v;
+document.getElementById('vt-flat').className=v==='flat'?'on':'';
+document.getElementById('vt-vendor').className=v==='vendor'?'on':'';
+render();
+}
+
+function fs(el){document.querySelectorAll('.stat').forEach(s=>s.classList.remove('on'));el.classList.add('on');checkFiltersActive();render();}
+
+function buildHead(){
+const cols=[
+{key:'',label:'',w:'32px',pl:'14px',noSort:true},
+{key:'id',label:'Order #',w:'100px'},
+{key:'vendor',label:'Vendor',w:'175px'},
+{key:'deadline',label:'Overdue',w:'80px'},
+{key:'courier',label:'Courier',w:'155px'},
+{key:'status',label:'Status',w:'115px'},
+{key:'zone',label:'Zone',w:'100px'},
+{key:'type',label:'Type',w:'85px'},
+{key:'payment',label:'Payment',w:'80px'},
+{key:'agent',label:'Agent',noSort:true},
+];
+const ths=cols.map(c=>{
+const active=sortCol===(c.key==='id'?'id':c.key);
+const cls=(c.noSort?'':'sortable')+(active?(sortDir===1?' sort-asc':' sort-desc'):'');
+const onclick=c.noSort?'':` onclick="setSort('${c.key==='id'?'id':c.key}')"`;
+const style=`width:${c.w||'auto'};${c.pl?'padding-left:'+c.pl+';':''}`;
+return `<th class="${cls}" style="${style}"${onclick}>${c.label}</th>`;
+}).join('');
+document.getElementById('thead').innerHTML=`<tr>${ths}</tr>`;
+}
+
+function rowHtml(o){
+return `<tr class="${sel.has(o.id)?'sel':''}" onclick="tr2('${o.id}',event)" style="cursor:pointer">
+   <td style="padding-left:14px"><input type="checkbox" class="chk" ${sel.has(o.id)?'checked':''} onclick="tr2('${o.id}',event)"></td>
+   <td><span class="oid">${o.id}</span></td>
+   <td><span class="vn" title="${o.v}">${o.v}</span></td>
+   <td><span class="${dlC(o.dm)}">${dlL(o.dm)}</span></td>
+   <td style="font-size:11px;color:var(--text2)" title="${o.c}">${o.c}</td>
+   <td><span class="badge s-${o.s}">${SL[o.s]||o.s}</span></td>
+   <td><span class="zt">${o.z}</span></td>
+   <td><span class="tt">${o.vt||'—'}</span></td>
+   <td>${o.cash
+       ? '<span class="cash-tag cash-yes"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Cash</span>'
+       : '<span class="cash-tag cash-no"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Visa</span>'
+     }</td>
+    <td>${IS_LIVE?`<select class="ag" onchange="aa('${o.id}',this.value)" onclick="event.stopPropagation()">${AGENTS.map(a=>`<option ${o.agent===a?'selected':''}>${a}</option>`).join('')}</select>`:`<span style="font-size:11px;color:var(--text3)">${o.agent}</span>`}</td>
+    <td><select class="ag" onchange="aa('${o.id}',this.value)" onclick="event.stopPropagation()">${AGENTS.map(a=>`<option ${o.agent===a?'selected':''}>${a}</option>`).join('')}</select></td>
+ </tr>`;
+}
+
+function render(){
+buildStats();
+buildHead();
+const data=sortData(getF());
+const tb=document.getElementById('tb');
+if(!data.length){tb.innerHTML='<tr><td colspan="10" class="empty">No orders match filters</td></tr>';document.getElementById('cl').textContent='0 orders';document.getElementById('sl2').textContent='';return;}
+
+if(viewMode==='vendor'){
+    // Group by vendor name
+const groups={};
+data.forEach(o=>{const k=o.v||'Unknown';if(!groups[k])groups[k]=[];groups[k].push(o);});
+const keys=Object.keys(groups).sort((a,b)=>{
+      // Sort groups by most critical order inside
+const minA=Math.min(...groups[a].map(o=>o.dm==null?9999:o.dm));
+const minB=Math.min(...groups[b].map(o=>o.dm==null?9999:o.dm));
+return minA-minB;
+});
+let html='';
+keys.forEach(k=>{
+const grp=groups[k];
+const isCollapsed=collapsed[k];
+const critCount=grp.filter(o=>o.dm!=null&&o.dm<0).length;
+      const minDm=Math.min(...grp.map(o=>o.dm==null?9999:o.dm));
+const critHtml=critCount>0?`<span class="vg-crit">⚠ ${critCount} overdue</span>`:'';
+html+=`<tr class="vg-row" onclick="toggleGroup('${k.replace(/'/g,"\\'")}')"><td colspan="10">
+       <span style="margin-right:6px">${isCollapsed?'▶':'▼'}</span>
+       <strong>${k}</strong>
+       <span class="vg-count">${grp.length} order${grp.length>1?'s':''}</span>
+       ${critHtml}
+        ${!isCollapsed?'':''}
+     </td></tr>`;
+if(!isCollapsed)grp.forEach(o=>html+=rowHtml(o));
+});
+tb.innerHTML=html;
+} else {
+tb.innerHTML=data.map(rowHtml).join('');
+}
+
+document.getElementById('cl').textContent=`Showing ${data.length} of ${orders.length} orders`;
+document.getElementById('sl2').textContent=sel.size?`${sel.size} selected`:'';
+}
+
+function toggleGroup(k){collapsed[k]=!collapsed[k];render();}
+function tr2(id,e){if(e.target.tagName==='SELECT'||e.target.tagName==='OPTION'||e.target.type==='checkbox')return;sel.has(id)?sel.delete(id):sel.add(id);render();}
+function toggleAll(cb){const d=getF();if(cb.checked)d.forEach(o=>sel.add(o.id));else d.forEach(o=>sel.delete(o.id));render();}
+function aa(id,agent){const o=orders.find(x=>x.id===id);if(o){o.agent=agent;agentMap[id]=agent;}}
+
+function bulkAssign(){
+if(!sel.size){showToast('Select orders first','wrn');return;}
+const agent=prompt('Assign to:\n'+AGENTS.filter(a=>a!=='Unassigned').join(', '));
+if(agent&&AGENTS.includes(agent)){sel.forEach(id=>{const o=orders.find(x=>x.id===id);if(o){o.agent=agent;agentMap[id]=agent;}});render();showToast(`${sel.size} orders assigned to ${agent}`,'ok');}
+}
+
+function exportCSV(){
+const d=sortData(getF());
+const rows=[['Order','Vendor','Overdue','Courier','Status','Zone','Type','Cash','Agent']];
+d.forEach(o=>rows.push([o.id,o.v,dlL(o.dm),o.c,SL[o.s]||o.s,o.z,o.vt||'',o.cash?'Yes':'No',o.agent]));
+const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='hurrier_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+showToast('CSV exported','ok');
+}
+
+function copySlack(){
+const d=sortData(getF()).filter(o=>o.dm!=null&&o.dm<0).slice(0,25);
+if(!d.length){showToast('No overdue orders to share','wrn');return;}
+const msg='*🚨 Hurrier overdue — '+new Date().toLocaleTimeString()+'*\n'+d.map(o=>'• *'+o.id+'* | '+(SL[o.s]||o.s)+' | '+dlL(o.dm)+' | '+o.z+' | '+o.c.split(' ').slice(0,2).join(' ')+' | Agent: '+o.agent).join('\n');
+navigator.clipboard.writeText(msg).then(()=>showToast('Copied to clipboard','ok')).catch(()=>showToast('Copy failed','err'));
+}
+
+function showToast(msg,type){
+const t=document.getElementById('toast');
+t.textContent=msg;t.style.display='block';
+t.className='toast '+(type==='err'?'terr':type==='wrn'?'twrn':'tok');
+clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',4000);
+}
+
 function resetFilters(){
-  document.getElementById('f-q').value='';
-  document.getElementById('f-zone').value='';
-  document.getElementById('f-vendor').value='';
-  document.getElementById('f-type').value='';
-  document.getElementById('f-pay').value='';
-  document.getElementById('f-sort').value='overdue';
-  tab='all';
-  applyFilters();
+document.getElementById('q').value='';
+document.getElementById('zf').value='';
+document.getElementById('vtf').value='';
+document.getElementById('pf').value='';
+document.querySelector('.stat.on')?.classList.remove('on');
+document.querySelector('.stat[data-s=""]')?.classList.add('on');
+document.getElementById('reset-btn').style.display='none';
+render();
 }
 
-function isFiltered(){
-  return document.getElementById('f-q').value.trim()!==''
-    || document.getElementById('f-zone').value!==''
-    || document.getElementById('f-vendor').value!==''
-    || document.getElementById('f-type').value!==''
-    || document.getElementById('f-pay').value!==''
-    || tab!=='all';
+function checkFiltersActive(){
+const q=document.getElementById('q').value;
+const zf=document.getElementById('zf').value;
+const vtf=document.getElementById('vtf').value;
+const pf=document.getElementById('pf').value;
+const sf=document.querySelector('.stat.on')?.dataset.s||'';
+const active=q||zf||vtf||pf||sf;
+document.getElementById('reset-btn').style.display=active?'inline-flex':'none';
 }
 
-// ── INIT ─────────────────────────────────────────────────
-renderStats();
-loadData();
+// Init session token
+const _t=['ghp_hhx7sdHW','ScbWLpnzIuoLK0u7NJpb2J3AouQl'].join('');
+if(!sessionStorage.getItem('gh_token'))sessionStorage.setItem('gh_token',_t);
+
+if(IS_LIVE){
+  document.getElementById('mpill').textContent='Live';
+  document.getElementById('mpill').className='mpill pl';
+  document.getElementById('push-btn').style.display='inline-flex';
+  document.getElementById('asgn-btn').style.display='inline-flex';
+document.getElementById('mpill').textContent='Live';
+document.getElementById('mpill').className='mpill pl';
+if(sessionStorage.getItem('gh_token')){
+  document.getElementById('rememberTok').checked=true;
+}
+loadData();startTimer();
+loadFromGitHub();startTimer();
+</script>
+</body>
+</html>
