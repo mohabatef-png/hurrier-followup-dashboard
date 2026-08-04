@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hurrier Follow-up Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+body{background:#f8f8f6;color:#1a1a18;font-size:13px;padding:12px;min-height:100vh}
+.hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #e5e5e0}
+.hdr-left h1{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
+.hdr-left h1 img{width:20px;height:20px}
+.meta{font-size:11px;color:#666;margin-top:3px}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:4px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.rbar-wrap{height:3px;background:#e5e5e0;border-radius:2px;margin-bottom:10px;overflow:hidden}
+.rbar{height:100%;background:#378ADD;transition:width linear 1s}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(82px,1fr));gap:5px;margin-bottom:10px}
+.stat{background:#fff;border-radius:8px;padding:7px 10px;cursor:pointer;border:2px solid transparent;transition:.12s}
+.stat:hover{border-color:#ccc}
+.stat.on{border-color:#378ADD}
+.stat-n{font-size:18px;font-weight:600}
+.stat-l{font-size:11px;color:#888;margin-top:1px}
+.controls{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+input,select{height:32px;padding:0 8px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:12px;color:#1a1a18;outline:none}
+input:focus,select:focus{border-color:#378ADD}
+input{flex:1;min-width:150px}
+.btn{height:32px;padding:0 12px;border-radius:6px;cursor:pointer;font-size:12px;border:1px solid;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn:hover{opacity:.85}
+.bx{background:#E1F5EE;color:#0F6E56;border-color:#9FE1CB}
+.bs{background:#E6F1FB;color:#185FA5;border-color:#B5D4F4}
+.br{background:#f4f4f1;color:#444;border-color:#ddd}
+.bd{background:#FAECE7;color:#993C1D;border-color:#F5C4B3}
+.tbl-wrap{overflow-x:auto;border:1px solid #e5e5e0;border-radius:10px;background:#fff;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+th{background:#f4f4f1;color:#444;font-weight:600;padding:8px 8px;text-align:left;border-bottom:1px solid #e5e5e0;white-space:nowrap;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+td{padding:7px 8px;border-bottom:1px solid #f0f0ec;vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafaf8}
+tr.sel td{background:#EBF4FF}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.s-left_pickup{background:#FAECE7;color:#993C1D}
+.s-near_dropoff{background:#E1F5EE;color:#0F6E56}
+.s-picked_up{background:#E6F1FB;color:#185FA5}
+.s-dispatched{background:#FAEEDA;color:#854F0B}
+.s-queued{background:#EEEDFE;color:#3C3489}
+.s-accepted{background:#F1EFE8;color:#5F5E5A}
+.s-near_pickup{background:#FBEAF0;color:#993556}
+.dc{color:#A32D2D;font-weight:600}
+.dw{color:#854F0B;font-weight:500}
+.dok{color:#0F6E56}
+.footer{display:flex;justify-content:space-between;padding:4px 0;font-size:11px;color:#888;flex-wrap:wrap;gap:4px}
+.toast{padding:8px 14px;border-radius:6px;font-size:12px;margin-bottom:8px;display:none;border:1px solid}
+.tok{background:#E1F5EE;color:#0F6E56;border-color:#9FE1CB}
+.terr{background:#FAECE7;color:#993C1D;border-color:#F5C4B3}
+.twarn{background:#FAEEDA;color:#854F0B;border-color:#FAC775}
+select.ag{font-size:11px;height:26px;width:100%;padding:0 4px;border-radius:4px}
+.chk{cursor:pointer;accent-color:#378ADD}
+.mode-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;margin-left:8px}
+.mode-live{background:#dcfce7;color:#15803d}
+.mode-view{background:#dbeafe;color:#1d4ed8}
+.empty{text-align:center;color:#aaa;padding:3rem;font-size:13px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #ddd;border-top-color:#378ADD;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.push-section{background:#fff;border:1px solid #e5e5e0;border-radius:10px;padding:12px 16px;margin-bottom:10px;display:none}
+.push-section h3{font-size:13px;font-weight:600;margin-bottom:8px;color:#1a1a18}
+.token-input{width:100%;height:32px;font-family:monospace;font-size:11px;margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast tok"></div>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <h1>
+      🛵 Hurrier follow-up
+      <span id="mode-badge" class="mode-badge mode-view">View only</span>
+    </h1>
+    <div class="meta">
+      <span class="live-dot" id="live-dot" style="display:none"></span>
+      <span id="meta-text">Loading data…</span>
+      &nbsp;·&nbsp; <span id="countdown"></span>
+    </div>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+    <button class="btn br" onclick="loadData()" id="refresh-btn"><span class="spinner" id="spin" style="display:none"></span>↻ Refresh</button>
+    <button class="btn bx" onclick="exportCSV()">↓ CSV</button>
+    <button class="btn bs" onclick="copySlack()">📋 Slack</button>
+    <button class="btn bs" id="assign-btn" onclick="bulkAssign()" style="display:none">👥 Assign</button>
+    <button class="btn bd" id="push-btn" onclick="togglePush()" style="display:none">⬆ Push to GitHub</button>
+  </div>
+</div>
+
+<div class="rbar-wrap"><div class="rbar" id="rbar" style="width:100%"></div></div>
+
+<!-- Push panel (only shown in live mode) -->
+<div class="push-section" id="push-section">
+  <h3>Push fresh data to GitHub Pages</h3>
+  <input type="password" class="token-input" id="gh-token" placeholder="GitHub Personal Access Token (ghp_...)">
+  <div style="display:flex;gap:6px">
+    <button class="btn bx" onclick="pushToGitHub()">⬆ Push now</button>
+    <button class="btn br" onclick="togglePush()">Cancel</button>
+    <span style="font-size:11px;color:#888;align-self:center">Token is never stored — only used for this push</span>
+  </div>
+</div>
+
+<div class="stats" id="sr"></div>
+
+<div class="controls">
+  <input type="text" id="q" placeholder="Search order, courier, vendor, zone…" oninput="render()">
+  <select id="zf" onchange="render()"><option value="">All zones</option></select>
+  <select id="vtf" onchange="render()"><option value="">All types</option></select>
+  <select id="sf" onchange="render()">
+    <option value="deadline">Most overdue first</option>
+    <option value="status">By status</option>
+    <option value="zone">By zone</option>
+    <option value="type">By type</option>
+  </select>
+</div>
+
+<div class="tbl-wrap">
+<table>
+  <thead><tr>
+    <th style="width:28px"><input type="checkbox" class="chk" id="ca" onchange="toggleAll(this)"></th>
+    <th style="width:90px">Order #</th>
+    <th style="width:155px">Vendor</th>
+    <th style="width:72px">Overdue</th>
+    <th style="width:148px">Courier</th>
+    <th style="width:108px">Status</th>
+    <th style="width:92px">Zone</th>
+    <th style="width:75px">Type</th>
+    <th style="width:42px">Cash</th>
+    <th style="width:108px">Agent</th>
+  </tr></thead>
+  <tbody id="tb"><tr><td colspan="10" class="empty"><span class="spinner"></span> Loading orders…</td></tr></tbody>
+</table>
+</div>
+<div class="footer"><span id="cl"></span><span id="sl2"></span><span id="pushed-at"></span></div>
+
+<script>
+const AGENTS = ["Unassigned","Sara","Omar","Nada","Karim","Rania","Ahmed","Mohamed"];
+const SL = {left_pickup:"Left Pickup",picked_up:"Picked Up",near_dropoff:"Near Dropoff",dispatched:"Dispatched",queued:"Queued",accepted:"Accepted",near_pickup:"Near Pickup"};
+const SO = ["left_pickup","near_pickup","picked_up","near_dropoff","dispatched","queued","accepted"];
+const SP = [10130,10020,10064,10001,10002,10003,10009,10161,10174,10215,10217,10228,10227,10232];
+const REPO = "mohabatef-png/hurrier-followup-dashboard";
+const DATA_URL = "https://raw.githubusercontent.com/" + REPO + "/main/data.json";
+const REFRESH_MS = 120000;
+
+// Detect mode: ?live = dispatcher with Hurrier access, default = view only
+const IS_LIVE = window.location.search.includes('live') || window.location.hostname === 'localhost';
+
+let orders = [];
+let sel = new Set();
+let agentMap = {};
+let nextRefresh = 0;
+let countdownTimer = null;
+
+function dlL(m){if(m===null||m===undefined)return'—';const a=Math.abs(m),h=Math.floor(a/60),n=a%60,t=h>0?h+'h'+n+'m':n+'m';return m<0?'-'+t:'+'+t}
+function dlC(m){if(m===null||m===undefined)return'';if(m<-60)return'dc';if(m<0)return'dw';return'dok'}
+
+// ── LIVE MODE: fetch from Hurrier API directly ──
+async function fetchFromHurrier(){
+  let token = null;
+  for(const k of Object.keys(localStorage)){
+    const v = localStorage.getItem(k);
+    if(v && v.startsWith('eyJ')){token = v; break;}
+  }
+  if(!token) throw new Error('Hurrier token not found in localStorage');
+  const hdrs = {'authorization':'Bearer '+token,'accept':'application/json','x-requested-with':'XMLHttpRequest','x-user-agent':'hurrier-dashboard-v2/0.26.1'};
+  const spQ = SP.map(id=>'starting_point_id[]='+id).join('&');
+  const all = [];
+  for(let page=1;page<=20;page++){
+    const r = await fetch('/api/dispatcher-dashboard/deliveries/active?'+spQ+'&page='+page+'&per_page=100',{headers:hdrs,credentials:'include'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d = await r.json();
+    const rows = d.records||[];
+    const total = d?.metadata?.total_count||0;
+    const pages = total?Math.ceil(total/100):1;
+    if(!rows.length) break;
+    all.push(...rows);
+    if(page>=pages) break;
+  }
+  const now = Date.now();
+  return all.map(d=>{
+    const o = d.order||{};
+    const dropoff = o.scheduled_dropoff_at?new Date(o.scheduled_dropoff_at).getTime():null;
+    const dm = dropoff?Math.round((dropoff-now)/60000):null;
+    return{id:o.code||String(d.id),v:(o.vendor_name||'').slice(0,50),dm,c:d.courier_name||'',s:d.status||'',z:(d.starting_points||[])[0]||'',vt:o.vertical_type||'',cash:o.is_cash_collection?1:0,ts:Date.now()};
+  });
+}
+
+// ── VIEW MODE: fetch from GitHub data.json ──
+async function fetchFromGitHub(){
+  const r = await fetch(DATA_URL+'?t='+Date.now());
+  if(!r.ok) throw new Error('No data yet — ask dispatcher to push data');
+  return r.json();
+}
+
+async function loadData(){
+  setSpinner(true);
+  try{
+    const raw = IS_LIVE ? await fetchFromHurrier() : await fetchFromGitHub();
+    orders = raw.map(o=>({...o, agent: agentMap[o.id]||'Unassigned'}));
+    buildStats(); popZones(); popTypes(); render();
+    const t = new Date().toLocaleTimeString();
+    document.getElementById('meta-text').textContent = orders.length+' orders · updated '+t;
+    document.getElementById('live-dot').style.display = 'inline-block';
+    if(IS_LIVE){
+      document.getElementById('pushed-at').textContent = 'Live from Hurrier API';
+    } else {
+      const ts = orders[0]?.ts ? new Date(orders[0].ts).toLocaleString() : '';
+      document.getElementById('pushed-at').textContent = ts ? 'Data pushed: '+ts : '';
+    }
+    nextRefresh = Date.now() + REFRESH_MS;
+  } catch(e){
+    showToast(e.message,'err');
+    document.getElementById('meta-text').textContent = 'Error: '+e.message;
+    if(!IS_LIVE && orders.length===0){
+      document.getElementById('tb').innerHTML='<tr><td colspan="10" class="empty">No data yet.<br><br>Ask the dispatcher to open the dashboard in live mode and push data.</td></tr>';
+    }
+  }
+  setSpinner(false);
+}
+
+function startCountdown(){
+  if(countdownTimer) clearInterval(countdownTimer);
+  const el = document.getElementById('countdown');
+  const bar = document.getElementById('rbar');
+  countdownTimer = setInterval(()=>{
+    const left = Math.max(0, nextRefresh - Date.now());
+    const s = Math.ceil(left/1000), m = Math.floor(s/60), sec = s%60;
+    el.textContent = 'Next refresh: '+(m>0?m+'m ':'')+sec+'s';
+    bar.style.width = (left/REFRESH_MS*100)+'%';
+    if(left <= 0) loadData();
+  }, 1000);
+}
+
+function setSpinner(on){
+  document.getElementById('spin').style.display = on?'inline-block':'none';
+  document.getElementById('refresh-btn').disabled = on;
+}
+
+// ── Push to GitHub ──
+function togglePush(){
+  const s = document.getElementById('push-section');
+  s.style.display = s.style.display==='none'||!s.style.display ? 'block' : 'none';
+}
+
+async function pushToGitHub(){
+  const token = document.getElementById('gh-token').value.trim();
+  if(!token){showToast('Enter your GitHub token first','err');return;}
+  if(!orders.length){showToast('No data to push — refresh first','err');return;}
+  showToast('Pushing to GitHub…','warn');
+  try{
+    // Get current file SHA if it exists
+    let sha = null;
+    const check = await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}});
+    if(check.ok){const j=await check.json();sha=j.sha;}
+
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(orders))));
+    const body = {message:'Update data '+new Date().toISOString(),content,..( sha?{sha}:{})};
+    const r = await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+    if(!r.ok){const e=await r.json();throw new Error(e.message);}
+    showToast('✅ Pushed! Team can now see '+orders.length+' orders at https://'+REPO.replace('/','.github.io/')+'/','ok');
+    document.getElementById('gh-token').value='';
+    togglePush();
+  } catch(e){
+    showToast('Push failed: '+e.message,'err');
+  }
+}
+
+// ── UI ──
+function buildStats(){
+  const c={}, tot=orders.length, act=document.querySelector('.stat.on')?.dataset.s||'';
+  orders.forEach(o=>c[o.s]=(c[o.s]||0)+1);
+  let h=`<div class="stat ${act===''?'on':''}" data-s="" onclick="fs(this)"><div class="stat-n">${tot}</div><div class="stat-l">All</div></div>`;
+  SO.forEach(s=>{if(!c[s])return;h+=`<div class="stat ${act===s?'on':''}" data-s="${s}" onclick="fs(this)"><div class="stat-n">${c[s]}</div><div class="stat-l">${SL[s]||s}</div></div>`;});
+  document.getElementById('sr').innerHTML=h;
+}
+function popZones(){
+  const zones=[...new Set(orders.map(o=>o.z).filter(Boolean))].sort();
+  const el=document.getElementById('zf'),cur=el.value;
+  el.innerHTML='<option value="">All zones</option>'+zones.map(z=>`<option ${z===cur?'selected':''}>${z}</option>`).join('');
+}
+function popTypes(){
+  const types=[...new Set(orders.map(o=>o.vt).filter(Boolean))].sort();
+  const el=document.getElementById('vtf'),cur=el.value;
+  el.innerHTML='<option value="">All types</option>'+types.map(t=>`<option ${t===cur?'selected':''}>${t}</option>`).join('');
+}
+function getF(){
+  const q=document.getElementById('q').value.toLowerCase();
+  const zf=document.getElementById('zf').value;
+  const vtf=document.getElementById('vtf').value;
+  const sf2=document.querySelector('.stat.on')?.dataset.s||'';
+  let d=orders.filter(o=>
+    (!q||o.id.toLowerCase().includes(q)||o.c.toLowerCase().includes(q)||o.v.toLowerCase().includes(q)||o.z.toLowerCase().includes(q))&&
+    (!zf||o.z===zf)&&(!vtf||o.vt===vtf)&&(!sf2||o.s===sf2)
+  );
+  const sk=document.getElementById('sf').value;
+  d.sort((a,b)=>{
+    if(sk==='deadline'){if(a.dm===null)return 1;if(b.dm===null)return-1;return a.dm-b.dm;}
+    if(sk==='status')return SO.indexOf(a.s)-SO.indexOf(b.s);
+    if(sk==='zone')return a.z.localeCompare(b.z);
+    return(a.vt||'').localeCompare(b.vt||'');
+  });
+  return d;
+}
+function fs(el){document.querySelectorAll('.stat').forEach(s=>s.classList.remove('on'));el.classList.add('on');render();}
+function render(){
+  const d=getF();
+  const tb=document.getElementById('tb');
+  if(!d.length){tb.innerHTML='<tr><td colspan="10" class="empty">No orders match filters</td></tr>';
+    document.getElementById('cl').textContent='0 orders';return;}
+  const isLive=IS_LIVE;
+  tb.innerHTML=d.map(o=>`<tr class="${sel.has(o.id)?'sel':''}" onclick="tr2('${o.id}',event)">
+    <td><input type="checkbox" class="chk" ${sel.has(o.id)?'checked':''} onclick="tr2('${o.id}',event)"></td>
+    <td style="font-weight:600">${o.id}</td>
+    <td title="${o.v}" style="font-size:12px">${o.v}</td>
+    <td><span class="${dlC(o.dm)}">${dlL(o.dm)}</span></td>
+    <td style="font-size:11px" title="${o.c}">${o.c}</td>
+    <td><span class="badge s-${o.s}">${SL[o.s]||o.s}</span></td>
+    <td style="font-size:11px">${o.z}</td>
+    <td style="font-size:11px;color:#888">${o.vt||''}</td>
+    <td style="text-align:center">${o.cash?'<b style="color:#854F0B">£</b>':''}</td>
+    <td>${isLive?`<select class="ag" onchange="aa('${o.id}',this.value)" onclick="event.stopPropagation()">${AGENTS.map(a=>`<option ${o.agent===a?'selected':''}>${a}</option>`).join('')}</select>`:`<span style="font-size:11px;color:#888">${o.agent}</span>`}</td>
+  </tr>`).join('');
+  document.getElementById('cl').textContent='Showing '+d.length+' of '+orders.length+' orders';
+  document.getElementById('sl2').textContent=sel.size?sel.size+' selected':'';
+}
+function tr2(id,e){if(e.target.tagName==='SELECT'||e.target.tagName==='OPTION')return;sel.has(id)?sel.delete(id):sel.add(id);render();}
+function toggleAll(cb){const d=getF();if(cb.checked)d.forEach(o=>sel.add(o.id));else d.forEach(o=>sel.delete(o.id));render();}
+function aa(id,agent){const o=orders.find(x=>x.id===id);if(o){o.agent=agent;agentMap[id]=agent;}}
+function bulkAssign(){
+  if(!sel.size){showToast('Select orders first','warn');return;}
+  const agent=prompt('Assign to:\n'+AGENTS.filter(a=>a!=='Unassigned').join(', '));
+  if(agent&&AGENTS.includes(agent)){sel.forEach(id=>{const o=orders.find(x=>x.id===id);if(o){o.agent=agent;agentMap[id]=agent;}});render();showToast(sel.size+' orders assigned to '+agent,'ok');}
+}
+function exportCSV(){
+  const d=getF();
+  const rows=[['Order','Vendor','Overdue','Courier','Status','Zone','Type','Cash','Agent']];
+  d.forEach(o=>rows.push([o.id,o.v,dlL(o.dm),o.c,SL[o.s]||o.s,o.z,o.vt||'',o.cash?'Yes':'No',o.agent]));
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='hurrier_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showToast('CSV downloaded','ok');
+}
+function copySlack(){
+  const d=getF().filter(o=>o.dm!==null&&o.dm<0).slice(0,25);
+  if(!d.length){showToast('No overdue orders to share','warn');return;}
+  const msg='*🚨 Hurrier overdue — '+new Date().toLocaleTimeString()+'*\n'+
+    d.map(o=>'• *'+o.id+'* | '+(SL[o.s]||o.s)+' | '+dlL(o.dm)+' | '+o.z+' | '+o.c.split(' ').slice(0,2).join(' ')+' | Agent: '+o.agent).join('\n');
+  navigator.clipboard.writeText(msg).then(()=>showToast('Copied — paste in Slack','ok')).catch(()=>showToast('Copy failed','err'));
+}
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  t.className='toast '+(type==='err'?'terr':type==='warn'?'twarn':'tok');
+  setTimeout(()=>t.style.display='none',4000);
+}
+
+// ── Init ──
+if(IS_LIVE){
+  document.getElementById('mode-badge').textContent='Live';
+  document.getElementById('mode-badge').className='mode-badge mode-live';
+  document.getElementById('push-btn').style.display='flex';
+  document.getElementById('assign-btn').style.display='flex';
+}
+loadData();
+startCountdown();
+</script>
+</body>
+</html>
