@@ -251,6 +251,14 @@ td{padding:12px 14px;vertical-align:middle;}
 }
 
 textarea#clip{position:fixed;left:-9999px;}
+.btn-reset{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 13px;border-radius:7px;
+  font-size:12.5px;font-weight:600;cursor:pointer;
+  border:1.5px solid #fecaca;background:#fef2f2;color:#dc2626;
+  font-family:var(--sans);transition:all .13s;white-space:nowrap;
+}
+.btn-reset:hover{background:#fee2e2;border-color:#fca5a5;}
 </style>
 </head>
 <body>
@@ -306,6 +314,9 @@ textarea#clip{position:fixed;left:-9999px;}
     <option value="vendor">By vendor</option>
   </select>
   <span class="results-info" id="res-info"></span>
+  <button class="btn-reset" id="btn-reset" onclick="resetFilters()" style="display:none">
+    ✕ Reset filters
+  </button>
 </div>
 
 <!-- TABLE -->
@@ -489,6 +500,8 @@ function applyFilters(){
   const inf=fil.length<all.length?`${fil.length} of ${all.length}`:`${all.length}`;
   document.getElementById('res-info').textContent=inf+' orders';
   document.getElementById('foot-txt').textContent=`Showing ${fil.length} order${fil.length!==1?'s':''} · ${all.length} total`;
+  const rb=document.getElementById('btn-reset');
+  if(rb) rb.style.display=isFiltered()?'inline-flex':'none';
 }
 
 // ── STATS ROW ────────────────────────────────────────────
@@ -622,6 +635,27 @@ function resetCD(){
 // ── TOAST ────────────────────────────────────────────────
 let _tt=null;
 function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('on'),3000);}
+
+// ── RESET FILTERS ────────────────────────────────────────
+function resetFilters(){
+  document.getElementById('f-q').value='';
+  document.getElementById('f-zone').value='';
+  document.getElementById('f-vendor').value='';
+  document.getElementById('f-type').value='';
+  document.getElementById('f-pay').value='';
+  document.getElementById('f-sort').value='overdue';
+  tab='all';
+  applyFilters();
+}
+
+function isFiltered(){
+  return document.getElementById('f-q').value.trim()!==''
+    || document.getElementById('f-zone').value!==''
+    || document.getElementById('f-vendor').value!==''
+    || document.getElementById('f-type').value!==''
+    || document.getElementById('f-pay').value!==''
+    || tab!=='all';
+}
 
 // ── INIT ─────────────────────────────────────────────────
 renderStats();
