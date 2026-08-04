@@ -279,6 +279,11 @@ thead th:hover .sort-ico{opacity:1;}
   <select class="filter-select" id="f-type" onchange="applyFilters()">
     <option value="">All types</option>
   </select>
+  <select class="filter-select" id="f-payment" onchange="applyFilters()">
+    <option value="">All payments</option>
+    <option value="cash">💚 Cash</option>
+    <option value="visa">💳 Visa</option>
+  </select>
   <select class="filter-select" id="f-vendor" onchange="applyFilters()">
     <option value="">All vendors</option>
   </select>
@@ -303,6 +308,7 @@ thead th:hover .sort-ico{opacity:1;}
         <th onclick="sortCol('s')" id="th-s">STATUS <span class="sort-ico">↕</span></th>
         <th onclick="sortCol('z')" id="th-z">ZONE <span class="sort-ico">↕</span></th>
         <th>TAGS</th>
+        <th onclick="sortCol('pay')" id="th-pay">PAYMENT <span class="sort-ico">↕</span></th>
         <th onclick="sortCol('agent')" id="th-agent">AGENT <span class="sort-ico">↕</span></th>
       </tr>
     </thead>
@@ -358,6 +364,7 @@ const STATUS_TABS = [
 // ─── STATE ────────────────────────────────────
 let allOrders  = [];
 let sortColKey = 'dm';
+// pay is derived: o.cash ? 0 : 1 (cash first when asc)
 let sortDir    = 1;
 let filtered   = [];
 let activeTab  = 'all';
@@ -402,7 +409,7 @@ function deadlineCell(dm){
 
 function tagsFor(o){
   const tags=[];
-  if(o.cash) tags.push({label:'Cash',cls:'tag-cash'});
+  // cash moved to payment column
   const vt=(o.vt||'').toLowerCase();
   if(vt.includes('dark'))        tags.push({label:'Darkstores',cls:'tag-dark'});
   else if(vt.includes('super'))  tags.push({label:'Supermarket',cls:'tag-super'});
@@ -484,6 +491,9 @@ function applyFilters(){
     if(zone && o.z!==zone) return false;
     const vendor = document.getElementById('f-vendor').value;
     if(vendor && o.v!==vendor) return false;
+    const pay = document.getElementById('f-payment').value;
+    if(pay==='cash' && !o.cash) return false;
+    if(pay==='visa' && o.cash)  return false;
     if(type && o.vt!==type) return false;
     return true;
   });
@@ -492,6 +502,10 @@ function applyFilters(){
   filtered.sort((a,b)=>{
     // column sort takes priority if user clicked a header
     let av=a[sortColKey], bv=b[sortColKey];
+    if(sortColKey==='pay'){
+      av=a.cash?0:1; bv=b.cash?0:1;
+      return (av-bv)*sortDir;
+    }
     if(sortColKey==='dm'){
       av=a.dm??999; bv=b.dm??999;
       return (av-bv)*sortDir;
@@ -550,6 +564,10 @@ function renderTable(){
       <td>${statusBadge(o.s)}</td>
       <td><span class="zone-text">${o.z||'—'}</span></td>
       <td><div class="tags">${tagsFor(o)}</div></td>
+      <td>${o.cash
+        ? '<span class="tag tag-cash" style="font-size:12px;padding:3px 10px;">💚 Cash</span>'
+        : '<span style="font-size:12px;color:#6b7280;">💳 Visa</span>'
+      }</td>
       <td>
         <select class="agent-sel ${o.agent!=='Unassigned'?'assigned':''}"
           onchange="setAgent('${o.id}',this)">
