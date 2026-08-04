@@ -245,7 +245,7 @@ textarea#clipboard{position:fixed;left:-9999px;top:0;}
   <div class="header-brand">
     <span class="header-logo">🛵</span>
     <div>
-      <div class="header-title">Hurrier Follow-up Dashboard</div>
+      <div style="display:flex;align-items:center;gap:8px;"><div class="header-title">Hurrier Follow-up Dashboard</div><span style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;">View only</span></div>
       <div class="header-subtitle" id="header-subtitle">Loading…</div>
     </div>
   </div>
@@ -257,8 +257,8 @@ textarea#clipboard{position:fixed;left:-9999px;top:0;}
     </button>
     <button class="btn" onclick="exportCSV()">↓ CSV</button>
     <button class="btn" onclick="copySlack()">Slack</button>
-    <button class="btn btn-orange" onclick="openPush()">⬆ Push</button>
-    <button class="close-btn" onclick="window.close ? window.close() : void 0" title="Close">✕</button>
+    
+    
   </div>
 </div>
 
@@ -317,20 +317,7 @@ textarea#clipboard{position:fixed;left:-9999px;top:0;}
   <button class="copy-link" onclick="copyTeamLink()">Copy</button>
 </div>
 
-<!-- PUSH MODAL -->
-<div id="push-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:12px;padding:24px;width:400px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.15);">
-    <div style="font-size:16px;font-weight:700;margin-bottom:8px;">⬆ Push live data to GitHub</div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5;">This will update <code>data.json</code> — your team sees it instantly when they refresh.</div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:11.5px;font-family:monospace;color:var(--text2);margin-bottom:16px;">
-      Team link: <strong>https://mohabatef-png.github.io/hurrier-followup-dashboard/</strong>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button class="btn" onclick="closePush()">Cancel</button>
-      <button class="btn btn-orange" onclick="doPush()">Push now</button>
-    </div>
-  </div>
-</div>
+
 
 <div id="toast"></div>
 <textarea id="clipboard"></textarea>
@@ -604,8 +591,6 @@ function copyTeamLink(){
   toast('🔗 Link copied!');
 }
 
-// ─── PUSH ─────────────────────────────────────
-function openPush(){document.getElementById('push-modal').style.display='flex';}
 function closePush(){document.getElementById('push-modal').style.display='none';}
 
 async function doPush(){
