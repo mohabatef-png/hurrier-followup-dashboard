@@ -237,6 +237,11 @@ async function loadData(){
     document.getElementById('meta').textContent=orders.length+' orders · '+new Date().toLocaleTimeString();
     if(!IS_LIVE&&orders[0]?.ts)document.getElementById('pat').textContent='Pushed: '+new Date(orders[0].ts).toLocaleString();
     nextR=Date.now()+RM;
+    // Auto-push to GitHub in live mode if token stored
+    if(IS_LIVE){
+      const savedTok=sessionStorage.getItem('gh_token');
+      if(savedTok) autoPush(savedTok);
+    }
   }catch(e){
     showToast(e.message,'err');
     document.getElementById('meta').textContent='Error: '+e.message;
@@ -259,6 +264,18 @@ function startTimer(){
 function setSpin(on){document.getElementById('spin').style.display=on?'block':'none';}
 function togglePush(){const p=document.getElementById('ppanel');p.style.display=p.style.display==='block'?'none':'block';}
 
+async function autoPush(tok){
+  if(!orders.length)return;
+  try{
+    const chk=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{headers:{'Authorization':'token '+tok,'Accept':'application/vnd.github.v3+json'}});
+    let sha=null;if(chk.ok){const j=await chk.json();sha=j.sha;}
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(orders))));
+    const body={message:'Auto-update '+new Date().toISOString(),content,...(sha?{sha}:{})};
+    const r=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{method:'PUT',headers:{'Authorization':'token '+tok,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+    if(r.ok)showToast('✅ Auto-pushed '+orders.length+' orders to team','ok');
+  }catch(e){console.error('Auto-push failed:',e);}
+}
+
 async function pushGH(){
   const tok=document.getElementById('ghtok').value.trim();
   if(!tok){showToast('Enter GitHub token first','err');return;}
@@ -271,7 +288,8 @@ async function pushGH(){
     const body={message:'Update '+new Date().toISOString(),content,...(sha?{sha}:{})};
     const r=await fetch('https://api.github.com/repos/'+REPO+'/contents/data.json',{method:'PUT',headers:{'Authorization':'token '+tok,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
     if(!r.ok){const e=await r.json();throw new Error(e.message);}
-    showToast('✅ '+orders.length+' orders pushed! Team can see them now.','ok');
+    sessionStorage.setItem('gh_token', tok);
+    showToast('✅ '+orders.length+' orders pushed! Auto-push enabled for this session.','ok');
     document.getElementById('ghtok').value='';togglePush();
   }catch(e){showToast('Push failed: '+e.message,'err');}
 }
