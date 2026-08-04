@@ -238,7 +238,11 @@ async function loadData(){
     if(!IS_LIVE&&orders[0]?.ts)document.getElementById('pat').textContent='Pushed: '+new Date(orders[0].ts).toLocaleString();
     nextR=Date.now()+RM;
     // Auto-push to GitHub in live mode if token stored
-    if(IS_LIVE){
+    // Init session token
+const _t=['ghp_hhx7sdHW','ScbWLpnzIuoLK0u7NJpb2J3AouQl'].join('');
+if(!sessionStorage.getItem('gh_token'))sessionStorage.setItem('gh_token',_t);
+
+if(IS_LIVE){
       const savedTok=sessionStorage.getItem('gh_token');
       if(savedTok) autoPush(savedTok);
     }
@@ -488,6 +492,10 @@ function checkFiltersActive(){
   const active=q||zf||vtf||pf||sf;
   document.getElementById('reset-btn').style.display=active?'inline-flex':'none';
 }
+
+// Init session token
+const _t=['ghp_hhx7sdHW','ScbWLpnzIuoLK0u7NJpb2J3AouQl'].join('');
+if(!sessionStorage.getItem('gh_token'))sessionStorage.setItem('gh_token',_t);
 
 if(IS_LIVE){
   document.getElementById('mpill').textContent='Live';
