@@ -204,6 +204,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 
 .veh-bike{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--acc-bg);color:var(--acc-dark);border:1px solid #fed7aa;white-space:nowrap;}
 .veh-bicycle{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--blu-bg);color:var(--blu);border:1px solid var(--blu-b);white-space:nowrap;}
+.veh-hybrid{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #ddd6fe;white-space:nowrap;}
 
 .vstats-row{
   display:flex;border-bottom:1px solid var(--border);
@@ -220,6 +221,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .vstat-num{font-size:20px;font-weight:700;letter-spacing:-.5px;line-height:1;margin-bottom:3px;}
 .vstat-num.v-bike{color:#ff4d00;}
 .vstat-num.v-bicycle{color:#0066ff;}
+.vstat-num.v-hybrid{color:#6d28d9;}
 .vstat-num.v-all{color:#1c1e2e;}
 .vstat-label{font-size:11px;color:var(--text2);font-weight:400;}
 
@@ -353,6 +355,7 @@ textarea#clip{position:fixed;left:-9999px;}
     <option value="">All vehicle types</option>
     <option value="Bike">🏍️ Bike</option>
     <option value="Bicycle">🚲 Bicycle</option>
+    <option value="Hybrid Fleet">🚗 Hybrid Fleet</option>
   </select>
   <select class="fsel" id="f-sort"    onchange="applyFilters()">
     <option value="overdue">Most overdue first</option>
@@ -443,10 +446,12 @@ function ns(s=''){
   return 'other';
 }
 
-// Vehicle type: courier names ending in "_BC" (with optional trailing space) ride bicycles.
-// Everything else is a bike (motorcycle).
+// Vehicle type detection from courier name
 function vtype(c=''){
-  return /_BC\s*$/i.test((c||'').trim()) ? 'Bicycle' : 'Bike';
+  const name=(c||'').trim();
+  if(/hybrid/i.test(name))  return 'Hybrid Fleet';
+  if(/_BC\s*$/i.test(name)) return 'Bicycle';
+  return 'Bike';
 }
 
 function dlFmt(dm){
@@ -615,12 +620,13 @@ function renderVStats(){
   }
 
   const list=all.filter(pass);
-  const counts={all:list.length,Bike:list.filter(o=>o.veh==='Bike').length,Bicycle:list.filter(o=>o.veh==='Bicycle').length};
+  const counts={all:list.length,Bike:list.filter(o=>o.veh==='Bike').length,Bicycle:list.filter(o=>o.veh==='Bicycle').length,'Hybrid Fleet':list.filter(o=>o.veh==='Hybrid Fleet').length};
 
   const VT=[
     {k:'',lbl:'All Vehicles',cls:'v-all'},
     {k:'Bike',lbl:'🏍️ Bike Orders',cls:'v-bike'},
     {k:'Bicycle',lbl:'🚲 Bicycle Orders',cls:'v-bicycle'},
+    {k:'Hybrid Fleet',lbl:'🚗 Hybrid Fleet',cls:'v-hybrid'},
   ];
   document.getElementById('vstats-row').innerHTML=VT.map(t=>`
     <div class="vstat-card${curVeh===t.k?' active':''}" onclick="setVeh('${t.k}')">
