@@ -747,7 +747,7 @@ function renderTable(){
       <td><span class="td-vendor">${o.v||'—'}</span></td>
       <td>${dlFmt(o.dm)}</td>
       <td>${o.c
-        ?`<span class="td-courier">${o.c}</span>`
+        ?`<span class="td-courier" style="${o.veh==='Hybrid Fleet'?'color:#ff6b2b;font-weight:600;':''}">${o.c}</span>`
         :`<span class="td-nocourier">No courier</span>`}</td>
       <td>${o.c
         ? (o.veh==='Bicycle' ? '<span class="veh-bicycle">🚲 Bicycle</span>' : '<span class="veh-bike">🏍️ Bike</span>')
