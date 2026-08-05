@@ -673,7 +673,7 @@ function renderTable(){
         ?`<span class="td-courier">${o.c}</span>`
         :`<span class="td-nocourier">No courier</span>`}</td>
       <td>${o.c
-        ? (o.veh==='Bicycle' ? '<span class="veh-bicycle">🚲 Bicycle</span>' : '<span class="veh-bike"><svg width="14" height="14" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#FF6B2B"/><path d=\"M9 10h14v3h-5.5v9h-3v-9H9v-3z\" fill=\"white\"/></svg> Bike</span>')
+        ? (o.veh==='Bicycle' ? '<span class="veh-bicycle">🚲 Bicycle</span>' : '<span class="veh-bike">🏍️ Bike</span>')
         : '<span class="td-nocourier">—</span>'}</td>
       <td>${sbadge(o.s)}</td>
       <td style="font-size:13px;color:var(--text2);white-space:nowrap">${o.z||'—'}</td>
