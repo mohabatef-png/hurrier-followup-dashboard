@@ -113,6 +113,40 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 .stat-card.active .stat-num.c-accepted{color:#9c27b0;}
 .stat-label{font-size:12px;color:var(--text2);font-weight:600;}
 
+/* ── SEARCHABLE SELECT ── */
+.sel-wrap{position:relative;display:inline-block;}
+.sel-wrap select{display:none;}
+.sel-box{
+  display:inline-flex;align-items:center;justify-content:space-between;gap:6px;
+  padding:8px 10px;border:1.5px solid var(--border2);border-radius:7px;
+  font-size:13px;font-family:var(--sans);color:var(--text);
+  background:#fff;cursor:pointer;min-width:100px;white-space:nowrap;
+  transition:border .13s;user-select:none;
+}
+.sel-box:hover{border-color:var(--accent);}
+.sel-box.open{border-color:var(--accent);}
+.sel-box .arr{font-size:9px;color:var(--text3);margin-left:2px;}
+.sel-drop{
+  position:absolute;top:calc(100% + 4px);left:0;z-index:200;
+  background:#fff;border:1.5px solid var(--border2);border-radius:8px;
+  box-shadow:0 4px 20px rgba(0,0,0,.1);min-width:200px;max-width:320px;
+  display:none;flex-direction:column;overflow:hidden;
+}
+.sel-drop.open{display:flex;}
+.sel-search{
+  padding:8px 10px;border:none;border-bottom:1px solid var(--border);
+  font-size:13px;font-family:var(--sans);outline:none;width:100%;
+  background:#fafbfc;
+}
+.sel-opts{max-height:220px;overflow-y:auto;}
+.sel-opt{
+  padding:8px 12px;font-size:13px;cursor:pointer;
+  transition:background .08s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sel-opt:hover{background:var(--bg);}
+.sel-opt.selected{color:var(--accent);font-weight:600;}
+.sel-opt.hidden{display:none;}
+
 /* ── FILTERS ── */
 .filters-row{
   background:var(--card);border-bottom:1px solid var(--border);
@@ -348,9 +382,30 @@ textarea#clip{position:fixed;left:-9999px;}
     <span class="search-icon">🔍</span>
     <input id="f-q" placeholder="Search order, courier, vendor, zone…" oninput="applyFilters()">
   </div>
-  <select class="fsel" id="f-zone"    onchange="applyFilters()"><option value="">All zones</option></select>
-  <select class="fsel" id="f-vendor"  onchange="applyFilters()"><option value="">All vendors</option></select>
-  <select class="fsel" id="f-type"    onchange="applyFilters()"><option value="">All types</option></select>
+  <div class="sel-wrap" id="wrap-zone">
+    <div class="sel-box" onclick="toggleSel('zone')" id="box-zone"><span id="lbl-zone">All zones</span><span class="arr">▼</span></div>
+    <div class="sel-drop" id="drop-zone">
+      <input class="sel-search" placeholder="Search zone..." oninput="filterOpts('zone',this.value)">
+      <div class="sel-opts" id="opts-zone"></div>
+    </div>
+    <select id="f-zone" style="display:none"></select>
+  </div>
+  <div class="sel-wrap" id="wrap-vendor">
+    <div class="sel-box" onclick="toggleSel('vendor')" id="box-vendor"><span id="lbl-vendor">All vendors</span><span class="arr">▼</span></div>
+    <div class="sel-drop" id="drop-vendor">
+      <input class="sel-search" placeholder="Search vendor..." oninput="filterOpts('vendor',this.value)">
+      <div class="sel-opts" id="opts-vendor"></div>
+    </div>
+    <select id="f-vendor" style="display:none"></select>
+  </div>
+  <div class="sel-wrap" id="wrap-type">
+    <div class="sel-box" onclick="toggleSel('type')" id="box-type"><span id="lbl-type">All types</span><span class="arr">▼</span></div>
+    <div class="sel-drop" id="drop-type">
+      <input class="sel-search" placeholder="Search type..." oninput="filterOpts('type',this.value)">
+      <div class="sel-opts" id="opts-type"></div>
+    </div>
+    <select id="f-type" style="display:none"></select>
+  </div>
   <select class="fsel" id="f-pay"     onchange="applyFilters()">
     <option value="">All payments</option>
     <option value="cash">💚 Cash</option>
@@ -858,6 +913,73 @@ function isFiltered(){
     || document.getElementById('f-pay').value!==''
     || document.getElementById('f-vtype').value!==''
     || tab!=='all';
+}
+
+// ── SEARCHABLE SELECT ────────────────────────────────────────
+const selVals={'zone':'','vendor':'','type':''};
+const selLabels={'zone':'All zones','vendor':'All vendors','type':'All types'};
+
+function toggleSel(id){
+  const drop=document.getElementById('drop-'+id);
+  const box=document.getElementById('box-'+id);
+  const isOpen=drop.classList.contains('open');
+  // close all
+  ['zone','vendor','type'].forEach(k=>{
+    document.getElementById('drop-'+k).classList.remove('open');
+    document.getElementById('box-'+k).classList.remove('open');
+  });
+  if(!isOpen){
+    drop.classList.add('open');
+    box.classList.add('open');
+    const inp=drop.querySelector('.sel-search');
+    if(inp){inp.value='';filterOpts(id,'');inp.focus();}
+  }
+}
+
+function filterOpts(id,q){
+  const opts=document.querySelectorAll('#opts-'+id+' .sel-opt');
+  opts.forEach(o=>{
+    o.classList.toggle('hidden', q&&!o.textContent.toLowerCase().includes(q.toLowerCase()));
+  });
+}
+
+function pickOpt(id,val,lbl){
+  selVals[id]=val;
+  document.getElementById('lbl-'+id).textContent=lbl||selLabels[id];
+  document.getElementById('f-'+id).value=val;
+  document.getElementById('drop-'+id).classList.remove('open');
+  document.getElementById('box-'+id).classList.remove('open');
+  applyFilters();
+}
+
+function buildSelOpts(id,items,ph){
+  const container=document.getElementById('opts-'+id);
+  const cur=selVals[id];
+  container.innerHTML=`<div class="sel-opt${!cur?' selected':''}" onclick="pickOpt('${id}','','${ph}')">${ph}</div>`
+    +items.map(v=>`<div class="sel-opt${cur===v?' selected':''}" onclick="pickOpt('${id}','${v.replace(/'/g,"\'")}','${v.replace(/'/g,"\'")}') ">${v}</div>`).join('');
+  // sync hidden select
+  const sel=document.getElementById('f-'+id);
+  sel.innerHTML=`<option value="">${ph}</option>`+items.map(v=>`<option value="${v}"${cur===v?' selected':''}>${v}</option>`).join('');
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.sel-wrap')){
+    ['zone','vendor','type'].forEach(k=>{
+      document.getElementById('drop-'+k)?.classList.remove('open');
+      document.getElementById('box-'+k)?.classList.remove('open');
+    });
+  }
+});
+
+// Override rep() to also build searchable opts
+const _rep=rep;
+function rep(id,items,ph){
+  _rep(id,items,ph);
+  if(['f-zone','f-vendor','f-type'].includes(id)){
+    const key=id.replace('f-','');
+    buildSelOpts(key,items,ph);
+  }
 }
 
 // ── INIT ─────────────────────────────────────────────────
