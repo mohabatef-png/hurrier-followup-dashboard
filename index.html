@@ -627,12 +627,23 @@ function renderVStats(){
     {k:'Bicycle',lbl:'🚲 Bicycle Orders',cls:'v-bicycle'},
     {k:'Hybrid Fleet',lbl:'<svg width="12" height="12" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#FF6B2B"/><path d="M9 10h14v3h-5.5v9h-3v-9H9v-3z" fill="white"/></svg> Hybrid Fleet',cls:'v-hybrid'},
   ];
+  const restaurant=list.filter(o=>(o.vt||'')==='restaurants').length;
+  const darkstore =list.filter(o=>(o.vt||'')==='darkstores').length;
+
   document.getElementById('vstats-row').innerHTML=VT.map(t=>`
     <div class="vstat-card${curVeh===t.k?' active':''}" onclick="setVeh('${t.k}')">
       <div class="vstat-num ${t.cls}">${t.k===''?counts.all:counts[t.k]}</div>
       <div class="vstat-label">${t.lbl}</div>
     </div>
-  `).join('');
+  `).join('')+`
+    <div class="vstat-card" style="cursor:default;border-left:1px solid var(--border);">
+      <div class="vstat-num v-restaurant">${restaurant}</div>
+      <div class="vstat-label">🍔 Restaurant</div>
+    </div>
+    <div class="vstat-card" style="cursor:default;">
+      <div class="vstat-num v-darkstore">${darkstore}</div>
+      <div class="vstat-label">🏪 Darkstore</div>
+    </div>`;
 }
 
 // ── VERTICAL TYPE STATS ─────────────────────────────────────
