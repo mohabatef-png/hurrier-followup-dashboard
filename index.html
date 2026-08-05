@@ -204,7 +204,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 
 .veh-bike{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--acc-bg);color:var(--acc-dark);border:1px solid #fed7aa;white-space:nowrap;}
 .veh-bicycle{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--blu-bg);color:var(--blu);border:1px solid var(--blu-b);white-space:nowrap;}
-.veh-hybrid{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #ddd6fe;white-space:nowrap;}
+.veh-hybrid{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#fff4ef;color:#c2410c;border:1px solid #fed7aa;white-space:nowrap;}
 
 .vstats-row{
   display:flex;border-bottom:1px solid var(--border);
@@ -221,7 +221,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .vstat-num{font-size:20px;font-weight:700;letter-spacing:-.5px;line-height:1;margin-bottom:3px;}
 .vstat-num.v-bike{color:#ff4d00;}
 .vstat-num.v-bicycle{color:#0066ff;}
-.vstat-num.v-hybrid{color:#6d28d9;}
+.vstat-num.v-hybrid{color:#ff6b2b;}
 .vstat-num.v-all{color:#1c1e2e;}
 .vstat-label{font-size:11px;color:var(--text2);font-weight:400;}
 
@@ -355,7 +355,7 @@ textarea#clip{position:fixed;left:-9999px;}
     <option value="">All vehicle types</option>
     <option value="Bike">🏍️ Bike</option>
     <option value="Bicycle">🚲 Bicycle</option>
-    <option value="Hybrid Fleet">🚗 Hybrid Fleet</option>
+    <option value="Hybrid Fleet">🟠 Hybrid Fleet</option>
   </select>
   <select class="fsel" id="f-sort"    onchange="applyFilters()">
     <option value="overdue">Most overdue first</option>
@@ -626,7 +626,7 @@ function renderVStats(){
     {k:'',lbl:'All Vehicles',cls:'v-all'},
     {k:'Bike',lbl:'🏍️ Bike Orders',cls:'v-bike'},
     {k:'Bicycle',lbl:'🚲 Bicycle Orders',cls:'v-bicycle'},
-    {k:'Hybrid Fleet',lbl:'🚗 Hybrid Fleet',cls:'v-hybrid'},
+    {k:'Hybrid Fleet',lbl:'<svg width="12" height="12" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#FF6B2B"/><path d="M9 10h14v3h-5.5v9h-3v-9H9v-3z" fill="white"/></svg> Hybrid Fleet',cls:'v-hybrid'},
   ];
   document.getElementById('vstats-row').innerHTML=VT.map(t=>`
     <div class="vstat-card${curVeh===t.k?' active':''}" onclick="setVeh('${t.k}')">
