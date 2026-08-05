@@ -656,8 +656,8 @@ function renderVTStats(){
   }
 
   const list=all.filter(pass);
-  const restaurant=list.filter(o=>(o.vt||'').toLowerCase().includes('restaurant')).length;
-  const darkstore =list.filter(o=>(o.vt||'').toLowerCase().includes('dark')||( o.vt||'').toLowerCase().includes('mart')).length;
+  const restaurant=list.filter(o=>(o.vt||'')==='restaurants').length;
+  const darkstore =list.filter(o=>(o.vt||'')==='darkstores').length;
   const other     =list.length-restaurant-darkstore;
 
   const VTT=[
