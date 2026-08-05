@@ -773,7 +773,9 @@ function renderTable(){
 
 // ── COPY ROW ─────────────────────────────────────────────────
 function copyRow(id,courier,status,zone,payment){
-  const txt=`Order: ${id}\nCourier: ${courier||'No courier'}\nStatus: ${status}\nZone: ${zone}\nPayment: ${payment}`;
+  const o=all.find(x=>x.id===id)||{};
+  const dm=o.dm!==null&&o.dm!==undefined?(o.dm<0?'-'+Math.abs(o.dm)+'min':'+'+o.dm+'min'):'—';
+  const txt=`Order: ${id}\nVendor: ${o.v||'—'}\nCourier: ${courier||'No courier'}\nStatus: ${status}\nZone: ${zone}\nOverdue: ${dm}\nPayment: ${payment}`;
   navigator.clipboard.writeText(txt).catch(()=>{
     const t=document.getElementById('clip');t.value=txt;t.select();document.execCommand('copy');
   });
