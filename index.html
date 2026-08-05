@@ -515,7 +515,7 @@ const TABS = [
 ];
 
 // ── STATE ───────────────────────────────────────────────
-let all=[], fil=[], tab='all', sKey='dm', sDir=1, aMap={}, cdT=null, cds=60;
+let all=[], fil=[], tab='all', sKey='dm', sDir=1, aMap={}, cdT=null, cds=180;
 
 // ── STATUS ──────────────────────────────────────────────
 function ns(s=''){
@@ -910,7 +910,7 @@ function copyLink(){
 
 // ── COUNTDOWN ────────────────────────────────────────────
 function resetCD(){
-  cds=60;if(cdT)clearInterval(cdT);
+  cds=180;if(cdT)clearInterval(cdT);
   cdT=setInterval(()=>{
     cds--;
     const m=Math.floor(cds/60),s=cds%60;
