@@ -754,7 +754,7 @@ function renderTable(){
         : '<span class="td-nocourier">—</span>'}</td>
       <td>${sbadge(o.s)}</td>
       <td style="font-size:13px;color:var(--text2);white-space:nowrap">${o.z||'—'}</td>
-      <td><span class="td-type">${o.vt||'—'}</span></td>
+      <td><span class="td-type" style="${o.vt==='darkstores'?'color:#ff6b2b;font-weight:600;':''}">${o.vt||'—'}</span></td>
       <td>${o.cash
         ? '<span class="pay-cash">💵 Cash</span>'
         : '<span class="pay-visa">💳 Visa</span>'
