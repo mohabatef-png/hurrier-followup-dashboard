@@ -413,7 +413,7 @@ textarea#clip{position:fixed;left:-9999px;}
 <script>
 // ── CONFIG ──────────────────────────────────────────────
 const GH_REPO  = 'mohabatef-png/hurrier-followup-dashboard';
-const API_URL  = `https://api.github.com/repos/${GH_REPO}/contents/data.json`;
+const RAW_URL  = `https://raw.githubusercontent.com/${GH_REPO}/main/data.json`;
 
 const SP = {
   10130:'New maadi', 10020:'Maadi Meraag', 10064:'Maadi Laselky',
@@ -482,12 +482,9 @@ async function loadData(){
   document.getElementById('loader').classList.add('on');
   document.getElementById('ref-ico').innerHTML='<span style="display:inline-block;width:11px;height:11px;border:2px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:sp .5s linear infinite"></span>';
   try{
-    const r=await fetch(API_URL+'?t='+Date.now(),{
-      headers:{Accept:'application/vnd.github.v3+json'}
-    });
+    const r=await fetch(RAW_URL+'?t='+Date.now());
     if(!r.ok) throw 0;
-    const ghRes=await r.json();
-    const raw=JSON.parse(decodeURIComponent(escape(atob(ghRes.content.replace(/\s/g,'')))));
+    const raw=await r.json();
     all=raw.map(o=>({
       ...o,
       agent: aMap[o.id]||o.agent||'Unassigned',
