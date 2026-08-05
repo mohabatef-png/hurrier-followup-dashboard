@@ -408,7 +408,7 @@ textarea#clip{position:fixed;left:-9999px;}
   <span style="flex:1"></span>
   <span>Team link:</span>
   <span class="footer-link">https://mohabatef-png.github.io/hurrier-followup-dashboard/</span>
-  <button class="copy-lnk" onclick="copyLink()">Copy</button>
+  <button class="copy-lnk" onclick="copyLink()">Copy Data</button>
 </div>
 
 <div id="toast"></div>
@@ -761,7 +761,7 @@ function renderTable(){
         : '<span class="pay-visa">💳 Visa</span>'
       }</td>
       <td>
-        <button onclick="copyRow(this)" data-id="${o.id}" data-c="${o.c}" data-s="${o.s}" data-z="${o.z}" data-cash="${o.cash}" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);font-family:var(--sans);transition:all .13s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--card)'">Copy</button>
+        <button onclick="copyRow(this)" data-id="${o.id}" data-c="${o.c}" data-s="${o.s}" data-z="${o.z}" data-cash="${o.cash}" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);font-family:var(--sans);transition:all .13s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--card)'">Copy Data</button>
       </td>
       <td>
         <select class="agent-sel${o.agent!=='Unassigned'?' on':''}" onchange="sa('${o.id}',this)">
