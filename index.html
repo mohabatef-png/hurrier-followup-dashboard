@@ -761,7 +761,7 @@ function renderTable(){
         : '<span class="pay-visa">💳 Visa</span>'
       }</td>
       <td>
-        <button onclick="copyRow('${o.id}','${o.c.replace(/'/g,\"\\'\")}','${o.s}','${o.z}','${o.cash?'Cash':'Visa'}')" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);font-family:var(--sans);transition:all .13s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--card)'">📋</button>
+        <button onclick="copyRow(this)" data-id="${o.id}" data-c="${o.c}" data-s="${o.s}" data-z="${o.z}" data-cash="${o.cash}" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);font-family:var(--sans);transition:all .13s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--card)'">📋</button>
       </td>
       <td>
         <select class="agent-sel${o.agent!=='Unassigned'?' on':''}" onchange="sa('${o.id}',this)">
@@ -772,10 +772,12 @@ function renderTable(){
 }
 
 // ── COPY ROW ─────────────────────────────────────────────────
-function copyRow(id,courier,status,zone,payment){
+function copyRow(btn){
+  const id=btn.dataset.id;
   const o=all.find(x=>x.id===id)||{};
   const dm=o.dm!==null&&o.dm!==undefined?(o.dm<0?'-'+Math.abs(o.dm)+'min':'+'+o.dm+'min'):'—';
-  const txt=`Order: ${id}\nVendor: ${o.v||'—'}\nCourier: ${courier||'No courier'}\nStatus: ${status}\nZone: ${zone}\nDelay: ${dm}\nPayment: ${payment}`;
+  const payment=btn.dataset.cash==='1'?'Cash':'Visa';
+  const txt=`Order: ${id}\nVendor: ${o.v||'—'}\nCourier: ${o.c||'No courier'}\nStatus: ${o.s||'—'}\nZone: ${o.z||'—'}\nDelay: ${dm}\nPayment: ${payment}`;
   navigator.clipboard.writeText(txt).catch(()=>{
     const t=document.getElementById('clip');t.value=txt;t.select();document.execCommand('copy');
   });
