@@ -604,6 +604,8 @@ function rep(id,items,ph){
   s.innerHTML=`<option value="">${ph}</option>`;
   items.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});
   if(items.includes(cur))s.value=cur;
+  const key=id.replace('f-','');
+  if(['zone','vendor','type'].includes(key)) buildSelOpts(key,items,ph);
 }
 
 // ── ORDER TYPE STATS ─────────────────────────────────────────
@@ -993,15 +995,7 @@ document.addEventListener('click',e=>{
   }
 });
 
-// Override rep() to also build searchable opts
-const _rep=rep;
-function rep(id,items,ph){
-  _rep(id,items,ph);
-  if(['f-zone','f-vendor','f-type'].includes(id)){
-    const key=id.replace('f-','');
-    buildSelOpts(key,items,ph);
-  }
-}
+
 
 // ── INIT ─────────────────────────────────────────────────
 renderStats();
