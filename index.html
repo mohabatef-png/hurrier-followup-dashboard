@@ -479,8 +479,8 @@ async function loadData(){
       headers:{Accept:'application/vnd.github.v3+json'}
     });
     if(!r.ok) throw 0;
-    const meta=await r.json();
-    const raw=JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\s/g,'')))));
+    const ghRes=await r.json();
+    const raw=JSON.parse(decodeURIComponent(escape(atob(ghRes.content.replace(/\s/g,'')))));
     all=raw.map(o=>({
       ...o,
       agent: aMap[o.id]||o.agent||'Unassigned',
