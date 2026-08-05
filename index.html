@@ -761,7 +761,7 @@ function renderTable(){
         : '<span class="pay-visa">💳 Visa</span>'
       }</td>
       <td>
-        <button onclick="copyRow(this)" data-id="${o.id}" data-c="${o.c}" data-s="${o.s}" data-z="${o.z}" data-cash="${o.cash}" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);font-family:var(--sans);transition:all .13s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--card)'">📋</button>
+        <button onclick="copyRow(this)" data-id="${o.id}" data-c="${o.c}" data-s="${o.s}" data-z="${o.z}" data-cash="${o.cash}" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);font-family:var(--sans);transition:all .13s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--card)'">Copy</button>
       </td>
       <td>
         <select class="agent-sel${o.agent!=='Unassigned'?' on':''}" onchange="sa('${o.id}',this)">
@@ -781,7 +781,7 @@ function copyRow(btn){
   navigator.clipboard.writeText(txt).catch(()=>{
     const t=document.getElementById('clip');t.value=txt;t.select();document.execCommand('copy');
   });
-  toast('📋 Order '+id+' copied!');
+  toast('✅ Copied!');
 }
 
 // ── AGENT ────────────────────────────────────────────────
