@@ -339,9 +339,6 @@ textarea#clip{position:fixed;left:-9999px;}
 <!-- VEHICLE TYPE STAT CARDS -->
 <div class="vstats-row" id="vstats-row"></div>
 
-<!-- VERTICAL TYPE STATS -->
-<div class="vstats-row" id="vtstats-row"></div>
-
 <!-- FILTERS -->
 <div class="filters-row">
   <div class="search-box">
@@ -564,7 +561,6 @@ function applyFilters(){
 
   renderStats();
   renderVStats();
-  renderVTStats();
   renderTable();
 
   const inf=fil.length<all.length?`${fil.length} of ${all.length}`:`${all.length}`;
@@ -812,7 +808,6 @@ function isFiltered(){
 
 // ── INIT ─────────────────────────────────────────────────
 renderStats();
-renderVTStats();
 loadData();
 </script>
 </body>
