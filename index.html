@@ -389,8 +389,8 @@ textarea#clip{position:fixed;left:-9999px;}
         <th onclick="sc('z')"     id="th-z">     ZONE      <span class="ico">↕</span></th>
         <th onclick="sc('vt')"    id="th-vt">    TYPE      <span class="ico">↕</span></th>
         <th onclick="sc('cash')"  id="th-cash">  PAYMENT METHOD <span class="ico">↕</span></th>
-        <th onclick="sc('agent')" id="th-agent"> AGENT     <span class="ico">↕</span></th>
         <th style="width:100px;text-align:center;">COPY DATA</th>
+        <th onclick="sc('agent')" id="th-agent"> AGENT     <span class="ico">↕</span></th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -761,12 +761,11 @@ function renderTable(){
         : '<span class="pay-visa">💳 Visa</span>'
       }</td>
       <td>
-        <button onclick="copyRow(this)" data-id="${o.id}" data-c="${o.c}" data-s="${o.s}" data-z="${o.z}" data-cash="${o.cash}" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);font-family:var(--sans);transition:all .13s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--card)'">Copy Data</button>
-      </td>
-      <td>
         <select class="agent-sel${o.agent!=='Unassigned'?' on':''}" onchange="sa('${o.id}',this)">
           ${AGENTS.map(a=>`<option${o.agent===a?' selected':''}>${a}</option>`).join('')}
         </select>
+      </td>      <td>
+        <button onclick="copyRow(this)" data-id="${o.id}" data-c="${o.c}" data-s="${o.s}" data-z="${o.z}" data-cash="${o.cash}" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);font-family:var(--sans);transition:all .13s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--card)'">Copy Data</button>
       </td>
     </tr>`).join('');
 }
