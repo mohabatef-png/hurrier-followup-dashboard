@@ -339,6 +339,9 @@ textarea#clip{position:fixed;left:-9999px;}
 <!-- VEHICLE TYPE STAT CARDS -->
 <div class="vstats-row" id="vstats-row"></div>
 
+<!-- ORDER TYPE STATS -->
+<div class="vstats-row" id="otstats-row" style="border-top:none;"></div>
+
 <!-- FILTERS -->
 <div class="filters-row">
   <div class="search-box">
@@ -526,6 +529,43 @@ function rep(id,items,ph){
   if(items.includes(cur))s.value=cur;
 }
 
+// ── ORDER TYPE STATS ─────────────────────────────────────────
+function renderOTStats(){
+  const q   =document.getElementById('f-q').value.toLowerCase().trim();
+  const zone=document.getElementById('f-zone').value;
+  const vend=document.getElementById('f-vendor').value;
+  const pay =document.getElementById('f-pay').value;
+  const veh =document.getElementById('f-vtype').value;
+
+  function pass(o){
+    if(tab!=='all' && o._s!==tab) return false;
+    if(q && !`${o.id} ${o.v} ${o.c} ${o.z}`.toLowerCase().includes(q)) return false;
+    if(zone && o.z!==zone) return false;
+    if(vend && o.v!==vend) return false;
+    if(pay==='cash'&&!o.cash) return false;
+    if(pay==='visa'&& o.cash) return false;
+    if(veh && o.veh!==veh) return false;
+    return true;
+  }
+
+  const list=all.filter(pass);
+  const restaurant=list.filter(o=>(o.vt||'')==='restaurants').length;
+  const darkstore =list.filter(o=>(o.vt||'')==='darkstores').length;
+
+  document.getElementById('otstats-row').innerHTML=`
+    <div class="vstat-card" style="cursor:default;flex:0 0 auto;min-width:120px;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:4px;">Order Type</div>
+    </div>
+    <div class="vstat-card" style="cursor:default;">
+      <div class="vstat-num v-restaurant">${restaurant}</div>
+      <div class="vstat-label">🍔 Restaurant</div>
+    </div>
+    <div class="vstat-card" style="cursor:default;">
+      <div class="vstat-num v-darkstore">${darkstore}</div>
+      <div class="vstat-label">🏪 Darkstore</div>
+    </div>`;
+}
+
 // ── FILTER + SORT ────────────────────────────────────────
 function applyFilters(){
   const q    =document.getElementById('f-q').value.toLowerCase().trim();
@@ -558,6 +598,7 @@ function applyFilters(){
 
   renderStats();
   renderVStats();
+  renderOTStats();
   renderTable();
 
   const inf=fil.length<all.length?`${fil.length} of ${all.length}`:`${all.length}`;
@@ -627,23 +668,12 @@ function renderVStats(){
     {k:'Bicycle',lbl:'🚲 Bicycle Orders',cls:'v-bicycle'},
     {k:'Hybrid Fleet',lbl:'<svg width="12" height="12" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#FF6B2B"/><path d="M9 10h14v3h-5.5v9h-3v-9H9v-3z" fill="white"/></svg> Hybrid Fleet',cls:'v-hybrid'},
   ];
-  const restaurant=list.filter(o=>(o.vt||'')==='restaurants').length;
-  const darkstore =list.filter(o=>(o.vt||'')==='darkstores').length;
-
   document.getElementById('vstats-row').innerHTML=VT.map(t=>`
     <div class="vstat-card${curVeh===t.k?' active':''}" onclick="setVeh('${t.k}')">
       <div class="vstat-num ${t.cls}">${t.k===''?counts.all:counts[t.k]}</div>
       <div class="vstat-label">${t.lbl}</div>
     </div>
-  `).join('')+`
-    <div class="vstat-card" style="cursor:default;border-left:1px solid var(--border);">
-      <div class="vstat-num v-restaurant">${restaurant}</div>
-      <div class="vstat-label">🍔 Restaurant</div>
-    </div>
-    <div class="vstat-card" style="cursor:default;">
-      <div class="vstat-num v-darkstore">${darkstore}</div>
-      <div class="vstat-label">🏪 Darkstore</div>
-    </div>`;
+  `).join('');
 }
 
 // ── VERTICAL TYPE STATS ─────────────────────────────────────
