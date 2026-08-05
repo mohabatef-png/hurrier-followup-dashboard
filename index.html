@@ -363,7 +363,7 @@ textarea#clip{position:fixed;left:-9999px;}
     <option value="Hybrid Fleet">🟠 Hybrid Fleet</option>
   </select>
   <select class="fsel" id="f-sort"    onchange="applyFilters()">
-    <option value="overdue">Most overdue first</option>
+    <option value="overdue">Most delayed first</option>
     <option value="dl_asc">Deadline soonest</option>
     <option value="ord_desc">Order # ↓</option>
     <option value="zone">By zone</option>
@@ -382,7 +382,7 @@ textarea#clip{position:fixed;left:-9999px;}
       <tr>
         <th onclick="sc('id')"    id="th-id">    ORDER #   <span class="ico">↕</span></th>
         <th onclick="sc('v')"     id="th-v">     VENDOR    <span class="ico">↕</span></th>
-        <th onclick="sc('dm')"    id="th-dm">    OVERDUE   <span class="ico">↕</span></th>
+        <th onclick="sc('dm')"    id="th-dm">    DELAY   <span class="ico">↕</span></th>
         <th onclick="sc('c')"     id="th-c">     COURIER   <span class="ico">↕</span></th>
         <th onclick="sc('veh')"   id="th-veh">   VEHICLE TYPE <span class="ico">↕</span></th>
         <th onclick="sc('s')"     id="th-s">     STATUS    <span class="ico">↕</span></th>
@@ -775,7 +775,7 @@ function renderTable(){
 function copyRow(id,courier,status,zone,payment){
   const o=all.find(x=>x.id===id)||{};
   const dm=o.dm!==null&&o.dm!==undefined?(o.dm<0?'-'+Math.abs(o.dm)+'min':'+'+o.dm+'min'):'—';
-  const txt=`Order: ${id}\nVendor: ${o.v||'—'}\nCourier: ${courier||'No courier'}\nStatus: ${status}\nZone: ${zone}\nOverdue: ${dm}\nPayment: ${payment}`;
+  const txt=`Order: ${id}\nVendor: ${o.v||'—'}\nCourier: ${courier||'No courier'}\nStatus: ${status}\nZone: ${zone}\nDelay: ${dm}\nPayment: ${payment}`;
   navigator.clipboard.writeText(txt).catch(()=>{
     const t=document.getElementById('clip');t.value=txt;t.select();document.execCommand('copy');
   });
@@ -804,9 +804,9 @@ function copySlack(){
   const risk=fil.filter(o=>o.dm!==null&&o.dm>=0&&o.dm<15);
   const nc  =fil.filter(o=>!o.c?.trim());
   let m=`🛵 *Hurrier Snapshot* — ${new Date().toLocaleTimeString('en-EG')}\n`;
-  m+=`Total: *${fil.length}* | 🔴 Overdue: *${late.length}* | ⚡ At risk: *${risk.length}* | No courier: *${nc.length}*\n`;
+  m+=`Total: *${fil.length}* | 🔴 Delay: *${late.length}* | ⚡ At risk: *${risk.length}* | No courier: *${nc.length}*\n`;
   if(late.length){
-    m+=`\n*🔴 Overdue:*\n`;
+    m+=`\n*🔴 Delay:*\n`;
     late.slice(0,8).forEach(o=>{const a=Math.abs(o.dm),h=Math.floor(a/60),mn=a%60;m+=`• \`${o.id}\` ${o.v} — ${o.c||'No courier'} (${h?h+'h ':''}${mn}m)\n`;});
   }
   const ta=document.getElementById('clip');ta.value=m;ta.select();document.execCommand('copy');
