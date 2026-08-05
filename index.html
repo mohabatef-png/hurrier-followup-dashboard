@@ -222,6 +222,8 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .vstat-num.v-bike{color:#ff4d00;}
 .vstat-num.v-bicycle{color:#0066ff;}
 .vstat-num.v-hybrid{color:#ff6b2b;}
+.vstat-num.v-restaurant{color:#16a34a;}
+.vstat-num.v-darkstore{color:#2563eb;}
 .vstat-num.v-all{color:#1c1e2e;}
 .vstat-label{font-size:11px;color:var(--text2);font-weight:400;}
 
@@ -336,6 +338,9 @@ textarea#clip{position:fixed;left:-9999px;}
 
 <!-- VEHICLE TYPE STAT CARDS -->
 <div class="vstats-row" id="vstats-row"></div>
+
+<!-- VERTICAL TYPE STATS -->
+<div class="vstats-row" id="vtstats-row"></div>
 
 <!-- FILTERS -->
 <div class="filters-row">
@@ -559,6 +564,7 @@ function applyFilters(){
 
   renderStats();
   renderVStats();
+  renderVTStats();
   renderTable();
 
   const inf=fil.length<all.length?`${fil.length} of ${all.length}`:`${all.length}`;
@@ -631,6 +637,43 @@ function renderVStats(){
   document.getElementById('vstats-row').innerHTML=VT.map(t=>`
     <div class="vstat-card${curVeh===t.k?' active':''}" onclick="setVeh('${t.k}')">
       <div class="vstat-num ${t.cls}">${t.k===''?counts.all:counts[t.k]}</div>
+      <div class="vstat-label">${t.lbl}</div>
+    </div>
+  `).join('');
+}
+
+// ── VERTICAL TYPE STATS ─────────────────────────────────────
+function renderVTStats(){
+  const q    =document.getElementById('f-q').value.toLowerCase().trim();
+  const zone =document.getElementById('f-zone').value;
+  const vend =document.getElementById('f-vendor').value;
+  const pay  =document.getElementById('f-pay').value;
+  const veh  =document.getElementById('f-vtype').value;
+  const curType=document.getElementById('f-type').value;
+
+  function pass(o){
+    if(tab!=='all' && o._s!==tab) return false;
+    if(q && !`${o.id} ${o.v} ${o.c} ${o.z}`.toLowerCase().includes(q)) return false;
+    if(zone && o.z!==zone) return false;
+    if(vend && o.v!==vend) return false;
+    if(pay==='cash'&&!o.cash) return false;
+    if(pay==='visa'&& o.cash) return false;
+    if(veh && o.veh!==veh) return false;
+    return true;
+  }
+
+  const list=all.filter(pass);
+  const restaurant=list.filter(o=>(o.vt||'').toLowerCase().includes('restaurant')).length;
+  const darkstore =list.filter(o=>(o.vt||'').toLowerCase().includes('dark')||( o.vt||'').toLowerCase().includes('mart')).length;
+  const other     =list.length-restaurant-darkstore;
+
+  const VTT=[
+    {k:'restaurant', lbl:'🍔 Restaurant', cls:'v-restaurant', count:restaurant},
+    {k:'darkstore',  lbl:'🏪 Darkstore',  cls:'v-darkstore',  count:darkstore},
+  ];
+  document.getElementById('vtstats-row').innerHTML=VTT.map(t=>`
+    <div class="vstat-card" style="cursor:default;">
+      <div class="vstat-num ${t.cls}">${t.count}</div>
       <div class="vstat-label">${t.lbl}</div>
     </div>
   `).join('');
@@ -769,6 +812,7 @@ function isFiltered(){
 
 // ── INIT ─────────────────────────────────────────────────
 renderStats();
+renderVTStats();
 loadData();
 </script>
 </body>
