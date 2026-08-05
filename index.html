@@ -406,24 +406,45 @@ textarea#clip{position:fixed;left:-9999px;}
     </div>
     <select id="f-type" style="display:none"></select>
   </div>
-  <select class="fsel" id="f-pay"     onchange="applyFilters()">
-    <option value="">All payments</option>
-    <option value="cash">💚 Cash</option>
-    <option value="visa">💳 Visa</option>
-  </select>
-  <select class="fsel" id="f-vtype"   onchange="applyFilters()">
-    <option value="">All vehicle types</option>
-    <option value="Bike">🏍️ Bike</option>
-    <option value="Bicycle">🚲 Bicycle</option>
-    <option value="Hybrid Fleet">🟠 Hybrid Fleet</option>
-  </select>
-  <select class="fsel" id="f-sort"    onchange="applyFilters()">
-    <option value="overdue">Most delayed first</option>
-    <option value="dl_asc">Deadline soonest</option>
-    <option value="ord_desc">Order # ↓</option>
-    <option value="zone">By zone</option>
-    <option value="vendor">By vendor</option>
-  </select>
+  <div class="sel-wrap" id="wrap-pay">
+    <div class="sel-box" onclick="toggleSel('pay')" id="box-pay"><span id="lbl-pay">All payments</span><span class="arr">▼</span></div>
+    <div class="sel-drop" id="drop-pay">
+      <input class="sel-search" placeholder="Search..." oninput="filterOpts('pay',this.value)">
+      <div class="sel-opts" id="opts-pay">
+        <div class="sel-opt selected" onclick="pickOpt('pay','','All payments')">All payments</div>
+        <div class="sel-opt" onclick="pickOpt('pay','cash','💵 Cash')">💵 Cash</div>
+        <div class="sel-opt" onclick="pickOpt('pay','visa','💳 Visa')">💳 Visa</div>
+      </div>
+    </div>
+    <select id="f-pay" style="display:none"><option value="">All payments</option><option value="cash">💵 Cash</option><option value="visa">💳 Visa</option></select>
+  </div>
+  <div class="sel-wrap" id="wrap-vtype">
+    <div class="sel-box" onclick="toggleSel('vtype')" id="box-vtype"><span id="lbl-vtype">All vehicle types</span><span class="arr">▼</span></div>
+    <div class="sel-drop" id="drop-vtype">
+      <input class="sel-search" placeholder="Search..." oninput="filterOpts('vtype',this.value)">
+      <div class="sel-opts" id="opts-vtype">
+        <div class="sel-opt selected" onclick="pickOpt('vtype','','All vehicle types')">All vehicle types</div>
+        <div class="sel-opt" onclick="pickOpt('vtype','Bike','🏍️ Bike')">🏍️ Bike</div>
+        <div class="sel-opt" onclick="pickOpt('vtype','Bicycle','🚲 Bicycle')">🚲 Bicycle</div>
+        <div class="sel-opt" onclick="pickOpt('vtype','Hybrid Fleet','🟠 Hybrid Fleet')">🟠 Hybrid Fleet</div>
+      </div>
+    </div>
+    <select id="f-vtype" style="display:none"><option value="">All vehicle types</option><option value="Bike">🏍️ Bike</option><option value="Bicycle">🚲 Bicycle</option><option value="Hybrid Fleet">🟠 Hybrid Fleet</option></select>
+  </div>
+  <div class="sel-wrap" id="wrap-sort">
+    <div class="sel-box" onclick="toggleSel('sort')" id="box-sort"><span id="lbl-sort">Most delayed first</span><span class="arr">▼</span></div>
+    <div class="sel-drop" id="drop-sort">
+      <input class="sel-search" placeholder="Search..." oninput="filterOpts('sort',this.value)">
+      <div class="sel-opts" id="opts-sort">
+        <div class="sel-opt selected" onclick="pickOpt('sort','overdue','Most delayed first')">Most delayed first</div>
+        <div class="sel-opt" onclick="pickOpt('sort','dl_asc','Deadline soonest')">Deadline soonest</div>
+        <div class="sel-opt" onclick="pickOpt('sort','ord_desc','Order # ↓')">Order # ↓</div>
+        <div class="sel-opt" onclick="pickOpt('sort','zone','By zone')">By zone</div>
+        <div class="sel-opt" onclick="pickOpt('sort','vendor','By vendor')">By vendor</div>
+      </div>
+    </div>
+    <select id="f-sort" style="display:none"><option value="overdue">Most delayed first</option><option value="dl_asc">Deadline soonest</option><option value="ord_desc">Order # ↓</option><option value="zone">By zone</option><option value="vendor">By vendor</option></select>
+  </div>
   <span class="results-info" id="res-info"></span>
   <button class="btn-reset" id="btn-reset" onclick="resetFilters()" style="display:none">
     ✕ Reset filters
@@ -916,17 +937,17 @@ function isFiltered(){
 }
 
 // ── SEARCHABLE SELECT ────────────────────────────────────────
-const selVals={'zone':'','vendor':'','type':''};
-const selLabels={'zone':'All zones','vendor':'All vendors','type':'All types'};
+const selVals={'zone':'','vendor':'','type':'','pay':'','vtype':'','sort':'overdue'};
+const selLabels={'zone':'All zones','vendor':'All vendors','type':'All types','pay':'All payments','vtype':'All vehicle types','sort':'Most delayed first'};
 
 function toggleSel(id){
   const drop=document.getElementById('drop-'+id);
   const box=document.getElementById('box-'+id);
   const isOpen=drop.classList.contains('open');
   // close all
-  ['zone','vendor','type'].forEach(k=>{
-    document.getElementById('drop-'+k).classList.remove('open');
-    document.getElementById('box-'+k).classList.remove('open');
+  ['zone','vendor','type','pay','vtype','sort'].forEach(k=>{
+    document.getElementById('drop-'+k)?.classList.remove('open');
+    document.getElementById('box-'+k)?.classList.remove('open');
   });
   if(!isOpen){
     drop.classList.add('open');
