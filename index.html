@@ -79,7 +79,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
 .btn-primary:hover{background:var(--acc-dark);border-color:var(--acc-dark);color:#fff;}
 
-/* ── STAT CARDS ── */
+/* ── STAT CARDS (like screenshot) ── */
 .stats-row{
   display:flex;border-bottom:2px solid var(--blu);
   background:var(--card);overflow-x:auto;
@@ -111,41 +111,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 .stat-card.active .stat-num.c-picked_up{color:#0066ff;}
 .stat-card.active .stat-num.c-near_dropoff{color:#00c853;}
 .stat-card.active .stat-num.c-accepted{color:#9c27b0;}
-.stat-label{font-size:12px;color:var(--text2);font-weight:600;}
-
-/* ── SEARCHABLE SELECT ── */
-.sel-wrap{position:relative;display:inline-block;}
-.sel-wrap select{display:none;}
-.sel-box{
-  display:inline-flex;align-items:center;justify-content:space-between;gap:6px;
-  padding:8px 10px;border:1.5px solid var(--border2);border-radius:7px;
-  font-size:13px;font-family:var(--sans);color:var(--text);
-  background:#fff;cursor:pointer;min-width:100px;white-space:nowrap;
-  transition:border .13s;user-select:none;
-}
-.sel-box:hover{border-color:var(--accent);}
-.sel-box.open{border-color:var(--accent);}
-.sel-box .arr{font-size:9px;color:var(--text3);margin-left:2px;}
-.sel-drop{
-  position:absolute;top:calc(100% + 4px);left:0;z-index:200;
-  background:#fff;border:1.5px solid var(--border2);border-radius:8px;
-  box-shadow:0 4px 20px rgba(0,0,0,.1);min-width:200px;max-width:320px;
-  display:none;flex-direction:column;overflow:hidden;
-}
-.sel-drop.open{display:flex;}
-.sel-search{
-  padding:8px 10px;border:none;border-bottom:1px solid var(--border);
-  font-size:13px;font-family:var(--sans);outline:none;width:100%;
-  background:#fafbfc;
-}
-.sel-opts{max-height:220px;overflow-y:auto;}
-.sel-opt{
-  padding:8px 12px;font-size:13px;cursor:pointer;
-  transition:background .08s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.sel-opt:hover{background:var(--bg);}
-.sel-opt.selected{color:var(--accent);font-weight:600;}
-.sel-opt.hidden{display:none;}
+.stat-label{font-size:12px;color:var(--text2);font-weight:400;}
 
 /* ── FILTERS ── */
 .filters-row{
@@ -183,13 +149,13 @@ select.fsel:focus{border-color:var(--accent);}
 
 /* ── TABLE ── */
 .tbl-scroll{overflow-x:auto;background:var(--card);}
-table{width:100%;border-collapse:collapse;min-width:1100px;}
+table{width:100%;border-collapse:collapse;min-width:1000px;}
 
 thead tr{background:#f8f9fb;border-bottom:1.5px solid var(--border2);}
 thead th{
   padding:9px 14px;text-align:center;
-  font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.65px;
-  color:var(--text2);cursor:pointer;user-select:none;white-space:nowrap;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.65px;
+  color:var(--text3);cursor:pointer;user-select:none;white-space:nowrap;
   transition:color .12s;
 }
 thead th:hover{color:var(--text2);}
@@ -202,16 +168,24 @@ tbody tr:hover{background:#f7f8fa;}
 tbody tr:last-child{border-bottom:none;}
 td{padding:12px 14px;vertical-align:middle;text-align:center;}
 
+/* Order # */
 .td-order{font-weight:700;font-size:13.5px;letter-spacing:-.2px;}
-.td-vendor{font-size:13px;color:var(--text);line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+
+/* Vendor */
+.td-vendor{font-size:13px;color:var(--text);line-height:1.45;}
+
+/* Overdue */
 .td-dl{font-family:var(--mono);font-size:13px;font-weight:600;white-space:nowrap;}
 .late{color:var(--red);}
 .warn{color:var(--ora);}
 .ok  {color:var(--grn);}
 .none{color:var(--text3);font-weight:400;}
+
+/* Courier — full name */
 .td-courier{font-size:13px;color:var(--text);line-height:1.4;white-space:nowrap;}
 .td-nocourier{font-size:12px;color:var(--text3);font-style:italic;white-space:nowrap;}
 
+/* Status badge */
 .sb{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:7px;font-size:12px;font-weight:600;white-space:nowrap;border:1px solid transparent;}
 .sb::before{content:'';width:6px;height:6px;border-radius:50%;}
 .sb-lp {background:#fff8e1;color:#92400e;border-color:#fde68a;}.sb-lp::before{background:#f59e0b;}
@@ -221,13 +195,15 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .sb-ac {background:var(--vio-bg);color:#6b21a8;border-color:var(--vio-b);}.sb-ac::before{background:var(--vio);}
 .sb-xx {background:#f3f4f6;color:var(--text2);border-color:var(--border);}.sb-xx::before{background:var(--text3);}
 
+/* Type */
 .td-type{font-size:12px;color:var(--text2);}
+
+/* Cash */
 .pay-cash{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;}
 .pay-visa{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:500;background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb;}
 
 .veh-bike{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--acc-bg);color:var(--acc-dark);border:1px solid #fed7aa;white-space:nowrap;}
 .veh-bicycle{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--blu-bg);color:var(--blu);border:1px solid var(--blu-b);white-space:nowrap;}
-.veh-hybrid{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#fff4ef;color:#c2410c;border:1px solid #fed7aa;white-space:nowrap;}
 
 .vstats-row{
   display:flex;border-bottom:1px solid var(--border);
@@ -241,15 +217,13 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .vstat-card:last-child{border-right:none;}
 .vstat-card:hover{background:#fafbfc;}
 .vstat-card.active{background:var(--blu-bg);}
-.vstat-num{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:3px;}
+.vstat-num{font-size:20px;font-weight:700;letter-spacing:-.5px;line-height:1;margin-bottom:3px;}
 .vstat-num.v-bike{color:#ff4d00;}
 .vstat-num.v-bicycle{color:#0066ff;}
-.vstat-num.v-hybrid{color:#ff6b2b;}
-.vstat-num.v-restaurant{color:#16a34a !important;}
-.vstat-num.v-darkstore{color:#ff6b2b !important;}
 .vstat-num.v-all{color:#1c1e2e;}
-.vstat-label{font-size:12px;color:var(--text2);font-weight:600;}
+.vstat-label{font-size:11px;color:var(--text2);font-weight:400;}
 
+/* Agent */
 .agent-sel{
   padding:5px 24px 5px 9px;border:1.5px solid var(--border);border-radius:7px;
   font-size:12.5px;font-family:var(--sans);color:var(--text2);
@@ -260,11 +234,13 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .agent-sel:focus{border-color:var(--accent);}
 .agent-sel.on{color:var(--grn);border-color:var(--grn-b);font-weight:600;}
 
+/* Empty */
 .empty{padding:60px 20px;text-align:center;}
 .empty-ico{font-size:36px;opacity:.35;margin-bottom:10px;}
 .empty-title{font-size:15px;font-weight:600;color:var(--text2);}
 .empty-sub{font-size:12.5px;color:var(--text3);margin-top:5px;line-height:1.6;}
 
+/* Footer */
 .footer{
   background:var(--card);border-top:1px solid var(--border);
   padding:9px 20px;display:flex;align-items:center;gap:12px;
@@ -273,15 +249,18 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .footer-link{font-family:var(--mono);font-size:11px;color:var(--text2);}
 .copy-lnk{background:none;border:none;cursor:pointer;color:var(--accent);font-size:11.5px;font-weight:600;font-family:var(--sans);}
 
+/* Toast */
 #toast{position:fixed;bottom:22px;right:22px;background:#1a1d2e;color:#fff;border-radius:9px;padding:11px 16px;font-size:13px;font-weight:500;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.25);}
 #toast.on{display:block;animation:tin .18s ease;}
 @keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
+/* Loading */
 #loader{position:fixed;inset:0;background:rgba(255,255,255,.75);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:500;}
 #loader.on{display:flex;}
 .spin{width:38px;height:38px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:sp .55s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg)}}
 
+/* ── RESPONSIVE ── */
 @media(max-width:900px){
   .topbar-inner{padding:0 12px;height:50px;}
   .brand-name{font-size:13.5px;}
@@ -302,7 +281,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
   .filters-row{gap:6px;}
   .search-box{min-width:100%;order:-1;}
   .results-info{display:none;}
-  table{min-width:800px;}
+  table{min-width:700px;}
 }
 
 textarea#clip{position:fixed;left:-9999px;}
@@ -314,13 +293,19 @@ textarea#clip{position:fixed;left:-9999px;}
   font-family:var(--sans);transition:all .13s;white-space:nowrap;
 }
 .btn-reset:hover{background:#fee2e2;border-color:#fca5a5;}
+
+/* preview banner */
+.preview-banner{
+  background:#fffbeb;border-bottom:1px solid #fde68a;color:#92400e;
+  font-size:12px;padding:6px 20px;text-align:center;font-family:var(--sans);
+}
 </style>
 </head>
 <body>
 
 <div id="loader"><div class="spin"></div></div>
 
-<!-- TOP BAR --><!-- build:1786031067 --><!-- v1786030178 -->
+<!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-inner">
     <div class="brand">
@@ -350,78 +335,32 @@ textarea#clip{position:fixed;left:-9999px;}
 <!-- VEHICLE TYPE STAT CARDS -->
 <div class="vstats-row" id="vstats-row"></div>
 
-<!-- ORDER TYPE STATS -->
-<div class="vstats-row" id="otstats-row" style="border-top:none;border-bottom:2px solid var(--blu);padding:6px 0;min-height:0;justify-content:center;"></div>
-
 <!-- FILTERS -->
 <div class="filters-row">
   <div class="search-box">
     <span class="search-icon">🔍</span>
-    <input id="f-q" placeholder="Search order, courier, vendor, zone, phone…" oninput="applyFilters()">
+    <input id="f-q" placeholder="Search order, courier, vendor, zone…" oninput="applyFilters()">
   </div>
-  <div class="sel-wrap" id="wrap-zone">
-    <div class="sel-box" onclick="toggleSel('zone')" id="box-zone"><span id="lbl-zone">All zones</span><span class="arr">▼</span></div>
-    <div class="sel-drop" id="drop-zone">
-      <input class="sel-search" placeholder="Search zone..." oninput="filterOpts('zone',this.value)">
-      <div class="sel-opts" id="opts-zone"></div>
-    </div>
-    <select id="f-zone" style="display:none"></select>
-  </div>
-  <div class="sel-wrap" id="wrap-vendor">
-    <div class="sel-box" onclick="toggleSel('vendor')" id="box-vendor"><span id="lbl-vendor">All vendors</span><span class="arr">▼</span></div>
-    <div class="sel-drop" id="drop-vendor">
-      <input class="sel-search" placeholder="Search vendor..." oninput="filterOpts('vendor',this.value)">
-      <div class="sel-opts" id="opts-vendor"></div>
-    </div>
-    <select id="f-vendor" style="display:none"></select>
-  </div>
-  <div class="sel-wrap" id="wrap-type">
-    <div class="sel-box" onclick="toggleSel('type')" id="box-type"><span id="lbl-type">All types</span><span class="arr">▼</span></div>
-    <div class="sel-drop" id="drop-type">
-      <input class="sel-search" placeholder="Search type..." oninput="filterOpts('type',this.value)">
-      <div class="sel-opts" id="opts-type"></div>
-    </div>
-    <select id="f-type" style="display:none"></select>
-  </div>
-  <div class="sel-wrap" id="wrap-pay">
-    <div class="sel-box" onclick="toggleSel('pay')" id="box-pay"><span id="lbl-pay">All payments</span><span class="arr">▼</span></div>
-    <div class="sel-drop" id="drop-pay">
-      <input class="sel-search" placeholder="Search..." oninput="filterOpts('pay',this.value)">
-      <div class="sel-opts" id="opts-pay">
-        <div class="sel-opt selected" onclick="pickOpt('pay','','All payments')">All payments</div>
-        <div class="sel-opt" onclick="pickOpt('pay','cash','💵 Cash')">💵 Cash</div>
-        <div class="sel-opt" onclick="pickOpt('pay','visa','💳 Visa')">💳 Visa</div>
-      </div>
-    </div>
-    <select id="f-pay" style="display:none"><option value="">All payments</option><option value="cash">💵 Cash</option><option value="visa">💳 Visa</option></select>
-  </div>
-  <div class="sel-wrap" id="wrap-vtype">
-    <div class="sel-box" onclick="toggleSel('vtype')" id="box-vtype"><span id="lbl-vtype">All vehicle types</span><span class="arr">▼</span></div>
-    <div class="sel-drop" id="drop-vtype">
-      <input class="sel-search" placeholder="Search..." oninput="filterOpts('vtype',this.value)">
-      <div class="sel-opts" id="opts-vtype">
-        <div class="sel-opt selected" onclick="pickOpt('vtype','','All vehicle types')">All vehicle types</div>
-        <div class="sel-opt" onclick="pickOpt('vtype','Bike','🏍️ Bike')">🏍️ Bike</div>
-        <div class="sel-opt" onclick="pickOpt('vtype','Bicycle','🚲 Bicycle')">🚲 Bicycle</div>
-        <div class="sel-opt" onclick="pickOpt('vtype','Hybrid Fleet','🟠 Hybrid Fleet')">🟠 Hybrid Fleet</div>
-      </div>
-    </div>
-    <select id="f-vtype" style="display:none"><option value="">All vehicle types</option><option value="Bike">🏍️ Bike</option><option value="Bicycle">🚲 Bicycle</option><option value="Hybrid Fleet">🟠 Hybrid Fleet</option></select>
-  </div>
-  <div class="sel-wrap" id="wrap-sort">
-    <div class="sel-box" onclick="toggleSel('sort')" id="box-sort"><span id="lbl-sort">Most delayed first</span><span class="arr">▼</span></div>
-    <div class="sel-drop" id="drop-sort">
-      <input class="sel-search" placeholder="Search..." oninput="filterOpts('sort',this.value)">
-      <div class="sel-opts" id="opts-sort">
-        <div class="sel-opt selected" onclick="pickOpt('sort','overdue','Most delayed first')">Most delayed first</div>
-        <div class="sel-opt" onclick="pickOpt('sort','dl_asc','Deadline soonest')">Deadline soonest</div>
-        <div class="sel-opt" onclick="pickOpt('sort','ord_desc','Order # ↓')">Order # ↓</div>
-        <div class="sel-opt" onclick="pickOpt('sort','zone','By zone')">By zone</div>
-        <div class="sel-opt" onclick="pickOpt('sort','vendor','By vendor')">By vendor</div>
-      </div>
-    </div>
-    <select id="f-sort" style="display:none"><option value="overdue">Most delayed first</option><option value="dl_asc">Deadline soonest</option><option value="ord_desc">Order # ↓</option><option value="zone">By zone</option><option value="vendor">By vendor</option></select>
-  </div>
+  <select class="fsel" id="f-zone"    onchange="applyFilters()"><option value="">All zones</option></select>
+  <select class="fsel" id="f-vendor"  onchange="applyFilters()"><option value="">All vendors</option></select>
+  <select class="fsel" id="f-type"    onchange="applyFilters()"><option value="">All types</option></select>
+  <select class="fsel" id="f-pay"     onchange="applyFilters()">
+    <option value="">All payments</option>
+    <option value="cash">💚 Cash</option>
+    <option value="visa">💳 Visa</option>
+  </select>
+  <select class="fsel" id="f-vtype"   onchange="applyFilters()">
+    <option value="">All vehicle types</option>
+    <option value="Bike">🏍️ Bike</option>
+    <option value="Bicycle">🚲 Bicycle</option>
+  </select>
+  <select class="fsel" id="f-sort"    onchange="applyFilters()">
+    <option value="overdue">Most overdue first</option>
+    <option value="dl_asc">Deadline soonest</option>
+    <option value="ord_desc">Order # ↓</option>
+    <option value="zone">By zone</option>
+    <option value="vendor">By vendor</option>
+  </select>
   <span class="results-info" id="res-info"></span>
   <button class="btn-reset" id="btn-reset" onclick="resetFilters()" style="display:none">
     ✕ Reset filters
@@ -435,16 +374,14 @@ textarea#clip{position:fixed;left:-9999px;}
       <tr>
         <th onclick="sc('id')"    id="th-id">    ORDER #   <span class="ico">↕</span></th>
         <th onclick="sc('v')"     id="th-v">     VENDOR    <span class="ico">↕</span></th>
-        <th onclick="sc('dm')"    id="th-dm">    DELAY     <span class="ico">↕</span></th>
+        <th onclick="sc('dm')"    id="th-dm">    OVERDUE   <span class="ico">↕</span></th>
         <th onclick="sc('c')"     id="th-c">     COURIER   <span class="ico">↕</span></th>
-        <th onclick="sc('phone')" id="th-phone"> PHONE     <span class="ico">↕</span></th>
         <th onclick="sc('veh')"   id="th-veh">   VEHICLE TYPE <span class="ico">↕</span></th>
         <th onclick="sc('s')"     id="th-s">     STATUS    <span class="ico">↕</span></th>
         <th onclick="sc('z')"     id="th-z">     ZONE      <span class="ico">↕</span></th>
         <th onclick="sc('vt')"    id="th-vt">    TYPE      <span class="ico">↕</span></th>
-        <th onclick="sc('cash')"  id="th-cash">  PAYMENT   <span class="ico">↕</span></th>
+        <th onclick="sc('cash')"  id="th-cash">  PAYMENT METHOD <span class="ico">↕</span></th>
         <th onclick="sc('agent')" id="th-agent"> AGENT     <span class="ico">↕</span></th>
-        <th style="width:100px;text-align:center;">COPY DATA</th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -462,7 +399,7 @@ textarea#clip{position:fixed;left:-9999px;}
   <span style="flex:1"></span>
   <span>Team link:</span>
   <span class="footer-link">https://mohabatef-png.github.io/hurrier-followup-dashboard/</span>
-  <button class="copy-lnk" onclick="copyLink()">Copy Link</button>
+  <button class="copy-lnk" onclick="copyLink()">Copy</button>
 </div>
 
 <div id="toast"></div>
@@ -471,7 +408,7 @@ textarea#clip{position:fixed;left:-9999px;}
 <script>
 // ── CONFIG ──────────────────────────────────────────────
 const GH_REPO  = 'mohabatef-png/hurrier-followup-dashboard';
-const RAW_URL  = `https://raw.githubusercontent.com/${GH_REPO}/main/data.json`;
+const API_URL  = `https://api.github.com/repos/${GH_REPO}/contents/data.json`;
 
 const SP = {
   10130:'New maadi', 10020:'Maadi Meraag', 10064:'Maadi Laselky',
@@ -493,7 +430,7 @@ const TABS = [
 ];
 
 // ── STATE ───────────────────────────────────────────────
-let all=[], fil=[], tab='all', sKey='dm', sDir=1, aMap={}, cdT=null, cds=180;
+let all=[], fil=[], tab='all', sKey='dm', sDir=1, aMap={}, cdT=null, cds=60;
 
 // ── STATUS ──────────────────────────────────────────────
 function ns(s=''){
@@ -506,20 +443,10 @@ function ns(s=''){
   return 'other';
 }
 
-// ── VEHICLE TYPE — prefer data field, fallback to name ──
-function vtype(c='', vehicleData=''){
-  if(vehicleData){
-    const vd=vehicleData.toLowerCase();
-    // hybrid_fleet_tmart_* and any hybrid variant
-    if(/hybrid_fleet|hybrid/i.test(vd))  return 'Hybrid Fleet';
-    if(/bicycle|_bc$|bike_bc/i.test(vd)) return 'Bicycle';
-    return 'Bike';
-  }
-  // fallback: detect from courier name
-  const name=(c||'').trim();
-  if(/hybrid/i.test(name))  return 'Hybrid Fleet';
-  if(/_BC\s*$/i.test(name)) return 'Bicycle';
-  return 'Bike';
+// Vehicle type: courier names ending in "_BC" (with optional trailing space) ride bicycles.
+// Everything else is a bike (motorcycle).
+function vtype(c=''){
+  return /_BC\s*$/i.test((c||'').trim()) ? 'Bicycle' : 'Bike';
 }
 
 function dlFmt(dm){
@@ -548,24 +475,27 @@ async function loadData(){
   document.getElementById('loader').classList.add('on');
   document.getElementById('ref-ico').innerHTML='<span style="display:inline-block;width:11px;height:11px;border:2px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:sp .5s linear infinite"></span>';
   try{
-    const r=await fetch(RAW_URL+'?t='+Date.now());
+    const r=await fetch(API_URL+'?t='+Date.now(),{
+      headers:{Accept:'application/vnd.github.v3+json'}
+    });
     if(!r.ok) throw 0;
-    const raw=await r.json();
+    const meta=await r.json();
+    const raw=JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\s/g,'')))));
     all=raw.map(o=>({
       ...o,
       agent: aMap[o.id]||o.agent||'Unassigned',
       z: SP[o.z]||(o.z?String(o.z):'Unknown'),
       _s: ns(o.s),
-      veh: vtype(o.c, o.vehicle),
-      phone: o.phone||''
+      veh: vtype(o.c)
     }));
     populate();
     applyFilters();
     const ts=all[0]?.ts?new Date(all[0].ts):new Date();
-    const metaEl=document.getElementById('brand-meta');
-    metaEl.textContent=`${all.length} orders · updated ${ts.toLocaleTimeString('en-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'})} · Refresh in: `;
-    if(!metaEl.querySelector('#cd2')){
-      const s=document.createElement('span');s.id='cd2';metaEl.appendChild(s);
+    document.getElementById('brand-meta').textContent=
+      `${all.length} orders · updated ${ts.toLocaleTimeString('en-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'})} · Refresh in: `;
+    const meta=document.getElementById('brand-meta');
+    if(!meta.querySelector('#cd2')){
+      const s=document.createElement('span');s.id='cd2';meta.appendChild(s);
     }
   }catch{
     document.getElementById('empty').style.display='block';
@@ -590,46 +520,6 @@ function rep(id,items,ph){
   s.innerHTML=`<option value="">${ph}</option>`;
   items.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});
   if(items.includes(cur))s.value=cur;
-  const key=id.replace('f-','');
-  if(['zone','vendor','type'].includes(key)) buildSelOpts(key,items,ph);
-}
-
-// ── ORDER TYPE STATS ─────────────────────────────────────────
-function renderOTStats(){
-  const q   =document.getElementById('f-q').value.toLowerCase().trim();
-  const zone=document.getElementById('f-zone').value;
-  const vend=document.getElementById('f-vendor').value;
-  const pay =document.getElementById('f-pay').value;
-  const veh =document.getElementById('f-vtype').value;
-
-  function pass(o){
-    if(tab!=='all' && o._s!==tab) return false;
-    if(q && !`${o.id} ${o.v} ${o.c} ${o.z} ${o.phone}`.toLowerCase().includes(q)) return false;
-    if(zone && o.z!==zone) return false;
-    if(vend && o.v!==vend) return false;
-    if(pay==='cash'&&!o.cash) return false;
-    if(pay==='visa'&& o.cash) return false;
-    if(veh && o.veh!==veh) return false;
-    return true;
-  }
-
-  const list=all.filter(pass);
-  const restaurant=list.filter(o=>(o.vt||'')==='restaurants').length;
-  const darkstore =list.filter(o=>(o.vt||'')==='darkstores').length;
-
-  const curType=selVals['type']||'';
-  document.getElementById('otstats-row').innerHTML=`
-    <div class="vstat-card" style="flex:0 0 auto;min-width:110px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);">Order Type</span>
-    </div>
-    <div class="vstat-card${curType==='restaurants'?' active':''}" onclick="setOType('restaurants')" style="cursor:pointer;padding:8px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-      <div class="vstat-num v-restaurant" style="font-size:28px;font-weight:700;letter-spacing:-1px;">${restaurant}</div>
-      <div class="vstat-label" style="font-weight:600;font-size:13px;">🍔 Restaurant</div>
-    </div>
-    <div class="vstat-card${curType==='darkstores'?' active':''}" onclick="setOType('darkstores')" style="cursor:pointer;padding:8px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-      <div class="vstat-num v-darkstore" style="font-size:28px;font-weight:700;letter-spacing:-1px;">${darkstore}</div>
-      <div class="vstat-label" style="font-weight:600;font-size:13px;"><svg width="12" height="12" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#FF6B2B"/><path d="M9 10h14v3h-5.5v9h-3v-9H9v-3z" fill="white"/></svg> T-Mart Orders</div>
-    </div>`;
 }
 
 // ── FILTER + SORT ────────────────────────────────────────
@@ -643,7 +533,7 @@ function applyFilters(){
 
   fil=all.filter(o=>{
     if(tab!=='all' && o._s!==tab) return false;
-    if(q && !`${o.id} ${o.v} ${o.c} ${o.z} ${o.phone}`.toLowerCase().includes(q)) return false;
+    if(q && !`${o.id} ${o.v} ${o.c} ${o.z}`.toLowerCase().includes(q)) return false;
     if(zone && o.z!==zone) return false;
     if(vend && o.v!==vend) return false;
     if(type && o.vt!==type) return false;
@@ -664,7 +554,6 @@ function applyFilters(){
 
   renderStats();
   renderVStats();
-  renderOTStats();
   renderTable();
 
   const inf=fil.length<all.length?`${fil.length} of ${all.length}`:`${all.length}`;
@@ -683,7 +572,7 @@ function renderStats(){
   const pay  =document.getElementById('f-pay').value;
 
   function pass(o){
-    if(q && !`${o.id} ${o.v} ${o.c} ${o.z} ${o.phone}`.toLowerCase().includes(q)) return false;
+    if(q && !`${o.id} ${o.v} ${o.c} ${o.z}`.toLowerCase().includes(q)) return false;
     if(zone && o.z!==zone) return false;
     if(vend && o.v!==vend) return false;
     if(type && o.vt!==type) return false;
@@ -716,7 +605,7 @@ function renderVStats(){
 
   function pass(o){
     if(tab!=='all' && o._s!==tab) return false;
-    if(q && !`${o.id} ${o.v} ${o.c} ${o.z} ${o.phone}`.toLowerCase().includes(q)) return false;
+    if(q && !`${o.id} ${o.v} ${o.c} ${o.z}`.toLowerCase().includes(q)) return false;
     if(zone && o.z!==zone) return false;
     if(vend && o.v!==vend) return false;
     if(type && o.vt!==type) return false;
@@ -726,13 +615,12 @@ function renderVStats(){
   }
 
   const list=all.filter(pass);
-  const counts={all:list.length,Bike:list.filter(o=>o.veh==='Bike').length,Bicycle:list.filter(o=>o.veh==='Bicycle').length,'Hybrid Fleet':list.filter(o=>o.veh==='Hybrid Fleet').length};
+  const counts={all:list.length,Bike:list.filter(o=>o.veh==='Bike').length,Bicycle:list.filter(o=>o.veh==='Bicycle').length};
 
   const VT=[
     {k:'',lbl:'All Vehicles',cls:'v-all'},
     {k:'Bike',lbl:'🏍️ Bike Orders',cls:'v-bike'},
     {k:'Bicycle',lbl:'🚲 Bicycle Orders',cls:'v-bicycle'},
-    {k:'Hybrid Fleet',lbl:'<svg width="12" height="12" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#FF6B2B"/><path d="M9 10h14v3h-5.5v9h-3v-9H9v-3z" fill="white"/></svg> Hybrid Fleet',cls:'v-hybrid'},
   ];
   document.getElementById('vstats-row').innerHTML=VT.map(t=>`
     <div class="vstat-card${curVeh===t.k?' active':''}" onclick="setVeh('${t.k}')">
@@ -745,15 +633,6 @@ function renderVStats(){
 function setVeh(v){
   document.getElementById('f-vtype').value=v;
   applyFilters();
-}
-
-function setOType(v){
-  const cur=selVals['type']||'';
-  if(cur===v){
-    pickOpt('type','','All types');
-  } else {
-    pickOpt('type',v,v);
-  }
 }
 
 // ── SORT COL ─────────────────────────────────────────────
@@ -785,23 +664,16 @@ function renderTable(){
       <td><span class="td-vendor">${o.v||'—'}</span></td>
       <td>${dlFmt(o.dm)}</td>
       <td>${o.c
-        ?`<span class="td-courier" style="${o.veh==='Hybrid Fleet'?'color:#ff6b2b;font-weight:600;':''}">${o.c}</span>`
+        ?`<span class="td-courier">${o.c}</span>`
         :`<span class="td-nocourier">No courier</span>`}</td>
-      <td>${o.phone
-        ?`<a href="tel:${o.phone}" style="font-family:var(--mono);font-size:12px;color:var(--blu);text-decoration:none;font-weight:600;">${o.phone}</a>`
-        :`<span class="td-nocourier">—</span>`}</td>
       <td>${o.c
-        ? (o.veh==='Bicycle'
-            ? '<span class="veh-bicycle">🚲 Bicycle</span>'
-            : o.veh==='Hybrid Fleet'
-              ? '<span class="veh-hybrid">🟠 Hybrid</span>'
-              : '<span class="veh-bike">🏍️ Bike</span>')
+        ? (o.veh==='Bicycle' ? '<span class="veh-bicycle">🚲 Bicycle</span>' : '<span class="veh-bike">🏍️ Bike</span>')
         : '<span class="td-nocourier">—</span>'}</td>
       <td>${sbadge(o.s)}</td>
       <td style="font-size:13px;color:var(--text2);white-space:nowrap">${o.z||'—'}</td>
-      <td><span class="td-type" style="${o.vt==='darkstores'?'color:#ff6b2b;font-weight:600;':''}">${o.vt||'—'}</span></td>
+      <td><span class="td-type">${o.vt||'—'}</span></td>
       <td>${o.cash
-        ? '<span class="pay-cash">💵 Cash</span>'
+        ? '<span class="pay-cash">💚 Cash</span>'
         : '<span class="pay-visa">💳 Visa</span>'
       }</td>
       <td>
@@ -809,23 +681,7 @@ function renderTable(){
           ${AGENTS.map(a=>`<option${o.agent===a?' selected':''}>${a}</option>`).join('')}
         </select>
       </td>
-      <td>
-        <button onclick="copyRow(this)" data-id="${o.id}" data-cash="${o.cash}" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);font-family:var(--sans);transition:all .13s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--card)'">Copy</button>
-      </td>
     </tr>`).join('');
-}
-
-// ── COPY ROW ─────────────────────────────────────────────────
-function copyRow(btn){
-  const id=btn.dataset.id;
-  const o=all.find(x=>x.id===id)||{};
-  const dm=o.dm!==null&&o.dm!==undefined?(o.dm<0?'-'+Math.abs(o.dm)+'min':'+'+o.dm+'min'):'—';
-  const payment=btn.dataset.cash==='1'?'Cash':'Visa';
-  const txt=`Order: ${id}\nVendor: ${o.v||'—'}\nCourier: ${o.c||'No courier'}\nPhone: ${o.phone||'—'}\nVehicle: ${o.veh||'—'}\nStatus: ${o.s||'—'}\nZone: ${o.z||'—'}\nDelay: ${dm}\nPayment: ${payment}`;
-  navigator.clipboard.writeText(txt).catch(()=>{
-    const t=document.getElementById('clip');t.value=txt;t.select();document.execCommand('copy');
-  });
-  toast('✅ Copied!');
 }
 
 // ── AGENT ────────────────────────────────────────────────
@@ -837,7 +693,7 @@ function sa(id,sel){
 
 // ── EXPORT ───────────────────────────────────────────────
 function exportCSV(){
-  const cols=['id','v','dm','c','phone','veh','s','z','vt','cash','agent'];
+  const cols=['id','v','dm','c','veh','s','z','vt','cash','agent'];
   const rows=[cols.join(','),...fil.map(o=>cols.map(k=>`"${(o[k]??'').toString().replace(/"/g,'""')}"`).join(','))];
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'}));
@@ -850,10 +706,10 @@ function copySlack(){
   const risk=fil.filter(o=>o.dm!==null&&o.dm>=0&&o.dm<15);
   const nc  =fil.filter(o=>!o.c?.trim());
   let m=`🛵 *Hurrier Snapshot* — ${new Date().toLocaleTimeString('en-EG')}\n`;
-  m+=`Total: *${fil.length}* | 🔴 Delay: *${late.length}* | ⚡ At risk: *${risk.length}* | No courier: *${nc.length}*\n`;
+  m+=`Total: *${fil.length}* | 🔴 Overdue: *${late.length}* | ⚡ At risk: *${risk.length}* | No courier: *${nc.length}*\n`;
   if(late.length){
-    m+=`\n*🔴 Delay:*\n`;
-    late.slice(0,8).forEach(o=>{const a=Math.abs(o.dm),h=Math.floor(a/60),mn=a%60;m+=`• \`${o.id}\` ${o.v} — ${o.c||'No courier'} ${o.phone?'('+o.phone+')':''} (${h?h+'h ':''}${mn}m)\n`;});
+    m+=`\n*🔴 Overdue:*\n`;
+    late.slice(0,8).forEach(o=>{const a=Math.abs(o.dm),h=Math.floor(a/60),mn=a%60;m+=`• \`${o.id}\` ${o.v} — ${o.c||'No courier'} (${h?h+'h ':''}${mn}m)\n`;});
   }
   const ta=document.getElementById('clip');ta.value=m;ta.select();document.execCommand('copy');
   toast('📋 Slack message copied!');
@@ -867,7 +723,7 @@ function copyLink(){
 
 // ── COUNTDOWN ────────────────────────────────────────────
 function resetCD(){
-  cds=180;if(cdT)clearInterval(cdT);
+  cds=60;if(cdT)clearInterval(cdT);
   cdT=setInterval(()=>{
     cds--;
     const m=Math.floor(cds/60),s=cds%60;
@@ -904,60 +760,6 @@ function isFiltered(){
     || document.getElementById('f-vtype').value!==''
     || tab!=='all';
 }
-
-// ── SEARCHABLE SELECT ────────────────────────────────────────
-const selVals={'zone':'','vendor':'','type':'','pay':'','vtype':'','sort':'overdue'};
-const selLabels={'zone':'All zones','vendor':'All vendors','type':'All types','pay':'All payments','vtype':'All vehicle types','sort':'Most delayed first'};
-
-function toggleSel(id){
-  const drop=document.getElementById('drop-'+id);
-  const box=document.getElementById('box-'+id);
-  const isOpen=drop.classList.contains('open');
-  ['zone','vendor','type','pay','vtype','sort'].forEach(k=>{
-    document.getElementById('drop-'+k)?.classList.remove('open');
-    document.getElementById('box-'+k)?.classList.remove('open');
-  });
-  if(!isOpen){
-    drop.classList.add('open');
-    box.classList.add('open');
-    const inp=drop.querySelector('.sel-search');
-    if(inp){inp.value='';filterOpts(id,'');inp.focus();}
-  }
-}
-
-function filterOpts(id,q){
-  const opts=document.querySelectorAll('#opts-'+id+' .sel-opt');
-  opts.forEach(o=>{
-    o.classList.toggle('hidden', q&&!o.textContent.toLowerCase().includes(q.toLowerCase()));
-  });
-}
-
-function pickOpt(id,val,lbl){
-  selVals[id]=val;
-  document.getElementById('lbl-'+id).textContent=lbl||selLabels[id];
-  document.getElementById('f-'+id).value=val;
-  document.getElementById('drop-'+id).classList.remove('open');
-  document.getElementById('box-'+id).classList.remove('open');
-  applyFilters();
-}
-
-function buildSelOpts(id,items,ph){
-  const container=document.getElementById('opts-'+id);
-  const cur=selVals[id];
-  container.innerHTML=`<div class="sel-opt${!cur?' selected':''}" onclick="pickOpt('${id}','','${ph}')">${ph}</div>`
-    +items.map(v=>`<div class="sel-opt${cur===v?' selected':''}" onclick="pickOpt('${id}','${v.replace(/'/g,"\'")}','${v.replace(/'/g,"\'")}') ">${v}</div>`).join('');
-  const sel=document.getElementById('f-'+id);
-  sel.innerHTML=`<option value="">${ph}</option>`+items.map(v=>`<option value="${v}"${cur===v?' selected':''}>${v}</option>`).join('');
-}
-
-document.addEventListener('click',e=>{
-  if(!e.target.closest('.sel-wrap')){
-    ['zone','vendor','type'].forEach(k=>{
-      document.getElementById('drop-'+k)?.classList.remove('open');
-      document.getElementById('box-'+k)?.classList.remove('open');
-    });
-  }
-});
 
 // ── INIT ─────────────────────────────────────────────────
 renderStats();
