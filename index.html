@@ -562,11 +562,10 @@ async function loadData(){
     populate();
     applyFilters();
     const ts=all[0]?.ts?new Date(all[0].ts):new Date();
-    document.getElementById('brand-meta').textContent=
-      `${all.length} orders · updated ${ts.toLocaleTimeString('en-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'})} · Refresh in: `;
-    const meta=document.getElementById('brand-meta');
-    if(!meta.querySelector('#cd2')){
-      const s=document.createElement('span');s.id='cd2';meta.appendChild(s);
+    const metaEl=document.getElementById('brand-meta');
+    metaEl.textContent=`${all.length} orders · updated ${ts.toLocaleTimeString('en-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'})} · Refresh in: `;
+    if(!metaEl.querySelector('#cd2')){
+      const s=document.createElement('span');s.id='cd2';metaEl.appendChild(s);
     }
   }catch{
     document.getElementById('empty').style.display='block';
