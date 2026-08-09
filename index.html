@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hurrier Follow-up</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -24,10 +24,27 @@
   --blu:#2563eb;   --blu-bg:#eff6ff;   --blu-b:#bfdbfe;
   --vio:#7c3aed;   --vio-bg:#f5f3ff;   --vio-b:#ddd6fe;
   --sans:'Inter',system-ui,sans-serif;
+  --arabic:'Noto Sans Arabic', system-ui, sans-serif;
   --mono:'SF Mono','Fira Mono',monospace;
 }
 body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased;}
 
+/* RTL helper: when dir="rtl" is set on html, browsers will flip direction. We also set Arabic font. */
+html[dir="rtl"]{direction:rtl}
+html[dir="rtl"], html.rtl { font-family: var(--arabic), var(--sans); }
+
+/* Small RTL overrides for positioning and inputs */
+html[dir="rtl"] .search-icon{left:auto;right:10px}
+html[dir="rtl"] .search-box input{padding:8px 34px 8px 12px}
+html[dir="rtl"] select.fsel{background-position:left 10px center}
+html[dir="rtl"] .agent-sel{background-position:left 7px center}
+html[dir="rtl"] .topbar-inner{direction:rtl}
+html[dir="rtl"] .brand{flex-direction:row-reverse}
+html[dir="rtl"] .brand-name, html[dir="rtl"] .brand-meta {text-align:right}
+html[dir="rtl"] td{text-align:start}
+html[dir="rtl"] thead th{text-align:center}
+
+/* keep the rest unchanged */
 /* ── TOP BAR ── */
 .topbar{
   background:var(--card);border-bottom:1px solid var(--border);
@@ -148,25 +165,25 @@ select.fsel:focus{border-color:var(--accent);}
 }
 
 /* ── TABLE ── */
-.tbl-scroll{overflow-x:auto;background:var(--card);}
+.tbl-scroll{overflow-x:auto;background:var(--card);} 
 table{width:100%;border-collapse:collapse;min-width:1000px;}
 
-thead tr{background:#f8f9fb;border-bottom:1.5px solid var(--border2);}
+thead tr{background:#f8f9fb;border-bottom:1.5px solid var(--border2);} 
 thead th{
   padding:9px 14px;text-align:center;
   font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.65px;
   color:var(--text3);cursor:pointer;user-select:none;white-space:nowrap;
   transition:color .12s;
 }
-thead th:hover{color:var(--text2);}
-thead th.sorted{color:var(--accent);}
-.ico{display:inline-block;margin-left:3px;font-size:10px;opacity:.45;vertical-align:middle;}
+thead th:hover{color:var(--text2);} 
+thead th.sorted{color:var(--accent);} 
+.ico{display:inline-block;margin-left:3px;font-size:10px;opacity:.45;vertical-align:middle;} 
 thead th.sorted .ico{opacity:1;}
 
-tbody tr{border-bottom:1px solid var(--border);transition:background .07s;}
-tbody tr:hover{background:#f7f8fa;}
-tbody tr:last-child{border-bottom:none;}
-td{padding:12px 14px;vertical-align:middle;text-align:center;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .07s;} 
+tbody tr:hover{background:#f7f8fa;} 
+tbody tr:last-child{border-bottom:none;} 
+td{padding:12px 14px;vertical-align:middle;text-align:center;} 
 
 /* Order # */
 .td-order{font-weight:700;font-size:13.5px;letter-spacing:-.2px;}
@@ -175,35 +192,35 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .td-vendor{font-size:13px;color:var(--text);line-height:1.45;}
 
 /* Overdue */
-.td-dl{font-family:var(--mono);font-size:13px;font-weight:600;white-space:nowrap;}
-.late{color:var(--red);}
-.warn{color:var(--ora);}
-.ok  {color:var(--grn);}
+.td-dl{font-family:var(--mono);font-size:13px;font-weight:600;white-space:nowrap;} 
+.late{color:var(--red);} 
+.warn{color:var(--ora);} 
+.ok  {color:var(--grn);} 
 .none{color:var(--text3);font-weight:400;}
 
 /* Courier — full name */
-.td-courier{font-size:13px;color:var(--text);line-height:1.4;white-space:nowrap;}
+.td-courier{font-size:13px;color:var(--text);line-height:1.4;white-space:nowrap;} 
 .td-nocourier{font-size:12px;color:var(--text3);font-style:italic;white-space:nowrap;}
 
 /* Status badge */
-.sb{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:7px;font-size:12px;font-weight:600;white-space:nowrap;border:1px solid transparent;}
-.sb::before{content:'';width:6px;height:6px;border-radius:50%;}
-.sb-lp {background:#fff8e1;color:#92400e;border-color:#fde68a;}.sb-lp::before{background:#f59e0b;}
-.sb-np {background:var(--acc-bg);color:#c2410c;border-color:#fed7aa;}.sb-np::before{background:var(--accent);}
-.sb-pu {background:var(--blu-bg);color:#1d4ed8;border-color:var(--blu-b);}.sb-pu::before{background:var(--blu);}
-.sb-nd {background:var(--grn-bg);color:#065f46;border-color:var(--grn-b);}.sb-nd::before{background:var(--grn);}
-.sb-ac {background:var(--vio-bg);color:#6b21a8;border-color:var(--vio-b);}.sb-ac::before{background:var(--vio);}
-.sb-xx {background:#f3f4f6;color:var(--text2);border-color:var(--border);}.sb-xx::before{background:var(--text3);}
+.sb{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:7px;font-size:12px;font-weight:600;white-space:nowrap;border:1px solid transparent;} 
+.sb::before{content:'';width:6px;height:6px;border-radius:50%;} 
+.sb-lp {background:#fff8e1;color:#92400e;border-color:#fde68a;}.sb-lp::before{background:#f59e0b;} 
+.sb-np {background:var(--acc-bg);color:#c2410c;border-color:#fed7aa;}.sb-np::before{background:var(--accent);} 
+.sb-pu {background:var(--blu-bg);color:#1d4ed8;border-color:var(--blu-b);}.sb-pu::before{background:var(--blu);} 
+.sb-nd {background:var(--grn-bg);color:#065f46;border-color:var(--grn-b);}.sb-nd::before{background:var(--grn);} 
+.sb-ac {background:var(--vio-bg);color:#6b21a8;border-color:var(--vio-b);}.sb-ac::before{background:var(--vio);} 
+.sb-xx {background:#f3f4f6;color:var(--text2);border-color:var(--border);}.sb-xx::before{background:var(--text3);} 
 
 /* Type */
-.td-type{font-size:12px;color:var(--text2);}
+.td-type{font-size:12px;color:var(--text2);} 
 
 /* Cash */
-.pay-cash{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;}
-.pay-visa{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:500;background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb;}
+.pay-cash{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;} 
+.pay-visa{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:500;background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb;} 
 
-.veh-bike{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--acc-bg);color:var(--acc-dark);border:1px solid #fed7aa;}
-.veh-bicycle{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--blu-bg);color:var(--blu);border:1px solid var(--blu-b);}
+.veh-bike{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--acc-bg);color:var(--acc-dark);border:1px solid #fed7aa;} 
+.veh-bicycle{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--blu-bg);color:var(--blu);border:1px solid var(--blu-b);} 
 
 .vstats-row{
   display:flex;border-bottom:1px solid var(--border);
@@ -231,14 +248,14 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
   -webkit-appearance:none;appearance:none;outline:none;cursor:pointer;
   transition:border .13s;min-width:110px;
 }
-.agent-sel:focus{border-color:var(--accent);}
-.agent-sel.on{color:var(--grn);border-color:var(--grn-b);font-weight:600;}
+.agent-sel:focus{border-color:var(--accent);} 
+.agent-sel.on{color:var(--grn);border-color:var(--grn-b);font-weight:600;} 
 
 /* Empty */
-.empty{padding:60px 20px;text-align:center;}
-.empty-ico{font-size:36px;opacity:.35;margin-bottom:10px;}
-.empty-title{font-size:15px;font-weight:600;color:var(--text2);}
-.empty-sub{font-size:12.5px;color:var(--text3);margin-top:5px;line-height:1.6;}
+.empty{padding:60px 20px;text-align:center;} 
+.empty-ico{font-size:36px;opacity:.35;margin-bottom:10px;} 
+.empty-title{font-size:15px;font-weight:600;color:var(--text2);} 
+.empty-sub{font-size:12.5px;color:var(--text3);margin-top:5px;line-height:1.6;} 
 
 /* Footer */
 .footer{
@@ -246,18 +263,18 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
   padding:9px 20px;display:flex;align-items:center;gap:12px;
   font-size:11.5px;color:var(--text3);flex-wrap:wrap;
 }
-.footer-link{font-family:var(--mono);font-size:11px;color:var(--text2);}
-.copy-lnk{background:none;border:none;cursor:pointer;color:var(--accent);font-size:11.5px;font-weight:600;font-family:var(--sans);}
+.footer-link{font-family:var(--mono);font-size:11px;color:var(--text2);} 
+.copy-lnk{background:none;border:none;cursor:pointer;color:var(--accent);font-size:11.5px;font-weight:600;font-family:var(--sans);} 
 
 /* Toast */
-#toast{position:fixed;bottom:22px;right:22px;background:#1a1d2e;color:#fff;border-radius:9px;padding:11px 16px;font-size:13px;font-weight:500;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.15);}
-#toast.on{display:block;animation:tin .18s ease;}
+#toast{position:fixed;bottom:22px;right:22px;background:#1a1d2e;color:#fff;border-radius:9px;padding:11px 16px;font-size:13px;font-weight:500;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.12);} 
+#toast.on{display:block;animation:tin .18s ease;} 
 @keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
 /* Loading */
-#loader{position:fixed;inset:0;background:rgba(255,255,255,.75);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:500;}
-#loader.on{display:flex;}
-.spin{width:38px;height:38px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:sp .55s linear infinite;}
+#loader{position:fixed;inset:0;background:rgba(255,255,255,.75);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:500;} 
+#loader.on{display:flex;} 
+.spin{width:38px;height:38px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:sp .55s linear infinite;} 
 @keyframes sp{to{transform:rotate(360deg)}}
 
 /* ── RESPONSIVE ── */
@@ -284,7 +301,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
   table{min-width:700px;}
 }
 
-textarea#clip{position:fixed;left:-9999px;}
+textarea#clip{position:fixed;left:-9999px;} 
 .btn-reset{
   display:inline-flex;align-items:center;gap:5px;
   padding:6px 13px;border-radius:7px;
@@ -292,7 +309,7 @@ textarea#clip{position:fixed;left:-9999px;}
   border:1.5px solid #fecaca;background:#fef2f2;color:#dc2626;
   font-family:var(--sans);transition:all .13s;white-space:nowrap;
 }
-.btn-reset:hover{background:#fee2e2;border-color:#fca5a5;}
+.btn-reset:hover{background:#fee2e2;border-color:#fca5a5;} 
 
 /* preview banner */
 .preview-banner{
@@ -409,6 +426,9 @@ textarea#clip{position:fixed;left:-9999px;}
 const GH_REPO  = 'mohabatef-png/hurrier-followup-dashboard';
 const API_URL  = `https://api.github.com/repos/${GH_REPO}/contents/data.json`;
 
+// Default locale; will be overridden when Arabic detected in data
+let LOCALE = 'en-EG';
+
 const SP = {
   10130:'New maadi', 10020:'Maadi Meraag', 10064:'Maadi Laselky',
   10001:'Mokattam sp', 10002:'Mokattam Nafora', 10003:'Mokattam',
@@ -443,7 +463,6 @@ function ns(s=''){
 }
 
 // Vehicle type: courier names ending in "_BC" (with optional trailing space) ride bicycles.
-// Everything else is a bike (motorcycle).
 function vtype(c=''){
   return /_BC\s*$/i.test((c||'').trim()) ? 'Bicycle' : 'Bike';
 }
@@ -469,45 +488,90 @@ function sbadge(s){
   return `<span class="sb ${c}">${l}</span>`;
 }
 
+// ── I18N / RTL helpers ───────────────────────────────────
+function hasArabic(text){
+  return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/u.test(String(text||''));
+}
+function applyLocale(locale){
+  LOCALE = locale === 'ar' ? 'ar-EG' : locale;
+  document.documentElement.lang = locale==='ar'?'ar':'en';
+  document.documentElement.dir = locale==='ar'?'rtl':'ltr';
+  if(locale==='ar') document.documentElement.classList.add('rtl'); else document.documentElement.classList.remove('rtl');
+}
+function detectAndApplyLocaleFromData(data){
+  try{
+    const flat = typeof data === 'string' ? data : JSON.stringify(data||'');
+    if(hasArabic(flat)) applyLocale('ar'); else applyLocale('en');
+  }catch(e){applyLocale('en')}
+}
+
+// robust base64 to UTF-8 decoder
+function b64ToUtf8(b64){
+  try{
+    const cleaned = String(b64||'').replace(/\s/g,'');
+    const bin = atob(cleaned);
+    // try TextDecoder
+    const bytes = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    if(typeof TextDecoder !== 'undefined') return new TextDecoder().decode(bytes);
+    // fallback
+    return decodeURIComponent(escape(bin));
+  }catch(e){
+    try{ return atob(String(b64||'').replace(/\s/g,'')); }catch(e2){ return String(b64||''); }
+  }
+}
+
 // ── LOAD ────────────────────────────────────────────────
 async function loadData(){
   document.getElementById('loader').classList.add('on');
-  document.getElementById('ref-ico').innerHTML='<span style="display:inline-block;width:11px;height:11px;border:2px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:sp .5s linear infinite;"></span>';
+  document.getElementById('ref-ico').innerHTML='<span style="display:inline-block;width:11px;height:11px;border:2px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:sp .5s linear infinite"></span>';
   try{
     const r=await fetch(API_URL+'?t='+Date.now(),{
       headers:{Accept:'application/vnd.github.v3+json'}
     });
     if(!r.ok) throw new Error('Failed to fetch');
     const meta=await r.json();
-    let raw;
-    
-    // Try to decode as base64 first (from bookmarklet)
+    let raw=[];
+
     try {
-      if(meta.content && meta.content.includes('=')) {
-        const decoded=decodeURIComponent(escape(atob(meta.content.replace(/\s/g,''))));
-        raw=JSON.parse(decoded);
+      if(meta && meta.encoding === 'base64' && meta.content){
+        const decoded = b64ToUtf8(meta.content);
+        // detect locale from decoded content
+        detectAndApplyLocaleFromData(decoded);
+        raw = JSON.parse(decoded);
+      } else if(meta && meta.content){
+        // sometimes content might be raw JSON string
+        detectAndApplyLocaleFromData(meta.content);
+        raw = JSON.parse(meta.content);
       } else {
-        throw new Error('Not base64');
+        raw = [];
       }
     } catch(e) {
-      // If that fails, assume it's raw JSON
-      raw=JSON.parse(atob(meta.content.replace(/\s/g,'')));
+      // fallback: try atob then parse
+      try{
+        const tried = b64ToUtf8(meta.content||'');
+        detectAndApplyLocaleFromData(tried);
+        raw = JSON.parse(tried);
+      }catch(e2){
+        raw = [];
+      }
     }
-    
+
     if(!Array.isArray(raw)) raw=[];
-    
+
     all=raw.map(o=>({
       ...o,
       agent: aMap[o.id]||o.agent||'Unassigned',
       z: SP[o.z]||(o.z?String(o.z):'Unknown'),
       _s: ns(o.s),
-      veh: vtype(o.c)
+      veh: vtype(o.c),
+      vt: o.vt || o.type || ''
     }));
     populate();
     applyFilters();
     const ts=all[0]?.ts?new Date(all[0].ts):new Date();
     document.getElementById('brand-meta').textContent=
-      `${all.length} orders · updated ${ts.toLocaleTimeString('en-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'})} · Refresh in: `;
+      `${all.length} orders · updated ${ts.toLocaleTimeString(LOCALE,{hour:'2-digit',minute:'2-digit',second:'2-digit'})} · Refresh in: `;
     const metaEl=document.getElementById('brand-meta');
     if(!metaEl.querySelector('#cd2')){
       const s=document.createElement('span');s.id='cd2';metaEl.appendChild(s);
@@ -666,7 +730,7 @@ function sc(k){
   applyFilters();
 }
 
-// ── TABLE ────────────────────────────────────────────────
+// ── TABLE ───────────────────────────────────────────────
 function renderTable(){
   const tb=document.getElementById('tbody');
   const em=document.getElementById('empty');
@@ -700,7 +764,7 @@ function renderTable(){
     </tr>`).join('');
 }
 
-// ── AGENT ────────────────────────────────────────────────
+// ── AGENT ───────────────────────────────────────────────
 function sa(id,sel){
   aMap[id]=sel.value;
   const o=all.find(x=>x.id===id);if(o)o.agent=sel.value;
@@ -721,7 +785,7 @@ function copySlack(){
   const late=fil.filter(o=>o.dm!==null&&o.dm<0);
   const risk=fil.filter(o=>o.dm!==null&&o.dm>=0&&o.dm<15);
   const nc  =fil.filter(o=>!o.c?.trim());
-  let m=`🛵 *Hurrier Snapshot* — ${new Date().toLocaleTimeString('en-EG')}\n`;
+  let m=`🛵 *Hurrier Snapshot* — ${new Date().toLocaleTimeString(LOCALE)}\n`;
   m+=`Total: *${fil.length}* | 🔴 Overdue: *${late.length}* | ⚡ At risk: *${risk.length}* | No courier: *${nc.length}*\n`;
   if(late.length){
     m+=`\n*🔴 Overdue:*\n`;
@@ -752,9 +816,9 @@ function resetCD(){
 
 // ── TOAST ────────────────────────────────────────────────
 let _tt=null;
-function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('on'),3000);}
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('on'),3000);} 
 
-// ── RESET FILTERS ────────────────────────────────────────
+// ── RESET FILTERS ───────────────────────────────────────
 function resetFilters(){
   document.getElementById('f-q').value='';
   document.getElementById('f-zone').value='';
