@@ -512,6 +512,7 @@ textarea#clip{position:fixed;left:-9999px;}
 // ── CONFIG ──────────────────────────────────────────────
 const GH_REPO  = 'mohabatef-png/hurrier-followup-dashboard';
 const RAW_URL  = `https://raw.githubusercontent.com/${GH_REPO}/main/data.json`;
+const API_URL  = `https://api.github.com/repos/${GH_REPO}/contents/data.json`;
 
 /* Application locale used for formatting; updated when Arabic detected */
 let APP_LOCALE = 'en-EG';
@@ -543,7 +544,6 @@ function hasArabic(text){
   return /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/u.test(String(text||''));
 }
 function applyLocale(locale){
-  // locale: 'ar' or 'en' (or BCP47)
   APP_LOCALE = (locale === 'ar') ? 'ar-EG' : 'en-EG';
   document.documentElement.lang = (locale === 'ar') ? 'ar' : 'en';
   document.documentElement.dir  = (locale === 'ar') ? 'rtl' : 'ltr';
@@ -553,11 +553,25 @@ function detectAndApplyLocaleFromData(data){
   try{
     const flat = typeof data === 'string' ? data : JSON.stringify(data || '');
     if(hasArabic(flat)) applyLocale('ar'); else applyLocale('en');
-  }catch(e){
-    applyLocale('en');
-  }
+  }catch(e){ applyLocale('en'); }
 }
 /* ------------------------------------------------- */
+
+// safe base64 -> utf8 decoder
+function b64ToUtf8(b64){
+  try{
+    // atob -> percent-encoding -> decodeURIComponent
+    const bin = atob(b64.replace(/\s/g,''));
+    let pct = '';
+    for(let i=0;i<bin.length;i++){
+      pct += '%' + ('00' + bin.charCodeAt(i).toString(16)).slice(-2);
+    }
+    return decodeURIComponent(pct);
+  }catch(e){
+    // fallback to atob result if anything fails
+    try{ return atob(b64); }catch(_){ return ''; }
+  }
+}
 
 // ── STATUS ──────────────────────────────────────────────
 function ns(s=''){
@@ -697,19 +711,70 @@ function stackBadge(o){
   return `<span class="stack-badge" title="${o.stackCount} active orders on this courier">📦 x${o.stackCount}</span>`;
 }
 
-// ── LOAD ────────────────────────────────────────────────
+// ── LOAD — robust: try RAW URL, then GitHub contents API, show visible error ──
 async function loadData(){
   document.getElementById('loader').classList.add('on');
   document.getElementById('ref-ico').innerHTML='<span style="display:inline-block;width:11px;height:11px;border:2px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:sp .5s linear infinite"></span>';
-  try{
-    const r=await fetch(RAW_URL+'?t='+Date.now());
-    if(!r.ok) throw 0;
-    const raw=await r.json();
+  const emptySub = document.getElementById('empty-sub');
+  emptySub.textContent = 'Loading…';
+  document.getElementById('empty').style.display = 'none';
 
-    // detect locale (Arabic) from the fetched data (raw JSON)
+  let raw = null;
+  let lastError = null;
+
+  // 1) Try raw.githubusercontent (simple static fetch)
+  try {
+    const r = await fetch(RAW_URL + '?t=' + Date.now());
+    if(!r.ok) throw new Error(`RAW fetch failed: ${r.status} ${r.statusText}`);
+    const ctype = r.headers.get('content-type') || '';
+    if(ctype.includes('application/json') || ctype.includes('text/json')){
+      raw = await r.json();
+    } else {
+      // text — attempt parse
+      const txt = await r.text();
+      try { raw = JSON.parse(txt); }
+      catch(e){ throw new Error('RAW content is not valid JSON'); }
+    }
+  } catch (e) {
+    lastError = e;
+    console.warn('RAW fetch error:', e);
+  }
+
+  // 2) If RAW failed, try GitHub API contents endpoint (base64 payload)
+  if(!Array.isArray(raw)){
+    try {
+      const r2 = await fetch(API_URL + '?t=' + Date.now(), { headers: { Accept: 'application/vnd.github.v3+json' }});
+      if(!r2.ok) throw new Error(`API fetch failed: ${r2.status} ${r2.statusText}`);
+      const meta = await r2.json();
+      if(meta && typeof meta.content === 'string'){
+        const decoded = b64ToUtf8(meta.content);
+        raw = JSON.parse(decoded);
+      } else {
+        throw new Error('API response missing content field');
+      }
+    } catch (e2) {
+      lastError = lastError ? new Error(lastError.message + ' | ' + e2.message) : e2;
+      console.error('API fallback error:', e2);
+    }
+  }
+
+  // If still not an array, show error and bail
+  if(!Array.isArray(raw)){
+    console.error('Could not load/parse data.json:', lastError);
+    document.getElementById('empty').style.display = 'block';
+    emptySub.textContent = 'Could not load data.json — ' + (lastError ? lastError.message : 'unknown error') + '.';
+    // also put a short message in brand-meta
+    document.getElementById('brand-meta').textContent = `0 orders · failed to load · ${new Date().toLocaleTimeString()}`;
+    document.getElementById('loader').classList.remove('on');
+    document.getElementById('ref-ico').textContent='↻';
+    return;
+  }
+
+  try{
+    // detect Arabic and apply locale/dir
     detectAndApplyLocaleFromData(raw);
 
-    all=raw.map(o=>({
+    all = raw.map(o=>({
       ...o,
       agent: aMap[o.id]||o.agent||'Unassigned',
       z: SP[o.z]||(o.z?String(o.z):'Unknown'),
@@ -732,15 +797,19 @@ async function loadData(){
     if(!meta.querySelector('#cd2')){
       const s=document.createElement('span');s.id='cd2';meta.appendChild(s);
     }
-  }catch{
-    document.getElementById('empty').style.display='block';
-    document.getElementById('empty-sub').textContent='Could not load — run the bookmarklet in Hurrier first.';
+  }catch(e){
+    console.error('Processing/parsing error:', e);
+    document.getElementById('empty').style.display = 'block';
+    emptySub.textContent = 'Error processing data.json: ' + (e && e.message ? e.message : String(e));
   }
+
   document.getElementById('loader').classList.remove('on');
   document.getElementById('ref-ico').textContent='↻';
   resetCD();
 }
 
+// ── REST OF FILE (unchanged) ─────────────────────────────────────────────────
+// populate, rep, renderers, filters etc. (kept the same as prior file)
 function populate(){
   const zones  =[...new Set(all.map(o=>o.z).filter(Boolean))].sort();
   const vendors=[...new Set(all.map(o=>o.v).filter(Boolean))].sort();
@@ -761,20 +830,7 @@ function rep(id,items,ph){
   if(['zone','vendor','type','vtype'].includes(key)) buildSelOpts(key,items,ph);
 }
 
-// (rest of JS functions remain unchanged from original file)...
-// ── ORDER TYPE STATS / FILTER + SORT / STATS ROWS / RENDERERS / EXPORT / etc. ──
-// For brevity we continue with the same function definitions you already had in the file.
-// The only JS edits required to support Arabic/RTL were added above: APP_LOCALE, i18n helpers,
-// and detectAndApplyLocaleFromData(raw) call inside loadData, plus using APP_LOCALE for toLocaleTimeString in brand-meta & Slack.
-//
-// Continue pasting the original functions (applyFilters, renderStats, renderVStats, renderRStats,
-// renderOTStats, sc, renderTable, copyRow, sa, exportCSV, copySlack, copyLink, resetCD,
-// toast, resetFilters, isFiltered, searchable-select helpers, init).
-//
-// To keep this file self-contained I will paste the remaining functions exactly as in your provided file,
-// but they are left unchanged except where they already refer to APP_LOCALE (copySlack/brand-meta).
-// (The following is the unchanged remainder of your script:)
-
+// (full rest of script kept the same as before — renderers, filters, export, copySlack, copyRow, etc.)
 
 // ── ORDER TYPE STATS ─────────────────────────────────────────
 function renderOTStats(){
@@ -1006,7 +1062,9 @@ function setOType(v){
   }
 }
 
-// ── SORT COL ─────────────────────────────────────────────
+// ── SORT COL / TABLE / COPY / AGENT / EXPORT / SLACK / COUNTDOWN / TOAST / FILTERS / SEARCHABLE SELECT
+// (unchanged implementations follow — same as your previous file)
+
 function sc(k){
   if(sKey===k)sDir*=-1; else{sKey=k;sDir=1;}
   document.querySelectorAll('thead th').forEach(th=>{
@@ -1018,7 +1076,6 @@ function sc(k){
   applyFilters();
 }
 
-// ── TABLE ────────────────────────────────────────────────
 function renderTable(){
   const tb=document.getElementById('tbody');
   const em=document.getElementById('empty');
@@ -1059,7 +1116,6 @@ function renderTable(){
     </tr>`).join('');
 }
 
-// ── COPY ROW ─────────────────────────────────────────────────
 function copyRow(btn){
   const id=btn.dataset.id;
   const o=all.find(x=>x.id===id)||{};
@@ -1072,14 +1128,12 @@ function copyRow(btn){
   toast('✅ Copied!');
 }
 
-// ── AGENT ───────────────────────────────────────────────
 function sa(id,sel){
   aMap[id]=sel.value;
   const o=all.find(x=>x.id===id);if(o)o.agent=sel.value;
   sel.className='agent-sel'+(sel.value!=='Unassigned'?' on':'');
 }
 
-// ── EXPORT ───────────────────────────────────────────────
 function exportCSV(){
   const cols=['id','v','dm','c','stackCount','rs','phone','veh','s','z','vt','cash','agent'];
   const rows=[cols.join(','),...fil.map(o=>cols.map(k=>`"${(o[k]??'').toString().replace(/"/g,'""')}"`).join(','))];
@@ -1109,7 +1163,7 @@ function copyLink(){
   toast('🔗 Link copied!');
 }
 
-// ── COUNTDOWN ────────────────────────────────────────────
+// countdown/toast/reset filters/isFiltered/searchable-select helpers
 function resetCD(){
   cds=180;if(cdT)clearInterval(cdT);
   cdT=setInterval(()=>{
@@ -1122,11 +1176,9 @@ function resetCD(){
   },1000);
 }
 
-// ── TOAST ───────────────────────────────────────────────
 let _tt=null;
 function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('on'),3000);}
 
-// ── RESET FILTERS ────────────────────────────────────────
 function resetFilters(){
   document.getElementById('f-q').value='';
   document.getElementById('f-zone').value='';
@@ -1156,7 +1208,6 @@ function isFiltered(){
     || stackedOnly;
 }
 
-// ── SEARCHABLE SELECT ────────────────────────────────────────
 const selVals={'zone':'','vendor':'','type':'','pay':'','vtype':'','rstatus':'','sort':'overdue'};
 const selLabels={'zone':'All zones','vendor':'All vendors','type':'All types','pay':'All payments','vtype':'All vehicle types','sort':'Most delayed first'};
 
