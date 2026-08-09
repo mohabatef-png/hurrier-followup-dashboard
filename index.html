@@ -347,10 +347,11 @@ textarea#clip{position:fixed;left:-9999px;}
     <div class="brand">
       <div class="brand-ico">🛵</div>
       <div class="brand-info">
-        <div class="brand-name">Hurrier Follow-up</div>
+        <div class="brand-name" id="brand-name">Hurrier Follow-up</div>
         <div class="brand-meta" id="brand-meta">Loading…</div>
       </div>
       <span class="view-pill">View only</span>
+      <select id="hub-select" onchange="switchHub(this.value)" style="margin-left:8px;padding:5px 9px;border-radius:7px;border:1.5px solid var(--border2);background:var(--card);color:var(--text);font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer;"></select>
     </div>
     <div class="topbar-gap"></div>
     <div class="topbar-right">
@@ -481,7 +482,7 @@ textarea#clip{position:fixed;left:-9999px;}
   <span id="foot-txt">—</span>
   <span style="flex:1"></span>
   <span>Team link:</span>
-  <span class="footer-link">https://mohabatef-png.github.io/hurrier-followup-dashboard/</span>
+  <span class="footer-link" id="footer-link">https://mohabatef-png.github.io/hurrier-followup-dashboard/</span>
   <button class="copy-lnk" onclick="copyLink()">Copy Link</button>
 </div>
 
@@ -491,7 +492,45 @@ textarea#clip{position:fixed;left:-9999px;}
 <script>
 // ── CONFIG ──────────────────────────────────────────────
 const GH_REPO  = 'mohabatef-png/hurrier-followup-dashboard';
-const RAW_URL  = `https://raw.githubusercontent.com/${GH_REPO}/main/data.json`;
+
+// Each hub's bookmarklet pushes to its own data-<slug>.json file in the repo,
+// so every hub can have its own live dashboard view via ?hub=<slug>.
+const HUBS = [
+  {slug:'all-cairo',                    lbl:'🌍 All Cairo'},
+  {slug:'mohandsien',                   lbl:'🏙️ Mohandsien'},
+  {slug:'alexandria',                   lbl:'🌊 Alexandria'},
+  {slug:'delta',                        lbl:'🌾 Delta'},
+  {slug:'october',                      lbl:'🏜️ October'},
+  {slug:'haram',                        lbl:'🐫 Haram'},
+  {slug:'maadi-mokattam-helwan',        lbl:'🛵 Maadi / Mokattam / Helwan'},
+  {slug:'nasr-city-heliopolis',         lbl:'✈️ Nasr City / Heliopolis'},
+  {slug:'new-cities',                   lbl:'🏗️ New Cities'},
+  {slug:'new-cairo-rehab-tagammoa',     lbl:'🏘️ New Cairo (Rehab + Tagammoa)'},
+  {slug:'east-south-mid-egypt',         lbl:'🚢 East/South/Mid Egypt'},
+];
+
+function getHub(){
+  const p=new URLSearchParams(location.search).get('hub');
+  return HUBS.some(h=>h.slug===p) ? p : 'all-cairo';
+}
+let currentHub = getHub();
+const RAW_URL  = `https://raw.githubusercontent.com/${GH_REPO}/main/data-${currentHub}.json`;
+
+function switchHub(slug){
+  const u=new URL(location.href);
+  u.searchParams.set('hub',slug);
+  location.href=u.toString();
+}
+
+function initHubUI(){
+  const sel=document.getElementById('hub-select');
+  sel.innerHTML=HUBS.map(h=>`<option value="${h.slug}"${h.slug===currentHub?' selected':''}>${h.lbl}</option>`).join('');
+  const cur=HUBS.find(h=>h.slug===currentHub);
+  document.getElementById('brand-name').textContent = cur ? `Hurrier Follow-up — ${cur.lbl.replace(/^\S+\s/,'')}` : 'Hurrier Follow-up';
+  document.title = cur ? `Hurrier — ${cur.lbl.replace(/^\S+\s/,'')}` : 'Hurrier Follow-up';
+  const fl=document.getElementById('footer-link');
+  if(fl) fl.textContent='https://mohabatef-png.github.io/hurrier-followup-dashboard/?hub='+currentHub;
+}
 
 const SP = {
   10130:'New maadi', 10020:'Maadi Meraag', 10064:'Maadi Laselky',
@@ -667,13 +706,13 @@ function rsPass(o, val){
   return o.rscat===val;
 }
 
-// ── STACKING BADGE ───────────────────────────────────────
+// ── STACKING BADGE ────────────────────────────────────────
 function stackBadge(o){
   if(!o.c || (o.stackCount||0)<2) return '';
   return `<span class="stack-badge" title="${o.stackCount} active orders on this courier">📦 x${o.stackCount}</span>`;
 }
 
-// ── LOAD ───────────────────────────────────────────────
+// ── LOAD ────────────────────────────────────────────────
 async function loadData(){
   document.getElementById('loader').classList.add('on');
   document.getElementById('ref-ico').innerHTML='<span style="display:inline-block;width:11px;height:11px;border:2px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:sp .5s linear infinite"></span>';
@@ -1034,7 +1073,7 @@ function copyRow(btn){
   toast('✅ Copied!');
 }
 
-// ── AGENT ───────────────────────────────────────────────
+// ── AGENT ────────────────────────────────────────────────
 function sa(id,sel){
   aMap[id]=sel.value;
   const o=all.find(x=>x.id===id);if(o)o.agent=sel.value;
@@ -1066,12 +1105,12 @@ function copySlack(){
 }
 
 function copyLink(){
-  const u='https://mohabatef-png.github.io/hurrier-followup-dashboard/';
+  const u='https://mohabatef-png.github.io/hurrier-followup-dashboard/?hub='+currentHub;
   navigator.clipboard.writeText(u).catch(()=>{const t=document.getElementById('clip');t.value=u;t.select();document.execCommand('copy');});
   toast('🔗 Link copied!');
 }
 
-// ── COUNTDOWN ───────────────────────────────────────────
+// ── COUNTDOWN ────────────────────────────────────────────
 function resetCD(){
   cds=180;if(cdT)clearInterval(cdT);
   cdT=setInterval(()=>{
@@ -1084,7 +1123,7 @@ function resetCD(){
   },1000);
 }
 
-// ── TOAST ───────────────────────────────────────────────
+// ── TOAST ────────────────────────────────────────────────
 let _tt=null;
 function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('on'),3000);}
 
@@ -1158,7 +1197,7 @@ function buildSelOpts(id,items,ph){
   const container=document.getElementById('opts-'+id);
   const cur=selVals[id];
   container.innerHTML=`<div class="sel-opt${!cur?' selected':''}" onclick="pickOpt('${id}','','${ph}')">${ph}</div>`
-    +items.map(v=>`<div class="sel-opt${cur===v?' selected':''}" onclick="pickOpt('${id}','${v.replace(/'/g,"\\'")}','${v.replace(/'/g,"\\'")}') ">${v}</div>`).join('');
+    +items.map(v=>`<div class="sel-opt${cur===v?' selected':''}" onclick="pickOpt('${id}','${v.replace(/'/g,"\'")}','${v.replace(/'/g,"\'")}') ">${v}</div>`).join('');
   const sel=document.getElementById('f-'+id);
   sel.innerHTML=`<option value="">${ph}</option>`+items.map(v=>`<option value="${v}"${cur===v?' selected':''}>${v}</option>`).join('');
 }
@@ -1173,6 +1212,7 @@ document.addEventListener('click',e=>{
 });
 
 // ── INIT ─────────────────────────────────────────────────
+initHubUI();
 renderStats();
 loadData();
 </script>
