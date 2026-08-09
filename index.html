@@ -250,7 +250,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .copy-lnk{background:none;border:none;cursor:pointer;color:var(--accent);font-size:11.5px;font-weight:600;font-family:var(--sans);}
 
 /* Toast */
-#toast{position:fixed;bottom:22px;right:22px;background:#1a1d2e;color:#fff;border-radius:9px;padding:11px 16px;font-size:13px;font-weight:500;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+#toast{position:fixed;bottom:22px;right:22px;background:#1a1d2e;color:#fff;border-radius:9px;padding:11px 16px;font-size:13px;font-weight:500;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.15);}
 #toast.on{display:block;animation:tin .18s ease;}
 @keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
@@ -472,14 +472,30 @@ function sbadge(s){
 // ── LOAD ────────────────────────────────────────────────
 async function loadData(){
   document.getElementById('loader').classList.add('on');
-  document.getElementById('ref-ico').innerHTML='<span style="display:inline-block;width:11px;height:11px;border:2px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:sp .5s linear infinite"></span>';
+  document.getElementById('ref-ico').innerHTML='<span style="display:inline-block;width:11px;height:11px;border:2px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:sp .5s linear infinite;"></span>';
   try{
     const r=await fetch(API_URL+'?t='+Date.now(),{
       headers:{Accept:'application/vnd.github.v3+json'}
     });
-    if(!r.ok) throw 0;
+    if(!r.ok) throw new Error('Failed to fetch');
     const meta=await r.json();
-    const raw=JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\s/g,'')))));
+    let raw;
+    
+    // Try to decode as base64 first (from bookmarklet)
+    try {
+      if(meta.content && meta.content.includes('=')) {
+        const decoded=decodeURIComponent(escape(atob(meta.content.replace(/\s/g,''))));
+        raw=JSON.parse(decoded);
+      } else {
+        throw new Error('Not base64');
+      }
+    } catch(e) {
+      // If that fails, assume it's raw JSON
+      raw=JSON.parse(atob(meta.content.replace(/\s/g,'')));
+    }
+    
+    if(!Array.isArray(raw)) raw=[];
+    
     all=raw.map(o=>({
       ...o,
       agent: aMap[o.id]||o.agent||'Unassigned',
@@ -492,11 +508,15 @@ async function loadData(){
     const ts=all[0]?.ts?new Date(all[0].ts):new Date();
     document.getElementById('brand-meta').textContent=
       `${all.length} orders · updated ${ts.toLocaleTimeString('en-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'})} · Refresh in: `;
-    const meta=document.getElementById('brand-meta');
-    if(!meta.querySelector('#cd2')){
-      const s=document.createElement('span');s.id='cd2';meta.appendChild(s);
+    const metaEl=document.getElementById('brand-meta');
+    if(!metaEl.querySelector('#cd2')){
+      const s=document.createElement('span');s.id='cd2';metaEl.appendChild(s);
     }
-  }catch{
+  }catch(e){
+    console.error('Load error:', e);
+    all=[];
+    populate();
+    applyFilters();
     document.getElementById('empty').style.display='block';
     document.getElementById('empty-sub').textContent='Could not load — run the bookmarklet in Hurrier first.';
   }
