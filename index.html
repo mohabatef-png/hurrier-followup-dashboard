@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hurrier Follow-up</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -270,6 +271,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 }
 .btn-stack:hover{background:var(--bg);color:var(--text);}
 .btn-stack.on{background:#fff4ef;border-color:#fed7aa;color:#c2410c;}
+#btn-cashblock.on{background:var(--red-bg);border-color:var(--red-b);color:var(--red);}
 
 .agent-sel{
   padding:5px 24px 5px 9px;border:1.5px solid var(--border);border-radius:7px;
@@ -360,7 +362,7 @@ textarea#clip{position:fixed;left:-9999px;}
         <span id="cd" class="lbl">—</span>
       </div>
       <button class="btn" onclick="loadData()"><span id="ref-ico">↻</span> <span class="lbl">Refresh</span></button>
-      <button class="btn btn-csv" onclick="exportCSV()">↓ <span class="lbl">CSV</span></button>
+      <button class="btn btn-csv" onclick="exportXLSX()">↓ <span class="lbl">Excel</span></button>
       <button class="btn btn-slack" onclick="copySlack()">Slack</button>
     </div>
   </div>
@@ -374,6 +376,9 @@ textarea#clip{position:fixed;left:-9999px;}
 
 <!-- RIDER STATUS STAT CARDS -->
 <div class="vstats-row" id="rsstats-row"></div>
+
+<!-- CASH BLOCK STAT CARDS -->
+<div class="vstats-row" id="cbstats-row"></div>
 
 <!-- ORDER TYPE STATS -->
 <div class="vstats-row" id="otstats-row" style="border-top:none;border-bottom:2px solid var(--blu);padding:6px 0;min-height:0;justify-content:center;"></div>
@@ -444,6 +449,8 @@ textarea#clip{position:fixed;left:-9999px;}
   </div>
   <span class="results-info" id="res-info"></span>
   <button class="btn-stack" id="btn-stack" onclick="toggleStacked()">📦 Stacked riders</button>
+  <button class="btn-stack" id="btn-cashblock" onclick="toggleCashBlock()">🚫 Cash Block riders</button>
+  <button class="btn" id="btn-cashblock-csv" onclick="exportCashBlockXLSX()" title="Export cash block riders as Excel file">↓ Excel</button>
   <button class="btn-reset" id="btn-reset" onclick="resetFilters()" style="display:none">
     ✕ Reset filters
   </button>
@@ -459,6 +466,7 @@ textarea#clip{position:fixed;left:-9999px;}
         <th onclick="sc('dm')"    id="th-dm">    DELAY     <span class="ico">↕</span></th>
         <th onclick="sc('c')"     id="th-c">     COURIER   <span class="ico">↕</span></th>
         <th onclick="sc('phone')" id="th-phone"> PHONE     <span class="ico">↕</span></th>
+        <th onclick="sc('bal')"   id="th-bal">   BALANCE   <span class="ico">↕</span></th>
         <th onclick="sc('veh')"   id="th-veh">   VEHICLE TYPE <span class="ico">↕</span></th>
         <th onclick="sc('s')"     id="th-s">     STATUS    <span class="ico">↕</span></th>
         <th onclick="sc('z')"     id="th-z">     ZONE      <span class="ico">↕</span></th>
@@ -552,7 +560,8 @@ const TABS = [
 ];
 
 // ── STATE ───────────────────────────────────────────────
-let all=[], fil=[], tab='all', sKey='dm', sDir=1, aMap={}, cdT=null, cds=180, stackedOnly=false;
+let all=[], fil=[], tab='all', sKey='dm', sDir=1, aMap={}, cdT=null, cds=180, stackedOnly=false, cashBlockOnly=false;
+const CASH_BLOCK_LIMIT=3000;
 
 // ── STATUS ──────────────────────────────────────────────
 function ns(s=''){
@@ -712,6 +721,19 @@ function stackBadge(o){
   return `<span class="stack-badge" title="${o.stackCount} active orders on this courier">📦 x${o.stackCount}</span>`;
 }
 
+// ── WALLET BALANCE ────────────────────────────────────────
+function fmtMoney(v){
+  const n=Number(v)||0;
+  return (n<0?'-$':'$')+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function balFmt(o){
+  if(!o.c || o.bal===null || o.bal===undefined) return '<span class="td-nocourier">—</span>';
+  const v=Number(o.bal)||0;
+  const cls=v>3000?'late':v>2000?'warn':'ok';
+  return `<span class="td-dl ${cls}">${fmtMoney(v)}</span>`;
+}
+
 // ── LOAD ────────────────────────────────────────────────
 async function loadData(){
   document.getElementById('loader').classList.add('on');
@@ -729,7 +751,8 @@ async function loadData(){
       vcat: vCat(o.vehicle),
       phone: o.phone||'',
       rs: o.rs||'',
-      rscat: rsCat(o.rs||'')
+      rscat: rsCat(o.rs||''),
+      bal: (o.bal===null||o.bal===undefined)?null:Number(o.bal)
     }));
     const cCounts={};
     all.forEach(o=>{ if(o.c) cCounts[o.c]=(cCounts[o.c]||0)+1; });
@@ -831,6 +854,7 @@ function applyFilters(){
     if(!vehPass(o, veh)) return false;
     if(!rsPass(o, rst)) return false;
     if(stackedOnly && (o.stackCount||0)<2) return false;
+    if(cashBlockOnly && !(o.bal!==null && o.bal!==undefined && o.bal>CASH_BLOCK_LIMIT)) return false;
     return true;
   });
 
@@ -846,6 +870,7 @@ function applyFilters(){
   renderStats();
   renderVStats();
   renderRStats();
+  renderCBStats();
   renderOTStats();
   renderTable();
 
@@ -876,6 +901,7 @@ function renderStats(){
     if(!vehPass(o, veh)) return false;
     if(!rsPass(o, rst)) return false;
     if(stackedOnly && (o.stackCount||0)<2) return false;
+    if(cashBlockOnly && !(o.bal!==null && o.bal!==undefined && o.bal>CASH_BLOCK_LIMIT)) return false;
     return true;
   }
 
@@ -895,6 +921,12 @@ function setTab(k){tab=k;applyFilters();}
 function toggleStacked(){
   stackedOnly=!stackedOnly;
   document.getElementById('btn-stack').classList.toggle('on',stackedOnly);
+  applyFilters();
+}
+
+function toggleCashBlock(){
+  cashBlockOnly=!cashBlockOnly;
+  document.getElementById('btn-cashblock').classList.toggle('on',cashBlockOnly);
   applyFilters();
 }
 
@@ -998,6 +1030,42 @@ function setRS(v){
   applyFilters();
 }
 
+// ── CASH BLOCK STATS ─────────────────────────────────────
+function renderCBStats(){
+  const q    =document.getElementById('f-q').value.toLowerCase().trim();
+  const zone =document.getElementById('f-zone').value;
+  const vend =document.getElementById('f-vendor').value;
+  const type =document.getElementById('f-type').value;
+  const pay  =document.getElementById('f-pay').value;
+  const veh  =selVals['vtype']||'';
+  const rst  =selVals['rstatus']||'';
+
+  function pass(o){
+    if(tab!=='all' && o._s!==tab) return false;
+    if(q && !`${o.id} ${o.v} ${o.c} ${o.z} ${o.phone}`.toLowerCase().includes(q)) return false;
+    if(zone && o.z!==zone) return false;
+    if(vend && o.v!==vend) return false;
+    if(type && o.vt!==type) return false;
+    if(pay==='cash'&&!o.cash) return false;
+    if(pay==='visa'&& o.cash) return false;
+    if(!vehPass(o, veh)) return false;
+    if(!rsPass(o, rst)) return false;
+    return true;
+  }
+
+  const list=all.filter(pass).filter(o=>o.c && o.bal!==null && o.bal!==undefined);
+  const seen={};
+  const uniq=[];
+  list.forEach(o=>{ if(!seen[o.c]){seen[o.c]=true;uniq.push(o);} });
+  const blockCount=uniq.filter(o=>o.bal>3000).length;
+
+  document.getElementById('cbstats-row').innerHTML=`
+    <div class="vstat-card${cashBlockOnly?' active':''}" onclick="toggleCashBlock()">
+      <div class="vstat-num" style="color:var(--red)">${blockCount}</div>
+      <div class="vstat-label">🚫 Cash Block Riders</div>
+    </div>`;
+}
+
 function setOType(v){
   const cur=selVals['type']||'';
   if(cur===v){
@@ -1041,6 +1109,7 @@ function renderTable(){
       <td>${o.phone
         ?`<a href="tel:${o.phone}" style="font-family:var(--mono);font-size:12px;color:var(--blu);text-decoration:none;font-weight:600;">${o.phone}</a>`
         :`<span class="td-nocourier">—</span>`}</td>
+      <td>${balFmt(o)}</td>
       <td>${vehBadge(o)}</td>
       <td>${sbadge(o.s)}</td>
       <td style="font-size:13px;color:var(--text2);white-space:nowrap">${o.z||'—'}</td>
@@ -1066,7 +1135,8 @@ function copyRow(btn){
   const o=all.find(x=>x.id===id)||{};
   const dm=o.dm!==null&&o.dm!==undefined?(o.dm<0?'-'+Math.abs(o.dm)+'min':'+'+o.dm+'min'):'—';
   const payment=btn.dataset.cash==='1'?'Cash':'Visa';
-  const txt=`Order: ${id}\nVendor: ${o.v||'—'}\nCourier: ${o.c||'No courier'}${o.stackCount>=2?' (stacked x'+o.stackCount+')':''}\nRider status: ${o.rs||'—'}\nPhone: ${o.phone||'—'}\nVehicle: ${o.veh||'—'}\nStatus: ${o.s||'—'}\nZone: ${o.z||'—'}\nDelay: ${dm}\nPayment: ${payment}`;
+  const bal=(o.bal===null||o.bal===undefined)?'—':fmtMoney(o.bal);
+  const txt=`Order: ${id}\nVendor: ${o.v||'—'}\nCourier: ${o.c||'No courier'}${o.stackCount>=2?' (stacked x'+o.stackCount+')':''}\nRider status: ${o.rs||'—'}\nPhone: ${o.phone||'—'}\nBalance: ${bal}\nVehicle: ${o.veh||'—'}\nStatus: ${o.s||'—'}\nZone: ${o.z||'—'}\nDelay: ${dm}\nPayment: ${payment}`;
   navigator.clipboard.writeText(txt).catch(()=>{
     const t=document.getElementById('clip');t.value=txt;t.select();document.execCommand('copy');
   });
@@ -1081,13 +1151,38 @@ function sa(id,sel){
 }
 
 // ── EXPORT ───────────────────────────────────────────────
-function exportCSV(){
-  const cols=['id','v','dm','c','stackCount','rs','phone','veh','s','z','vt','cash','agent'];
-  const rows=[cols.join(','),...fil.map(o=>cols.map(k=>`"${(o[k]??'').toString().replace(/"/g,'""')}"`).join(','))];
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'}));
-  a.download=`hurrier_${new Date().toISOString().slice(0,16).replace('T','_')}.csv`;
-  a.click();toast('✅ CSV exported');
+function exportXLSX(){
+  const cols=['id','v','dm','c','stackCount','rs','phone','bal','veh','s','z','vt','cash','agent'];
+  const heads=['Order #','Vendor','Delay (min)','Courier','Stack Count','Rider Status','Phone','Balance','Vehicle','Status','Zone','Type','Payment','Agent'];
+  const data=[heads,...fil.map(o=>cols.map(k=>{
+    if(k==='cash') return o.cash?'Cash':'Visa';
+    return o[k]??'';
+  }))];
+  const ws=XLSX.utils.aoa_to_sheet(data);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Orders');
+  XLSX.writeFile(wb,`hurrier_${new Date().toISOString().slice(0,16).replace('T','_')}.xlsx`);
+  toast('✅ Excel file exported');
+}
+
+function exportCashBlockXLSX(){
+  const seen={};
+  const riders=[];
+  all.forEach(o=>{
+    if(!o.c || o.bal===null || o.bal===undefined || o.bal<=3000) return;
+    if(seen[o.c]) return;
+    seen[o.c]=true;
+    riders.push(o);
+  });
+  if(!riders.length){ toast('No cash block riders'); return; }
+  const cols=['c','phone','bal','veh','rs','z'];
+  const heads=['Courier','Phone','Balance','Vehicle','Rider Status','Zone'];
+  const data=[heads,...riders.map(o=>cols.map(k=>o[k]??''))];
+  const ws=XLSX.utils.aoa_to_sheet(data);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Cash Block Riders');
+  XLSX.writeFile(wb,`cash_block_riders_${new Date().toISOString().slice(0,16).replace('T','_')}.xlsx`);
+  toast(`✅ ${riders.length} cash block riders exported`);
 }
 
 function copySlack(){
@@ -1142,6 +1237,8 @@ function resetFilters(){
   tab='all';
   stackedOnly=false;
   document.getElementById('btn-stack')?.classList.remove('on');
+  cashBlockOnly=false;
+  document.getElementById('btn-cashblock')?.classList.remove('on');
   applyFilters();
 }
 
@@ -1154,7 +1251,8 @@ function isFiltered(){
     || (selVals['vtype']||'')!==''
     || (selVals['rstatus']||'')!==''
     || tab!=='all'
-    || stackedOnly;
+    || stackedOnly
+    || cashBlockOnly;
 }
 
 // ── SEARCHABLE SELECT ────────────────────────────────────────
