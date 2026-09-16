@@ -1,3 +1,4 @@
+[SETUP.md](https://github.com/user-attachments/files/32285853/SETUP.md)
 # Hurrier Dashboard — Automated Data Setup
 
 This replaces the bookmarklet with a **GitHub Action** that fetches live data
