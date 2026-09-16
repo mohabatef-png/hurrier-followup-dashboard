@@ -26,9 +26,13 @@ const PER_PAGE = parseInt(process.env.PER_PAGE   || '50',    10);
 const CONCURRENCY = 6; // parallel courier-detail requests
 
 if (!TOKEN) {
-  console.error('❌  TALABAT_TOKEN env var is not set.');
+  console.error('❌  TALABAT_TOKEN env var is not set. Add it as a GitHub Secret named TALABAT_API_TOKEN.');
   process.exit(1);
 }
+
+console.log(`🔧  API base: ${API_BASE}`);
+console.log(`🔑  Token: ${TOKEN.slice(0, 6)}${'*'.repeat(10)} (first 6 chars shown)`);
+console.log(`📄  Node.js: ${process.version}`);
 
 const HEADERS = {
   Authorization:   `Bearer ${TOKEN}`,
@@ -59,7 +63,10 @@ const HUBS = [
 // ── HELPERS ───────────────────────────────────────────────────
 async function apiFetch(url, options = {}) {
   const res = await fetch(url, { headers: HEADERS, ...options });
-  if (!res.ok) throw new Error(`HTTP ${res.status} — ${url}`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status} ${res.statusText} — ${url}\nResponse body: ${body.slice(0, 300)}`);
+  }
   return res.json();
 }
 
