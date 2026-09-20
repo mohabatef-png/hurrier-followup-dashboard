@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hurrier Follow-up</title>
+<title>T-Mart Orders Follow-Up</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -349,7 +349,7 @@ textarea#clip{position:fixed;left:-9999px;}
     <div class="brand">
       <div class="brand-ico">🛵</div>
       <div class="brand-info">
-        <div class="brand-name" id="brand-name">Hurrier Follow-up</div>
+        <div class="brand-name" id="brand-name">T-Mart Orders Follow-Up</div>
         <div class="brand-meta" id="brand-meta">Loading…</div>
       </div>
       <span class="view-pill">View only</span>
@@ -552,8 +552,8 @@ function initHubUI(){
   const sel=document.getElementById('hub-select');
   sel.innerHTML=HUBS.map(h=>`<option value="${h.slug}"${h.slug===currentHub?' selected':''}>${h.lbl}</option>`).join('');
   const cur=HUBS.find(h=>h.slug===currentHub);
-  document.getElementById('brand-name').textContent = cur ? `Hurrier Follow-up — ${cur.lbl.replace(/^\S+\s/,'')}` : 'Hurrier Follow-up';
-  document.title = cur ? `Hurrier — ${cur.lbl.replace(/^\S+\s/,'')}` : 'Hurrier Follow-up';
+  document.getElementById('brand-name').textContent = cur ? `T-Mart Orders Follow-Up — ${cur.lbl.replace(/^\S+\s/,'')}` : 'T-Mart Orders Follow-Up';
+  document.title = cur ? `T-Mart Orders Follow-Up — ${cur.lbl.replace(/^\S+\s/,'')}` : 'T-Mart Orders Follow-Up';
   const fl=document.getElementById('footer-link');
   if(fl) fl.textContent='https://mohabatef-png.github.io/hurrier-followup-dashboard/?hub='+currentHub;
 }
