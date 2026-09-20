@@ -540,7 +540,22 @@ function getHub(){
   return HUBS.some(h=>h.slug===p) ? p : 'all-cairo';
 }
 let currentHub = getHub();
-const RAW_URL  = `https://raw.githubusercontent.com/${GH_REPO}/main/data-${currentHub}.json`;
+// Data lives in a Cloudflare Worker (no GitHub caching / rate limits)
+const WORKER_URL = 'hurrier-data.mohabatef717.workers.dev
+';   // same URL as in the bookmarklet, no trailing slash
+async function fetchData(){
+  const headers={};
+  try{ const k=localStorage.getItem('hd_read_key'); if(k) headers['X-Read-Key']=k; }catch(e){}
+  const r=await fetch(`${WORKER_URL}/data/${currentHub}`,{headers,cache:'no-store'});
+  if(r.status===401){
+    // password protected: ask once, remember it on this browser
+    const p=prompt('Dashboard password:');
+    if(p){ try{localStorage.setItem('hd_read_key',p);}catch(e){} return fetchData(); }
+    throw 0;
+  }
+  if(!r.ok) throw 0;
+  return await r.json();
+}
 
 function switchHub(slug){
   const u=new URL(location.href);
@@ -757,9 +772,7 @@ async function loadData(){
   document.getElementById('loader').classList.add('on');
   document.getElementById('ref-ico').innerHTML='<span style="display:inline-block;width:11px;height:11px;border:2px solid #ddd;border-top-color:var(--accent);border-radius:50%;animation:sp .5s linear infinite"></span>';
   try{
-    const r=await fetch(RAW_URL+'?t='+Date.now());
-    if(!r.ok) throw 0;
-    const raw=await r.json();
+    const raw=await fetchData();
     all=raw.filter(o=>(o.vt||'')==='darkstores').map(o=>({
       ...o,
       agent: aMap[o.id]||o.agent||'Unassigned',
