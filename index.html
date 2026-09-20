@@ -540,21 +540,20 @@ function getHub(){
   return HUBS.some(h=>h.slug===p) ? p : 'all-cairo';
 }
 let currentHub = getHub();
-// Data lives in a Cloudflare Worker (no GitHub caching / rate limits)
-const WORKER_URL = 'hurrier-data.mohabatef717.workers.dev
-';   // same URL as in the bookmarklet, no trailing slash
+// raw.githubusercontent.com caches files ~5 min and ignores ?t=..., so try the GitHub API first (~1 min cache)
+const RAW_URL  = `https://raw.githubusercontent.com/${GH_REPO}/main/data-${currentHub}.json`;
+const API_URL  = `https://api.github.com/repos/${GH_REPO}/contents/data-${currentHub}.json?ref=main`;
+let dataSource = 'live';
 async function fetchData(){
-  const headers={};
-  try{ const k=localStorage.getItem('hd_read_key'); if(k) headers['X-Read-Key']=k; }catch(e){}
-  const r=await fetch(`${WORKER_URL}/data/${currentHub}`,{headers,cache:'no-store'});
-  if(r.status===401){
-    // password protected: ask once, remember it on this browser
-    const p=prompt('Dashboard password:');
-    if(p){ try{localStorage.setItem('hd_read_key',p);}catch(e){} return fetchData(); }
-    throw 0;
-  }
-  if(!r.ok) throw 0;
-  return await r.json();
+  try{
+    const r=await fetch(API_URL,{headers:{Accept:'application/vnd.github.raw'},cache:'no-cache'});
+    if(r.ok){ dataSource='live'; return await r.json(); }
+  }catch(e){}
+  // fallback (API rate limit reached, offline, ...): raw CDN, can be up to ~5 min old
+  const r2=await fetch(RAW_URL+'?t='+Date.now());
+  if(!r2.ok) throw 0;
+  dataSource='cached';
+  return await r2.json();
 }
 
 function switchHub(slug){
@@ -794,7 +793,7 @@ async function loadData(){
     applyFilters();
     const ts=all[0]?.ts?new Date(all[0].ts):new Date();
     document.getElementById('brand-meta').textContent=
-      `${all.length} orders · updated ${ts.toLocaleTimeString('en-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'})} · Refresh in: `;
+      `${all.length} orders · updated ${ts.toLocaleTimeString('en-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}${dataSource==='cached'?' (cached feed)':''} · Refresh in: `;
     const meta=document.getElementById('brand-meta');
     if(!meta.querySelector('#cd2')){
       const s=document.createElement('span');s.id='cd2';meta.appendChild(s);
