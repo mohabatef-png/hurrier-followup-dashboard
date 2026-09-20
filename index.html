@@ -397,7 +397,7 @@ textarea#clip{position:fixed;left:-9999px;}
     </div>
     <select id="f-zone" style="display:none"></select>
   </div>
-  <div class="sel-wrap" id="wrap-vendor">
+  <div class="sel-wrap" id="wrap-vendor" style="display:none">
     <div class="sel-box" onclick="toggleSel('vendor')" id="box-vendor"><span id="lbl-vendor">All vendors</span><span class="arr">▼</span></div>
     <div class="sel-drop" id="drop-vendor">
       <input class="sel-search" placeholder="Search vendor..." oninput="filterOpts('vendor',this.value)">
@@ -421,7 +421,7 @@ textarea#clip{position:fixed;left:-9999px;}
     </div>
     <select id="f-ostatus" style="display:none"></select>
   </div>
-  <div class="sel-wrap" id="wrap-type">
+  <div class="sel-wrap" id="wrap-type" style="display:none">
     <div class="sel-box" onclick="toggleSel('type')" id="box-type"><span id="lbl-type">All types</span><span class="arr">▼</span></div>
     <div class="sel-drop" id="drop-type">
       <input class="sel-search" placeholder="Search type..." oninput="filterOpts('type',this.value)">
@@ -489,7 +489,6 @@ textarea#clip{position:fixed;left:-9999px;}
         <th onclick="sc('veh')"   id="th-veh">   VEHICLE TYPE <span class="ico">↕</span></th>
         <th onclick="sc('s')"     id="th-s">     STATUS    <span class="ico">↕</span></th>
         <th onclick="sc('z')"     id="th-z">     ZONE      <span class="ico">↕</span></th>
-        <th onclick="sc('vt')"    id="th-vt">    TYPE      <span class="ico">↕</span></th>
         <th onclick="sc('cash')"  id="th-cash">  PAYMENT   <span class="ico">↕</span></th>
         <th onclick="sc('agent')" id="th-agent"> AGENT     <span class="ico">↕</span></th>
         <th style="width:100px;text-align:center;">COPY DATA</th>
@@ -761,7 +760,7 @@ async function loadData(){
     const r=await fetch(RAW_URL+'?t='+Date.now());
     if(!r.ok) throw 0;
     const raw=await r.json();
-    all=raw.map(o=>({
+    all=raw.filter(o=>(o.vt||'')==='darkstores').map(o=>({
       ...o,
       agent: aMap[o.id]||o.agent||'Unassigned',
       z: SP[o.z]||(o.z?String(o.z):'Unknown'),
@@ -858,19 +857,10 @@ function renderOTStats(){
   }
 
   const list=all.filter(pass);
-  const restaurant=list.filter(o=>(o.vt||'')==='restaurants').length;
-  const darkstore =list.filter(o=>(o.vt||'')==='darkstores').length;
+  const darkstore=list.length;
 
-  const curType=selVals['type']||'';
   document.getElementById('otstats-row').innerHTML=`
-    <div class="vstat-card" style="flex:0 0 auto;min-width:110px;border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);">Order Type</span>
-    </div>
-    <div class="vstat-card${curType==='restaurants'?' active':''}" onclick="setOType('restaurants')" style="cursor:pointer;padding:8px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-      <div class="vstat-num v-restaurant" style="font-size:28px;font-weight:700;letter-spacing:-1px;">${restaurant}</div>
-      <div class="vstat-label" style="font-weight:600;font-size:13px;">🍔 Restaurant</div>
-    </div>
-    <div class="vstat-card${curType==='darkstores'?' active':''}" onclick="setOType('darkstores')" style="cursor:pointer;padding:8px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div class="vstat-card active" style="padding:8px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
       <div class="vstat-num v-darkstore" style="font-size:28px;font-weight:700;letter-spacing:-1px;">${darkstore}</div>
       <div class="vstat-label" style="font-weight:600;font-size:13px;"><svg width="12" height="12" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#FF6B2B"/><path d="M9 10h14v3h-5.5v9h-3v-9H9v-3z" fill="white"/></svg> T-Mart Orders</div>
     </div>`;
@@ -1119,15 +1109,6 @@ function renderCBStats(){
     </div>`;
 }
 
-function setOType(v){
-  const cur=selVals['type']||'';
-  if(cur===v){
-    pickOpt('type','','All types');
-  } else {
-    pickOpt('type',v,v);
-  }
-}
-
 // ── SORT COL ─────────────────────────────────────────────
 function sc(k){
   if(sKey===k)sDir*=-1; else{sKey=k;sDir=1;}
@@ -1167,7 +1148,6 @@ function renderTable(){
       <td>${vehBadge(o)}</td>
       <td>${sbadge(o.s)}</td>
       <td style="font-size:13px;color:var(--text2);white-space:nowrap">${o.z||'—'}</td>
-      <td><span class="td-type" style="${o.vt==='darkstores'?'color:#ff6b2b;font-weight:600;':''}">${o.vt||'—'}</span></td>
       <td>${o.cash
         ? '<span class="pay-cash">💵 Cash</span>'
         : '<span class="pay-visa">💳 Visa</span>'
@@ -1258,8 +1238,8 @@ function sa(id,sel){
 
 // ── EXPORT ───────────────────────────────────────────────
 function exportXLSX(){
-  const cols=['id','v','dm','c','stackCount','rs','phone','bal','veh','s','z','vt','cash','agent'];
-  const heads=['Order #','Vendor','Delay (min)','Courier','Stack Count','Rider Status','Phone','Balance','Vehicle','Status','Zone','Type','Payment','Agent'];
+  const cols=['id','v','dm','c','stackCount','rs','phone','bal','veh','s','z','cash','agent'];
+  const heads=['Order #','Vendor','Delay (min)','Courier','Stack Count','Rider Status','Phone','Balance','Vehicle','Status','Zone','Payment','Agent'];
   const data=[heads,...fil.map(o=>cols.map(k=>{
     if(k==='cash') return o.cash?'Cash':'Visa';
     return o[k]??'';
