@@ -238,7 +238,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .veh-other{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#f3f4f6;color:var(--text3);border:1px solid var(--border2);white-space:nowrap;}
 
 .vstats-row{
-  display:flex;border-bottom:1px solid var(--border);
+  display:flex;border-bottom:2px solid var(--border2);
   background:var(--card);overflow-x:auto;
 }
 .vstat-card{
@@ -247,6 +247,8 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
   transition:background .12s;position:relative;text-align:center;
 }
 .vstat-card:last-child{border-right:none;}
+.vstat-card.vstat-lbl-only{display:flex;align-items:center;justify-content:center;}
+.vstat-card.vstat-lbl-only .vstat-label{font-size:11px;}
 .vstat-card:hover{background:#fafbfc;}
 .vstat-card.active{background:var(--blu-bg);}
 .vstat-num{font-size:16px;font-weight:700;letter-spacing:-0.5px;line-height:1;margin-bottom:2px;}
@@ -370,9 +372,6 @@ textarea#clip{position:fixed;left:-9999px;}
 
 <!-- CASH BLOCK STAT CARDS -->
 <div class="vstats-row" id="cbstats-row"></div>
-
-<!-- ORDER TYPE STATS -->
-<div class="vstats-row" id="otstats-row" style="border-top:none;border-bottom:2px solid var(--blu);padding:6px 0;min-height:0;justify-content:center;"></div>
 
 <!-- FILTERS -->
 <div class="filters-row">
@@ -571,7 +570,7 @@ const SP = {
 };
 
 const TABS = [
-  {k:'all',         lbl:'All'},
+  {k:'all',         lbl:'All orders status'},
   {k:'left_pickup', lbl:'Left Pickup'},
   {k:'near_pickup', lbl:'Near Pickup'},
   {k:'picked_up',   lbl:'Picked Up'},
@@ -834,37 +833,6 @@ function pickOStatus(k){
   document.getElementById('box-ostatus').classList.remove('open');
 }
 
-// ── ORDER TYPE STATS ─────────────────────────────────────────
-function renderOTStats(){
-  const q   =document.getElementById('f-q').value.toLowerCase().trim();
-  const zone=document.getElementById('f-zone').value;
-  const vend=document.getElementById('f-vendor').value;
-  const tmart=document.getElementById('f-tmart').value;
-  const pay =document.getElementById('f-pay').value;
-  const veh =selVals['vtype']||'';
-
-  function pass(o){
-    if(tab!=='all' && o._s!==tab) return false;
-    if(q && !`${o.id} ${o.v} ${o.c} ${o.z} ${o.phone}`.toLowerCase().includes(q)) return false;
-    if(zone && o.z!==zone) return false;
-    if(vend && o.v!==vend) return false;
-    if(tmart && o.v!==tmart) return false;
-    if(pay==='cash'&&!o.cash) return false;
-    if(pay==='visa'&& o.cash) return false;
-    if(!vehPass(o, veh)) return false;
-    return true;
-  }
-
-  const list=all.filter(pass);
-  const darkstore=list.length;
-
-  document.getElementById('otstats-row').innerHTML=`
-    <div class="vstat-card active" style="padding:8px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-      <div class="vstat-num v-darkstore" style="font-size:28px;font-weight:700;letter-spacing:-1px;">${darkstore}</div>
-      <div class="vstat-label" style="font-weight:600;font-size:13px;"><svg width="12" height="12" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="#FF6B2B"/><path d="M9 10h14v3h-5.5v9h-3v-9H9v-3z" fill="white"/></svg> T-Mart Orders</div>
-    </div>`;
-}
-
 // ── FILTER + SORT ────────────────────────────────────────
 function applyFilters(){
   const q    =document.getElementById('f-q').value.toLowerCase().trim();
@@ -905,7 +873,6 @@ function applyFilters(){
   renderVStats();
   renderRStats();
   renderCBStats();
-  renderOTStats();
   renderTable();
 
   const inf=fil.length<all.length?`${fil.length} of ${all.length}`:`${all.length}`;
@@ -996,9 +963,8 @@ function renderVStats(){
   const curCat=curVeh.startsWith('cat:')?curVeh.slice(4):'';
 
   const cards=[`
-    <div class="vstat-card${curVeh===''?' active':''}" onclick="setVeh('')">
-      <div class="vstat-num v-all">${list.length}</div>
-      <div class="vstat-label">All Vehicles</div>
+    <div class="vstat-card vstat-lbl-only${curVeh===''?' active':''}" onclick="setVeh('')">
+      <div class="vstat-label">Vehicles type</div>
     </div>`];
   presentCats.forEach(k=>{
     const m=VCAT_META[k];
@@ -1050,9 +1016,8 @@ function renderRStats(){
   const presentCats=RS_CAT_ORDER.filter(k=>counts[k]>0);
 
   const cards=[`
-    <div class="vstat-card${curRs===''?' active':''}" onclick="setRS('')">
-      <div class="vstat-num v-all">${list.length}</div>
-      <div class="vstat-label">All Riders</div>
+    <div class="vstat-card vstat-lbl-only${curRs===''?' active':''}" onclick="setRS('')">
+      <div class="vstat-label">Riders status</div>
     </div>`];
   presentCats.forEach(k=>{
     const m=RS_CAT_META[k];
