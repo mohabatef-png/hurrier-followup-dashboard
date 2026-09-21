@@ -84,7 +84,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 /* ── STAT CARDS ── */
 .stats-row{
   display:flex;border-bottom:1px solid var(--border2);
-  background:var(--card);overflow-x:auto;
+  background:var(--card);overflow-x:auto;overflow-y:hidden;
 }
 .stat-card{
   flex:1;min-width:100px;padding:10px 20px;cursor:pointer;
@@ -96,7 +96,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 .stat-card:hover{background:#fafbfc;}
 .stat-card.active{background:var(--acc-bg);}
 .stat-card.active::after{
-  content:'';position:absolute;bottom:-2px;left:0;right:0;
+  content:'';position:absolute;bottom:0;left:0;right:0;
   height:2px;background:var(--acc-dark);
 }
 .stat-card.active .stat-num{color:var(--blu);}
@@ -239,7 +239,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 
 /* summary cards (vehicles / riders / cash block) — same chip look as the views below */
 .vstat-card{
-  flex:1 1 110px;max-width:190px;min-width:96px;padding:6px 10px;cursor:pointer;
+  flex:1 1 96px;max-width:150px;min-width:0;padding:7px 10px;cursor:pointer;
   border:1px solid var(--border);border-radius:8px;background:#fff;
   transition:border-color .12s,box-shadow .12s,background .12s;text-align:center;
 }
@@ -256,7 +256,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 
 /* ── SUMMARY / INSIGHT SECTIONS (shared look) ── */
 .summary-row{
-  display:grid;grid-template-columns:1fr 1fr;
+  display:grid;grid-template-columns:1fr 2fr;
   border-bottom:1px solid var(--border2);background:var(--card);
 }
 .insight-row{
@@ -266,11 +266,14 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .ins-col{min-width:0;display:flex;flex-direction:column;border-right:1px solid var(--border);}
 .ins-col:last-child{border-right:none;}
 .ins-title{font-size:11px;font-weight:700;color:var(--acc-dark);text-align:center;padding:9px 12px 4px;letter-spacing:.3px;}
-.ins-body{flex:1;padding:6px 12px 12px;max-height:150px;overflow-y:auto;scrollbar-width:thin;}
-.sum-cards{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-content:center;max-height:none;overflow:visible;}
+.ins-body{flex:1;padding:6px 12px 12px;max-height:156px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+.ins-body::-webkit-scrollbar{width:6px;}
+.ins-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.ins-body::-webkit-scrollbar-button{display:none;height:0;}
+.sum-cards{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-content:flex-start;max-height:none;overflow:visible;}
 .ins-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-content:start;}
 .ins-list.z{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
-.ins-delaybox{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-content:center;max-height:none;overflow:visible;}
+.ins-delaybox{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-content:flex-start;max-height:none;overflow:visible;}
 .ins-empty{grid-column:1/-1;text-align:center;font-size:12px;color:var(--text3);padding:10px 0;}
 .ins-chip{
   display:flex;align-items:center;gap:8px;padding:6px 10px;min-width:0;
@@ -280,11 +283,12 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 }
 .ins-chip:hover{border-color:var(--accent);box-shadow:0 1px 4px rgba(255,107,43,.18);}
 .ins-chip.active{background:var(--acc-bg);border-color:var(--accent);}
+.ins-list .ins-chip{height:30px;}
 .ins-chip .n{font-weight:700;color:var(--accent);min-width:26px;}
 .ins-chip .t{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
 .ins-dcard{
-  flex:1 1 84px;max-width:130px;flex-direction:column;justify-content:center;gap:3px;
-  padding:6px 10px;text-align:center;background:#fff;
+  flex:1 1 76px;max-width:150px;min-width:0;flex-direction:column;justify-content:center;align-items:center;gap:3px;
+  padding:7px 10px;text-align:center;background:#fff;
 }
 .ins-dcard .dn{font-size:20px;font-weight:700;letter-spacing:-.5px;line-height:1;color:var(--red);}
 .ins-dcard .st{font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap;}
