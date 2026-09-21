@@ -43,9 +43,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 .brand-ico{
   width:34px;height:34px;background:var(--accent);border-radius:8px;
   display:flex;align-items:center;justify-content:center;
-  font-size:17px;flex-shrink:0;
+  font-size:17px;flex-shrink:0;overflow:hidden;
   box-shadow:0 2px 6px rgba(255,107,43,.3);
 }
+.brand-ico img{width:100%;height:100%;object-fit:cover;display:block;}
 .brand-info{min-width:0;}
 .brand-name{font-size:14.5px;font-weight:700;letter-spacing:-.3px;white-space:nowrap;}
 .brand-meta{font-size:11px;color:var(--text2);margin-top:1px;white-space:nowrap;}
@@ -198,7 +199,7 @@ thead th.sorted{color:var(--accent);}
 .ico{display:inline-block;margin-left:3px;font-size:10px;opacity:.45;vertical-align:middle;}
 thead th.sorted .ico{opacity:1;}
 
-tbody tr{border-bottom:1px solid var(--border);transition:background .07s;}
+tbody tr{border-bottom:2px solid var(--border2);transition:background .07s;}
 tbody tr:hover{background:#f7f8fa;}
 tbody tr:last-child{border-bottom:none;}
 td{padding:12px 14px;vertical-align:middle;text-align:center;}
@@ -273,16 +274,6 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .btn-stack.on{background:#fff4ef;border-color:#fed7aa;color:#c2410c;}
 #btn-cashblock.on{background:var(--red-bg);border-color:var(--red-b);color:var(--red);}
 
-.agent-sel{
-  padding:5px 24px 5px 9px;border:1.5px solid var(--border);border-radius:7px;
-  font-size:12.5px;font-family:var(--sans);color:var(--text2);
-  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath fill='%239ea3b5' d='M0 0l4 5 4-5z'/%3E%3C/svg%3E") no-repeat right 7px center;
-  -webkit-appearance:none;appearance:none;outline:none;cursor:pointer;
-  transition:border .13s;min-width:110px;
-}
-.agent-sel:focus{border-color:var(--accent);}
-.agent-sel.on{color:var(--grn);border-color:var(--grn-b);font-weight:600;}
-
 .empty{padding:60px 20px;text-align:center;}
 .empty-ico{font-size:36px;opacity:.35;margin-bottom:10px;}
 .empty-title{font-size:15px;font-weight:600;color:var(--text2);}
@@ -347,7 +338,7 @@ textarea#clip{position:fixed;left:-9999px;}
 <div class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <div class="brand-ico">🛵</div>
+      <div class="brand-ico"><img src="data:image/png;base64,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" alt="talabat mart"></div>
       <div class="brand-info">
         <div class="brand-name" id="brand-name">T-Mart Orders Follow-Up</div>
         <div class="brand-meta" id="brand-meta">Loading…</div>
@@ -490,7 +481,6 @@ textarea#clip{position:fixed;left:-9999px;}
         <th onclick="sc('s')"     id="th-s">     STATUS    <span class="ico">↕</span></th>
         <th onclick="sc('z')"     id="th-z">     ZONE      <span class="ico">↕</span></th>
         <th onclick="sc('cash')"  id="th-cash">  PAYMENT   <span class="ico">↕</span></th>
-        <th onclick="sc('agent')" id="th-agent"> AGENT     <span class="ico">↕</span></th>
         <th style="width:100px;text-align:center;">COPY DATA</th>
       </tr>
     </thead>
@@ -522,17 +512,17 @@ const GH_REPO  = 'mohabatef-png/hurrier-followup-dashboard';
 // Each hub's bookmarklet pushes to its own data-<slug>.json file in the repo,
 // so every hub can have its own live dashboard view via ?hub=<slug>.
 const HUBS = [
-  {slug:'all-cairo',                    lbl:'🌍 All Cairo'},
-  {slug:'mohandsien',                   lbl:'🏙️ Mohandsien'},
-  {slug:'alexandria',                   lbl:'🌊 Alexandria'},
-  {slug:'delta',                        lbl:'🌾 Delta'},
-  {slug:'october',                      lbl:'🏜️ October'},
-  {slug:'haram',                        lbl:'🐫 Haram'},
-  {slug:'maadi-mokattam-helwan',        lbl:'🛵 Maadi / Mokattam / Helwan'},
-  {slug:'nasr-city-heliopolis',         lbl:'✈️ Nasr City / Heliopolis'},
-  {slug:'new-cities',                   lbl:'🏗️ New Cities'},
-  {slug:'new-cairo-rehab-tagammoa',     lbl:'🏘️ New Cairo (Rehab + Tagammoa)'},
-  {slug:'east-south-mid-egypt',         lbl:'🚢 East/South/Mid Egypt'},
+  {slug:'all-cairo',                    lbl:'All Cairo'},
+  {slug:'mohandsien',                   lbl:'Mohandsien'},
+  {slug:'alexandria',                   lbl:'Alexandria'},
+  {slug:'delta',                        lbl:'Delta'},
+  {slug:'october',                      lbl:'October'},
+  {slug:'haram',                        lbl:'Giza'},
+  {slug:'maadi-mokattam-helwan',        lbl:'Maadi'},
+  {slug:'nasr-city-heliopolis',         lbl:'Nasr City'},
+  {slug:'new-cities',                   lbl:'New Cities'},
+  {slug:'new-cairo-rehab-tagammoa',     lbl:'New Cairo'},
+  {slug:'east-south-mid-egypt',         lbl:'ESM'},
 ];
 
 function getHub(){
@@ -566,8 +556,8 @@ function initHubUI(){
   const sel=document.getElementById('hub-select');
   sel.innerHTML=HUBS.map(h=>`<option value="${h.slug}"${h.slug===currentHub?' selected':''}>${h.lbl}</option>`).join('');
   const cur=HUBS.find(h=>h.slug===currentHub);
-  document.getElementById('brand-name').textContent = cur ? `T-Mart Orders Follow-Up — ${cur.lbl.replace(/^\S+\s/,'')}` : 'T-Mart Orders Follow-Up';
-  document.title = cur ? `T-Mart Orders Follow-Up — ${cur.lbl.replace(/^\S+\s/,'')}` : 'T-Mart Orders Follow-Up';
+  document.getElementById('brand-name').textContent = cur ? `T-Mart Orders Follow-Up — ${cur.lbl}` : 'T-Mart Orders Follow-Up';
+  document.title = cur ? `T-Mart Orders Follow-Up — ${cur.lbl}` : 'T-Mart Orders Follow-Up';
   const fl=document.getElementById('footer-link');
   if(fl) fl.textContent='https://mohabatef-png.github.io/hurrier-followup-dashboard/?hub='+currentHub;
 }
@@ -580,8 +570,6 @@ const SP = {
   10227:'Zone-10227', 10232:'Zone-10232'
 };
 
-const AGENTS = ['Unassigned','Mohamed','Ahmed','Sara','Omar','Nour','Youssef'];
-
 const TABS = [
   {k:'all',         lbl:'All'},
   {k:'left_pickup', lbl:'Left Pickup'},
@@ -592,7 +580,7 @@ const TABS = [
 ];
 
 // ── STATE ───────────────────────────────────────────────
-let all=[], fil=[], tab='all', sKey='dm', sDir=1, aMap={}, cdT=null, cds=180, stackedOnly=false, cashBlockOnly=false;
+let all=[], fil=[], tab='all', sKey='dm', sDir=1, cdT=null, cds=180, stackedOnly=false, cashBlockOnly=false;
 const CASH_BLOCK_LIMIT=3000;
 
 // ── STATUS ──────────────────────────────────────────────
@@ -774,7 +762,6 @@ async function loadData(){
     const raw=await fetchData();
     all=raw.filter(o=>(o.vt||'')==='darkstores').map(o=>({
       ...o,
-      agent: aMap[o.id]||o.agent||'Unassigned',
       z: SP[o.z]||(o.z?String(o.z):'Unknown'),
       _s: ns(o.s),
       veh: vLabel(o.vehicle),
@@ -793,7 +780,7 @@ async function loadData(){
     applyFilters();
     const ts=all[0]?.ts?new Date(all[0].ts):new Date();
     document.getElementById('brand-meta').textContent=
-      `${all.length} orders · updated ${ts.toLocaleTimeString('en-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}${dataSource==='cached'?' (cached feed)':''} · Refresh in: `;
+      `${all.length} orders · updated ${ts.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'})} · ${ts.toLocaleTimeString('en-EG',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}${dataSource==='cached'?' (cached feed)':''} · Refresh in: `;
     const meta=document.getElementById('brand-meta');
     if(!meta.querySelector('#cd2')){
       const s=document.createElement('span');s.id='cd2';meta.appendChild(s);
@@ -1165,11 +1152,6 @@ function renderTable(){
         : '<span class="pay-visa">💳 Visa</span>'
       }</td>
       <td>
-        <select class="agent-sel${o.agent!=='Unassigned'?' on':''}" onchange="sa('${o.id}',this)">
-          ${AGENTS.map(a=>`<option${o.agent===a?' selected':''}>${a}</option>`).join('')}
-        </select>
-      </td>
-      <td>
         <button onclick="copyRow(this)" data-id="${o.id}" data-cash="${o.cash}" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);font-family:var(--sans);transition:all .13s;" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='var(--card)'">Copy</button>
       </td>
     </tr>`).join('');
@@ -1241,17 +1223,10 @@ function copyRow(btn){
   toast('✅ Copied!');
 }
 
-// ── AGENT ────────────────────────────────────────────────
-function sa(id,sel){
-  aMap[id]=sel.value;
-  const o=all.find(x=>x.id===id);if(o)o.agent=sel.value;
-  sel.className='agent-sel'+(sel.value!=='Unassigned'?' on':'');
-}
-
 // ── EXPORT ───────────────────────────────────────────────
 function exportXLSX(){
-  const cols=['id','v','dm','c','stackCount','rs','phone','bal','veh','s','z','cash','agent'];
-  const heads=['Order #','Vendor','Delay (min)','Courier','Stack Count','Rider Status','Phone','Balance','Vehicle','Status','Zone','Payment','Agent'];
+  const cols=['id','v','dm','c','stackCount','rs','phone','bal','veh','s','z','cash'];
+  const heads=['Order #','Vendor','Delay (min)','Courier','Stack Count','Rider Status','Phone','Balance','Vehicle','Status','Zone','Payment'];
   const data=[heads,...fil.map(o=>cols.map(k=>{
     if(k==='cash') return o.cash?'Cash':'Visa';
     return o[k]??'';
