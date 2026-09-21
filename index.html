@@ -83,7 +83,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 
 /* ── STAT CARDS ── */
 .stats-row{
-  display:flex;border-bottom:2px solid rgba(255,107,43,.5);
+  display:flex;border-bottom:1px solid var(--border2);
   background:var(--card);overflow-x:auto;
 }
 .stat-card{
@@ -94,7 +94,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 }
 .stat-card:last-child{border-right:none;}
 .stat-card:hover{background:#fafbfc;}
-.stat-card.active{background:var(--blu-bg);}
+.stat-card.active{background:var(--acc-bg);}
 .stat-card.active::after{
   content:'';position:absolute;bottom:-2px;left:0;right:0;
   height:2px;background:var(--acc-dark);
@@ -237,41 +237,39 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .veh-car{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:var(--red-bg);color:var(--red);border:1px solid var(--red-b);white-space:nowrap;}
 .veh-other{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#f3f4f6;color:var(--text3);border:1px solid var(--border2);white-space:nowrap;}
 
-.vstats-row{
-  display:flex;border-bottom:2px solid rgba(255,107,43,.5);
-  background:var(--card);overflow-x:auto;
-}
+/* summary cards (vehicles / riders / cash block) — same chip look as the views below */
 .vstat-card{
-  flex:1;min-width:88px;padding:6px 16px;cursor:pointer;
-  border-right:1px solid var(--border);
-  transition:background .12s;position:relative;text-align:center;
+  flex:1 1 110px;max-width:190px;min-width:96px;padding:6px 10px;cursor:pointer;
+  border:1px solid var(--border);border-radius:8px;background:#fff;
+  transition:border-color .12s,box-shadow .12s,background .12s;text-align:center;
 }
-.vstat-card:last-child{border-right:none;}
-.vstat-card.vstat-lbl-only{display:flex;align-items:center;justify-content:center;}
-.vstat-card.vstat-lbl-only .vstat-label{font-size:11px;}
-.vstat-card:hover{background:#fafbfc;}
-.vstat-card.active{background:var(--blu-bg);}
-.vstat-num{font-size:16px;font-weight:700;letter-spacing:-0.5px;line-height:1;margin-bottom:2px;}
+.vstat-card:hover{border-color:var(--accent);box-shadow:0 1px 4px rgba(255,107,43,.18);}
+.vstat-card.active{background:var(--acc-bg);border-color:var(--accent);}
+.vstat-num{font-size:20px;font-weight:700;letter-spacing:-0.5px;line-height:1;margin-bottom:3px;}
 .vstat-num.v-bike{color:#ff4d00;}
 .vstat-num.v-bicycle{color:#0066ff;}
 .vstat-num.v-hybrid{color:#ff6b2b;}
 .vstat-num.v-restaurant{color:#16a34a !important;}
 .vstat-num.v-darkstore{color:#ff6b2b !important;}
 .vstat-num.v-all{color:#1c1e2e;}
-.vstat-label{font-size:10px;color:var(--text2);font-weight:600;}
+.vstat-label{font-size:11px;color:var(--text2);font-weight:600;}
 
-/* ── INSIGHT ROW (branches / most delayed / zones) ── */
+/* ── SUMMARY / INSIGHT SECTIONS (shared look) ── */
+.summary-row{
+  display:grid;grid-template-columns:1fr 1fr;
+  border-bottom:1px solid var(--border2);background:var(--card);
+}
 .insight-row{
   display:grid;grid-template-columns:1fr 1fr 1fr;
-  border-bottom:2px solid rgba(255,107,43,.5);background:var(--card);
+  border-bottom:1px solid var(--border2);background:var(--card);
 }
-.ins-col{min-width:0;display:flex;flex-direction:column;border-right:2px solid rgba(255,107,43,.5);}
+.ins-col{min-width:0;display:flex;flex-direction:column;border-right:1px solid var(--border);}
 .ins-col:last-child{border-right:none;}
-.ins-title{font-size:11px;font-weight:700;color:var(--text2);text-align:center;padding:9px 12px 4px;letter-spacing:.3px;}
-.ins-body{
-  flex:1;padding:6px 12px 12px;max-height:150px;overflow-y:auto;scrollbar-width:thin;
-}
-.ins-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px;align-content:start;}
+.ins-title{font-size:11px;font-weight:700;color:var(--acc-dark);text-align:center;padding:9px 12px 4px;letter-spacing:.3px;}
+.ins-body{flex:1;padding:6px 12px 12px;max-height:150px;overflow-y:auto;scrollbar-width:thin;}
+.sum-cards{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-content:center;max-height:none;overflow:visible;}
+.ins-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-content:start;}
+.ins-list.z{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
 .ins-delaybox{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-content:center;max-height:none;overflow:visible;}
 .ins-empty{grid-column:1/-1;text-align:center;font-size:12px;color:var(--text3);padding:10px 0;}
 .ins-chip{
@@ -281,21 +279,21 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
   transition:border-color .12s,box-shadow .12s;
 }
 .ins-chip:hover{border-color:var(--accent);box-shadow:0 1px 4px rgba(255,107,43,.18);}
-.ins-chip.active{background:var(--blu-bg);border-color:var(--blu-b);}
+.ins-chip.active{background:var(--acc-bg);border-color:var(--accent);}
 .ins-chip .n{font-weight:700;color:var(--accent);min-width:26px;}
 .ins-chip .t{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
 .ins-dcard{
   flex:1 1 84px;max-width:130px;flex-direction:column;justify-content:center;gap:3px;
-  padding:9px 6px;text-align:center;background:#fff;
+  padding:6px 10px;text-align:center;background:#fff;
 }
-.ins-dcard .dn{font-size:22px;font-weight:700;letter-spacing:-.5px;line-height:1;color:var(--red);}
+.ins-dcard .dn{font-size:20px;font-weight:700;letter-spacing:-.5px;line-height:1;color:var(--red);}
 .ins-dcard .st{font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap;}
 .ins-dcard.off{cursor:default;}
 .ins-dcard.off .dn{color:var(--text3);}
 .ins-dcard.off:hover{border-color:var(--border);box-shadow:none;}
 @media(max-width:900px){
-  .insight-row{grid-template-columns:1fr;}
-  .ins-col{border-right:none;border-bottom:2px solid rgba(255,107,43,.5);}
+  .summary-row,.insight-row{grid-template-columns:1fr;}
+  .ins-col{border-right:none;border-bottom:1px solid var(--border);}
   .ins-col:last-child{border-bottom:none;}
 }
 
@@ -400,24 +398,25 @@ textarea#clip{position:fixed;left:-9999px;}
   </div>
 </div>
 
+<div id="summary-wrap">
 <!-- STAT CARDS -->
 <div class="stats-row" id="stats-row"></div>
 
-<!-- VEHICLE TYPE STAT CARDS -->
-<div class="vstats-row" id="vstats-row"></div>
-
-<!-- RIDER STATUS STAT CARDS -->
-<div class="vstats-row" id="rsstats-row"></div>
-
-<!-- CASH BLOCK STAT CARDS -->
-<div class="vstats-row" id="cbstats-row"></div>
+<!-- SUMMARY ROW: Vehicles type / Riders status (+ Cash Block) -->
+<div class="summary-row" id="summary-row">
+  <div class="ins-col"><div class="ins-title">Vehicles type</div>
+    <div class="ins-body sum-cards"><div id="vstats-row" style="display:contents"></div></div></div>
+  <div class="ins-col"><div class="ins-title">Riders status</div>
+    <div class="ins-body sum-cards"><div id="rsstats-row" style="display:contents"></div><div id="cbstats-row" style="display:contents"></div></div></div>
+</div>
 
 <!-- INSIGHT ROW: T-Mart branches / Most delayed / Zones -->
 <div class="insight-row" id="insight-row">
   <div class="ins-col"><div class="ins-title">T-Mart branches</div><div class="ins-body ins-list" id="ins-tmart"></div></div>
   <div class="ins-col"><div class="ins-title">Most delayed (past deadline)</div><div class="ins-body ins-delaybox" id="ins-delay"></div></div>
-  <div class="ins-col"><div class="ins-title">Zones</div><div class="ins-body ins-list" id="ins-zone"></div></div>
+  <div class="ins-col"><div class="ins-title">Zones</div><div class="ins-body ins-list z" id="ins-zone"></div></div>
 </div>
+</div><!-- /summary-wrap -->
 
 <!-- FILTERS -->
 <div class="filters-row">
@@ -500,6 +499,7 @@ textarea#clip{position:fixed;left:-9999px;}
     <select id="f-sort" style="display:none"><option value="overdue">Most delayed first</option><option value="dl_asc">Deadline soonest</option><option value="ord_desc">Order # ↓</option><option value="zone">By zone</option><option value="vendor">By vendor</option></select>
   </div>
   <span class="results-info" id="res-info"></span>
+  <button class="btn-stack" id="btn-summary" onclick="toggleSummary()" title="Show / hide the cards above the table">▲ Hide summary</button>
   <button class="btn-stack" id="btn-stack" onclick="toggleStacked()">📦 Stacked riders</button>
   <button class="btn-stack" id="btn-cashblock" onclick="toggleCashBlock()">🚫 Cash Block riders</button>
   <button class="btn" id="btn-cashblock-csv" onclick="exportCashBlockXLSX()" title="Export cash block riders as Excel file">↓ Excel</button>
@@ -1091,16 +1091,13 @@ function renderVStats(){
 
   const curCat=curVeh.startsWith('cat:')?curVeh.slice(4):'';
 
-  const cards=[`
-    <div class="vstat-card vstat-lbl-only${curVeh===''?' active':''}" onclick="setVeh('')">
-      <div class="vstat-label">Vehicles type</div>
-    </div>`];
+  const cards=[];
   presentCats.forEach(k=>{
     const m=VCAT_META[k];
     cards.push(`
-    <div class="vstat-card${curCat===k?' active':''}" onclick="setVeh('cat:${k}')">
+    <div class="vstat-card${curCat===k?' active':''}" onclick="setVeh('${curCat===k?'':'cat:'+k}')">
       <div class="vstat-num" style="color:${VCAT_COLOR[k]}">${counts[k]}</div>
-      <div class="vstat-label">${m.icon} ${m.lbl} Orders</div>
+      <div class="vstat-label">${m.icon} ${m.lbl}</div>
     </div>`);
   });
   document.getElementById('vstats-row').innerHTML=cards.join('');
@@ -1145,14 +1142,11 @@ function renderRStats(){
   RS_CAT_ORDER.forEach(k=>counts[k]=list.filter(o=>o.rscat===k).length);
   const presentCats=RS_CAT_ORDER.filter(k=>counts[k]>0);
 
-  const cards=[`
-    <div class="vstat-card vstat-lbl-only${curRs===''?' active':''}" onclick="setRS('')">
-      <div class="vstat-label">Riders status</div>
-    </div>`];
+  const cards=[];
   presentCats.forEach(k=>{
     const m=RS_CAT_META[k];
     cards.push(`
-    <div class="vstat-card${curRs===k?' active':''}" onclick="setRS('${k}')">
+    <div class="vstat-card${curRs===k?' active':''}" onclick="setRS('${curRs===k?'':k}')">
       <div class="vstat-num" style="color:${m.color}">${counts[k]}</div>
       <div class="vstat-label">${m.icon} ${m.lbl}</div>
     </div>`);
@@ -1391,6 +1385,18 @@ function resetCD(){
 let _tt=null;
 function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('on'),3000);}
 
+// ── HIDE / SHOW SUMMARY CARDS ────────────────────────────
+function setSummary(hidden){
+  document.getElementById('summary-wrap').style.display=hidden?'none':'';
+  const b=document.getElementById('btn-summary');
+  b.textContent=hidden?'▼ Show summary':'▲ Hide summary';
+  b.classList.toggle('on',hidden);
+  try{ localStorage.setItem('tmart_summary_hidden',hidden?'1':'0'); }catch(e){}
+}
+function toggleSummary(){
+  setSummary(document.getElementById('summary-wrap').style.display!=='none');
+}
+
 // ── RESET FILTERS ────────────────────────────────────────
 function resetFilters(){
   document.getElementById('f-q').value='';
@@ -1489,6 +1495,7 @@ document.addEventListener('click',e=>{
 
 // ── INIT ─────────────────────────────────────────────────
 initHubUI();
+try{ if(localStorage.getItem('tmart_summary_hidden')==='1') setSummary(true); }catch(e){}
 renderStats();
 renderOStatusBox();
 loadData();
