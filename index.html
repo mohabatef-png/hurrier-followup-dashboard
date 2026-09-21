@@ -83,7 +83,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 
 /* ── STAT CARDS ── */
 .stats-row{
-  display:flex;border-bottom:2px solid var(--blu);
+  display:flex;border-bottom:2px solid rgba(255,107,43,.5);
   background:var(--card);overflow-x:auto;
 }
 .stat-card{
@@ -97,7 +97,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 .stat-card.active{background:var(--blu-bg);}
 .stat-card.active::after{
   content:'';position:absolute;bottom:-2px;left:0;right:0;
-  height:2px;background:var(--blu);
+  height:2px;background:var(--acc-dark);
 }
 .stat-card.active .stat-num{color:var(--blu);}
 .stat-num{font-size:20px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:3px;}
@@ -238,7 +238,7 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .veh-other{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:600;background:#f3f4f6;color:var(--text3);border:1px solid var(--border2);white-space:nowrap;}
 
 .vstats-row{
-  display:flex;border-bottom:2px solid var(--blu);
+  display:flex;border-bottom:2px solid rgba(255,107,43,.5);
   background:var(--card);overflow-x:auto;
 }
 .vstat-card{
