@@ -260,6 +260,42 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .vstat-num.v-all{color:#1c1e2e;}
 .vstat-label{font-size:10px;color:var(--text2);font-weight:600;}
 
+/* ── INSIGHT ROW (branches / most delayed / zones) ── */
+.insight-row{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  border-bottom:2px solid rgba(255,107,43,.5);background:var(--card);
+}
+.ins-col{min-width:0;display:flex;flex-direction:column;border-right:2px solid rgba(255,107,43,.5);}
+.ins-col:last-child{border-right:none;}
+.ins-title{font-size:11px;font-weight:700;color:var(--text2);text-align:center;padding:8px 12px 2px;letter-spacing:.3px;}
+.ins-body{
+  display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:6px;
+  padding:6px 12px 10px;max-height:122px;overflow-y:auto;
+}
+.ins-empty{font-size:12px;color:var(--text3);padding:10px 0;}
+.ins-chip{
+  display:inline-flex;align-items:center;gap:8px;padding:4px 10px;max-width:100%;
+  border:1px solid var(--border);border-radius:8px;background:#fff;
+  font-size:12px;cursor:pointer;transition:background .12s,border-color .12s;
+}
+.ins-chip:hover{background:#fafbfc;border-color:var(--border2);}
+.ins-chip.active{background:var(--blu-bg);border-color:var(--blu-b);}
+.ins-chip .n{font-weight:700;color:var(--accent);}
+.ins-chip .t{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px;}
+.ins-dcard{
+  flex-direction:column;gap:1px;min-width:104px;padding:5px 10px;text-align:center;
+}
+.ins-dcard .st{font-size:10px;font-weight:600;color:var(--text2);}
+.ins-dcard .oid{font-size:13px;font-weight:700;letter-spacing:-.2px;}
+.ins-dcard .br{font-size:10px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;}
+.ins-dcard.off{opacity:.45;cursor:default;}
+.ins-dcard.off:hover{background:#fff;border-color:var(--border);}
+@media(max-width:900px){
+  .insight-row{grid-template-columns:1fr;}
+  .ins-col{border-right:none;border-bottom:2px solid rgba(255,107,43,.5);}
+  .ins-col:last-child{border-bottom:none;}
+}
+
 .stack-badge{
   display:inline-flex;align-items:center;gap:3px;margin-left:5px;
   padding:2px 7px;border-radius:6px;font-size:11px;font-weight:700;
@@ -372,6 +408,13 @@ textarea#clip{position:fixed;left:-9999px;}
 
 <!-- CASH BLOCK STAT CARDS -->
 <div class="vstats-row" id="cbstats-row"></div>
+
+<!-- INSIGHT ROW: T-Mart branches / Most delayed / Zones -->
+<div class="insight-row" id="insight-row">
+  <div class="ins-col"><div class="ins-title">T-Mart branches</div><div class="ins-body" id="ins-tmart"></div></div>
+  <div class="ins-col"><div class="ins-title">Most delayed</div><div class="ins-body" id="ins-delay"></div></div>
+  <div class="ins-col"><div class="ins-title">Zones</div><div class="ins-body" id="ins-zone"></div></div>
+</div>
 
 <!-- FILTERS -->
 <div class="filters-row">
@@ -873,6 +916,7 @@ function applyFilters(){
   renderVStats();
   renderRStats();
   renderCBStats();
+  renderInsights();
   renderTable();
 
   const inf=fil.length<all.length?`${fil.length} of ${all.length}`:`${all.length}`;
@@ -931,6 +975,88 @@ function toggleCashBlock(){
   cashBlockOnly=!cashBlockOnly;
   document.getElementById('btn-cashblock').classList.toggle('on',cashBlockOnly);
   applyFilters();
+}
+
+// ── INSIGHT ROW: T-Mart branches / Most delayed / Zones ──
+function insEsc(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function renderInsights(){
+  const q    =document.getElementById('f-q').value.toLowerCase().trim();
+  const zone =document.getElementById('f-zone').value;
+  const vend =document.getElementById('f-vendor').value;
+  const tmart=document.getElementById('f-tmart').value;
+  const type =document.getElementById('f-type').value;
+  const pay  =document.getElementById('f-pay').value;
+  const veh  =selVals['vtype']||'';
+  const rst  =selVals['rstatus']||'';
+
+  // every active filter EXCEPT the one being displayed, so cards stay usable for switching
+  function pass(o, skip){
+    if(skip!=='tab'   && tab!=='all' && o._s!==tab) return false;
+    if(q && !`${o.id} ${o.v} ${o.c} ${o.z} ${o.phone}`.toLowerCase().includes(q)) return false;
+    if(skip!=='zone'  && zone  && o.z!==zone) return false;
+    if(vend && o.v!==vend) return false;
+    if(skip!=='tmart' && tmart && o.v!==tmart) return false;
+    if(type && o.vt!==type) return false;
+    if(pay==='cash'&&!o.cash) return false;
+    if(pay==='visa'&& o.cash) return false;
+    if(!vehPass(o, veh)) return false;
+    if(!rsPass(o, rst)) return false;
+    if(stackedOnly && (o.stackCount||0)<2) return false;
+    if(cashBlockOnly && !(o.bal!==null && o.bal!==undefined && o.bal>CASH_BLOCK_LIMIT)) return false;
+    return true;
+  }
+
+  function countChips(skip, keyFn, curVal, selId, onlyFn){
+    const m={};
+    all.forEach(o=>{
+      if(onlyFn && !onlyFn(o)) return;
+      const k=keyFn(o); if(!k) return;
+      if(pass(o,skip)) m[k]=(m[k]||0)+1;
+    });
+    if(curVal && !(curVal in m)) m[curVal]=0;
+    const rows=Object.entries(m).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+    if(!rows.length) return '<div class="ins-empty">—</div>';
+    return rows.map(([k,n])=>`
+      <div class="ins-chip${curVal===k?' active':''}" data-v="${insEsc(k)}" title="${insEsc(k)}" onclick="insPick('${selId}',this)">
+        <span class="n">${n}</span><span class="t">${insEsc(k)}</span>
+      </div>`).join('');
+  }
+
+  document.getElementById('ins-tmart').innerHTML=countChips('tmart',o=>o.v,tmart,'tmart',o=>o.vt==='darkstores');
+  document.getElementById('ins-zone').innerHTML =countChips('zone', o=>o.z,zone, 'zone');
+
+  // most delayed order per order status (smallest minutes-to-deadline)
+  document.getElementById('ins-delay').innerHTML=TABS.slice(1).map(t=>{
+    let best=null;
+    all.forEach(o=>{
+      if(o._s!==t.k || o.dm===null || o.dm===undefined) return;
+      if(!pass(o,'tab')) return;
+      if(!best || o.dm<best.dm) best=o;
+    });
+    if(!best) return `<div class="ins-chip ins-dcard off"><span class="st">${t.lbl}</span><span class="oid">—</span></div>`;
+    return `
+      <div class="ins-chip ins-dcard${tab===t.k?' active':''}" onclick="insPickDelay('${t.k}')" title="${insEsc(best.v||'')}">
+        <span class="st">${t.lbl}</span>
+        <span class="oid">${insEsc(best.id)}</span>
+        ${dlFmt(best.dm)}
+        <span class="br">${insEsc(best.v||'')}</span>
+      </div>`;
+  }).join('');
+}
+
+// click on a branch / zone card: apply the filter, click again to clear it
+function insPick(id, el){
+  const v=el.dataset.v;
+  const nv=selVals[id]===v ? '' : v;
+  pickOpt(id, nv, nv);
+}
+
+// click on a most-delayed card: filter to that status and sort most delayed first
+function insPickDelay(k){
+  if(tab===k){ setTab('all'); return; }
+  tab=k; renderOStatusBox();
+  sKey=''; sc('dm');
 }
 
 // ── VEHICLE TYPE STATS ───────────────────────────────────
@@ -1264,6 +1390,8 @@ function toast(m){const e=document.getElementById('toast');e.textContent=m;e.cla
 function resetFilters(){
   document.getElementById('f-q').value='';
   document.getElementById('f-zone').value='';
+  selVals['zone']='';
+  document.getElementById('lbl-zone').textContent='All zones';
   document.getElementById('f-vendor').value='';
   document.getElementById('f-tmart').value='';
   selVals['tmart']='';
