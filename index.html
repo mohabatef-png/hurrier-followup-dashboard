@@ -18,6 +18,9 @@
   --text3:#9ea3b5;
   --accent:#ff6b2b;
   --acc-bg:#fff4ef;
+  --sum-bg:#fff6f0;   /* base of the summary cards area */
+  --sum-line:#f3dccd; /* dividers inside that area */
+  --sum-on:#ffe2d0;   /* selected card */
   --acc-dark:#e8501a;
   --red:#dc2626;   --red-bg:#fef2f2;   --red-b:#fecaca;
   --ora:#d97706;   --ora-bg:#fffbeb;   --ora-b:#fde68a;
@@ -83,18 +86,18 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14
 
 /* ── STAT CARDS ── */
 .stats-row{
-  display:flex;border-bottom:1px solid var(--border2);
-  background:var(--card);overflow-x:auto;overflow-y:hidden;
+  display:flex;border-bottom:1px solid var(--sum-line);
+  background:var(--sum-bg);overflow-x:auto;overflow-y:hidden;
 }
 .stat-card{
   flex:1;min-width:100px;padding:10px 20px;cursor:pointer;
-  border-right:1px solid var(--border);
+  border-right:1px solid var(--sum-line);
   transition:background .12s;position:relative;
   text-align:center;
 }
 .stat-card:last-child{border-right:none;}
-.stat-card:hover{background:#fafbfc;}
-.stat-card.active{background:var(--acc-bg);}
+.stat-card:hover{background:#fff;}
+.stat-card.active{background:var(--sum-on);}
 .stat-card.active::after{
   content:'';position:absolute;bottom:0;left:0;right:0;
   height:2px;background:var(--acc-dark);
@@ -240,11 +243,11 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 /* summary cards (vehicles / riders / cash block) — same chip look as the views below */
 .vstat-card{
   flex:1 1 96px;max-width:150px;min-width:0;padding:7px 10px;cursor:pointer;
-  border:1px solid var(--border);border-radius:8px;background:#fff;
+  border:1px solid var(--sum-line);border-radius:8px;background:#fff;
   transition:border-color .12s,box-shadow .12s,background .12s;text-align:center;
 }
 .vstat-card:hover{border-color:var(--accent);box-shadow:0 1px 4px rgba(255,107,43,.18);}
-.vstat-card.active{background:var(--acc-bg);border-color:var(--accent);}
+.vstat-card.active{background:var(--sum-on);border-color:var(--accent);}
 .vstat-num{font-size:20px;font-weight:700;letter-spacing:-0.5px;line-height:1;margin-bottom:3px;}
 .vstat-num.v-bike{color:#ff4d00;}
 .vstat-num.v-bicycle{color:#0066ff;}
@@ -257,13 +260,13 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 /* ── SUMMARY / INSIGHT SECTIONS (shared look) ── */
 .summary-row{
   display:grid;grid-template-columns:1fr 2fr;
-  border-bottom:1px solid var(--border2);background:var(--card);
+  border-bottom:1px solid var(--sum-line);background:var(--sum-bg);
 }
 .insight-row{
   display:grid;grid-template-columns:1fr 1fr 1fr;
-  border-bottom:1px solid var(--border2);background:var(--card);
+  border-bottom:1px solid var(--sum-line);background:var(--sum-bg);
 }
-.ins-col{min-width:0;display:flex;flex-direction:column;border-right:1px solid var(--border);}
+.ins-col{min-width:0;display:flex;flex-direction:column;border-right:1px solid var(--sum-line);}
 .ins-col:last-child{border-right:none;}
 .ins-title{font-size:11px;font-weight:700;color:var(--acc-dark);text-align:center;padding:9px 12px 4px;letter-spacing:.3px;}
 .ins-body{flex:1;padding:6px 12px 12px;max-height:156px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
@@ -277,12 +280,12 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .ins-empty{grid-column:1/-1;text-align:center;font-size:12px;color:var(--text3);padding:10px 0;}
 .ins-chip{
   display:flex;align-items:center;gap:8px;padding:6px 10px;min-width:0;
-  border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;
+  border:1px solid var(--sum-line);border-radius:8px;cursor:pointer;font-size:12px;
   background:linear-gradient(90deg,rgba(255,107,43,.14) var(--w,0%),#fff var(--w,0%));
   transition:border-color .12s,box-shadow .12s;
 }
 .ins-chip:hover{border-color:var(--accent);box-shadow:0 1px 4px rgba(255,107,43,.18);}
-.ins-chip.active{background:var(--acc-bg);border-color:var(--accent);}
+.ins-chip.active{background:var(--sum-on);border-color:var(--accent);}
 .ins-list .ins-chip{height:30px;}
 .ins-chip .n{font-weight:700;color:var(--accent);min-width:26px;}
 .ins-chip .t{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
@@ -294,10 +297,10 @@ td{padding:12px 14px;vertical-align:middle;text-align:center;}
 .ins-dcard .st{font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap;}
 .ins-dcard.off{cursor:default;}
 .ins-dcard.off .dn{color:var(--text3);}
-.ins-dcard.off:hover{border-color:var(--border);box-shadow:none;}
+.ins-dcard.off:hover{border-color:var(--sum-line);box-shadow:none;}
 @media(max-width:900px){
   .summary-row,.insight-row{grid-template-columns:1fr;}
-  .ins-col{border-right:none;border-bottom:1px solid var(--border);}
+  .ins-col{border-right:none;border-bottom:1px solid var(--sum-line);}
   .ins-col:last-child{border-bottom:none;}
 }
 
