@@ -393,7 +393,6 @@ textarea#clip{position:fixed;left:-9999px;}
       </div>
       <button class="btn" onclick="loadData()"><span id="ref-ico">↻</span> <span class="lbl">Refresh</span></button>
       <button class="btn btn-csv" onclick="exportXLSX()">↓ <span class="lbl">Excel</span></button>
-      <button class="btn btn-slack" onclick="copySlack()">Slack</button>
     </div>
   </div>
 </div>
@@ -625,7 +624,7 @@ const TABS = [
 ];
 
 // ── STATE ───────────────────────────────────────────────
-let all=[], fil=[], tab='all', sKey='dm', sDir=1, cdT=null, cds=180, stackedOnly=false, cashBlockOnly=false, delayedOnly=false;
+let all=[], fil=[], tab='all', sKey='dm', sDir=1, cdT=null, cds=180, stackedOnly=false, cashBlockOnly=false, delayedOnly=false, colSort=false;
 const CASH_BLOCK_LIMIT=3000;
 
 // ── STATUS ──────────────────────────────────────────────
@@ -880,6 +879,40 @@ function pickOStatus(k){
 }
 
 // ── FILTER + SORT ────────────────────────────────────────
+// "Sort" dropdown: Most delayed first / Deadline soonest / Order # / By zone / By vendor
+function sortByMode(a,b){
+  const mode=selVals['sort']||'overdue';
+  const da=(a.dm===null||a.dm===undefined)?9999:a.dm;
+  const db=(b.dm===null||b.dm===undefined)?9999:b.dm;
+  if(mode==='dl_asc'){
+    // deadlines still ahead first (closest first), then the ones already late (most delayed first)
+    const ua=da>=0, ub=db>=0;
+    if(ua!==ub) return ua?-1:1;
+    return da-db;
+  }
+  if(mode==='ord_desc'){
+    const na=Number(a.id), nb=Number(b.id);
+    if(!isNaN(na)&&!isNaN(nb)&&na!==nb) return nb-na;
+    return String(b.id).localeCompare(String(a.id));
+  }
+  if(mode==='zone'||mode==='vendor'){
+    const k=mode==='zone'?'z':'v';
+    return String(a[k]||'').localeCompare(String(b[k]||''))||(da-db);
+  }
+  return da-db; // overdue: most delayed first
+}
+
+function setSortMode(val,lbl){
+  colSort=false;
+  selVals['sort']=val;
+  document.getElementById('f-sort').value=val;
+  document.getElementById('lbl-sort').textContent=lbl||selLabels['sort'];
+  document.querySelectorAll('thead th').forEach(th=>{
+    th.classList.remove('sorted');
+    const i=th.querySelector('.ico');if(i)i.textContent='↕';
+  });
+}
+
 function applyFilters(){
   const q    =document.getElementById('f-q').value.toLowerCase().trim();
   const zone =document.getElementById('f-zone').value;
@@ -907,7 +940,7 @@ function applyFilters(){
     return true;
   });
 
-  fil.sort((a,b)=>{
+  if(!colSort){ fil.sort(sortByMode); } else fil.sort((a,b)=>{
     if(sKey==='cash') return ((a.cash?0:1)-(b.cash?0:1))*sDir;
     if(sKey==='dm'){const av=a.dm??9999,bv=b.dm??9999;return(av-bv)*sDir;}
     let av=a[sKey],bv=b[sKey];
@@ -1058,7 +1091,7 @@ function insPick(id, el){
 function insPickDelay(k){
   if(delayedOnly && tab===k){ delayedOnly=false; setTab('all'); return; }
   tab=k; delayedOnly=true; renderOStatusBox();
-  sKey=''; sc('dm');
+  pickOpt('sort','overdue','Most delayed first');
 }
 
 // ── VEHICLE TYPE STATS ───────────────────────────────────
@@ -1200,6 +1233,9 @@ function renderCBStats(){
 
 // ── SORT COL ─────────────────────────────────────────────
 function sc(k){
+  colSort=true;
+  const sl=document.getElementById('lbl-sort'); if(sl) sl.textContent='Sorted by column';
+  document.querySelectorAll('#opts-sort .sel-opt').forEach(el=>el.classList.remove('selected'));
   if(sKey===k)sDir*=-1; else{sKey=k;sDir=1;}
   document.querySelectorAll('thead th').forEach(th=>{
     th.classList.remove('sorted');
@@ -1413,7 +1449,8 @@ function resetFilters(){
   selVals['vtype']='';
   document.getElementById('lbl-vtype').textContent='All vehicle types';
   selVals['rstatus']='';
-  document.getElementById('f-sort').value='overdue';
+  setSortMode('overdue','Most delayed first');
+  document.querySelectorAll('#opts-sort .sel-opt').forEach((el,i)=>el.classList.toggle('selected',i===0));
   tab='all';
   renderOStatusBox();
   stackedOnly=false;
@@ -1472,6 +1509,10 @@ function pickOpt(id,val,lbl){
   document.getElementById('f-'+id).value=val;
   document.getElementById('drop-'+id).classList.remove('open');
   document.getElementById('box-'+id).classList.remove('open');
+  document.querySelectorAll('#opts-'+id+' .sel-opt').forEach(el=>{
+    el.classList.toggle('selected',(el.getAttribute('onclick')||'').startsWith("pickOpt('"+id+"','"+val+"'"));
+  });
+  if(id==='sort') setSortMode(val,lbl);
   applyFilters();
 }
 
@@ -1486,7 +1527,7 @@ function buildSelOpts(id,items,ph){
 
 document.addEventListener('click',e=>{
   if(!e.target.closest('.sel-wrap')){
-    ['zone','vendor','tmart','type','vtype','ostatus'].forEach(k=>{
+    ['zone','vendor','tmart','type','pay','vtype','ostatus','sort'].forEach(k=>{
       document.getElementById('drop-'+k)?.classList.remove('open');
       document.getElementById('box-'+k)?.classList.remove('open');
     });
