@@ -447,9 +447,9 @@ textarea#clip{position:fixed;left:-9999px;}
     <img class="gate-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect width='48' height='48' rx='10' fill='%23ff6b2b'/><text x='24' y='31' font-size='20' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>T</text></svg>">
     <h2>T-Mart Orders Follow-Up</h2>
     <div id="gate-body">
-      <p>سجّل دخولك بالإيميل عشان تدخل الأداة</p>
+      <p>Sign in with your email to access the tool</p>
       <div id="g_id_signin" style="display:flex;justify-content:center;"></div>
-      <p class="gate-loading" id="gate-status" style="display:none;">بيتأكد من صلاحيتك…</p>
+      <p class="gate-loading" id="gate-status" style="display:none;">Checking your access…</p>
       <p class="gate-denied" id="gate-denied" style="display:none;"></p>
     </div>
   </div>
@@ -458,9 +458,9 @@ textarea#clip{position:fixed;left:-9999px;}
 <!-- MANAGE ACCESS MODAL -->
 <div id="mgr-modal-bg" class="hidden">
   <div class="mgr-modal">
-    <h3 id="mgr-title">إدارة صلاحية الدخول</h3>
+    <h3 id="mgr-title">Manage Access</h3>
     <div id="mgr-body">Loading…</div>
-    <button class="mgr-close-btn" onclick="closeMgrModal()">قفل</button>
+    <button class="mgr-close-btn" onclick="closeMgrModal()">Close</button>
   </div>
 </div>
 
@@ -478,7 +478,7 @@ textarea#clip{position:fixed;left:-9999px;}
     </div>
     <div class="topbar-gap"></div>
     <div class="topbar-right">
-      <button class="btn-mgr-open" id="btn-mgr-open" title="إدارة صلاحية الدخول" onclick="openMgrModal()">🔧</button>
+      <button class="btn-mgr-open" id="btn-mgr-open" title="Manage Access" onclick="openMgrModal()">🔧</button>
       <div class="live-pill">
         <span class="live-dot"></span>
         <span id="cd">—</span>
@@ -1680,14 +1680,14 @@ function checkAccess(){
   acAPI('checkAccess', {hub: currentHub}).then(res=>{
     if(!res.ok){
       sessionStorage.removeItem('tmart_id_token');
-      showGateError('حصلت مشكلة في تسجيل الدخول، حاول تاني');
+      showGateError('Something went wrong while signing in, please try again');
       return;
     }
     accessState.email = res.email || null;
     accessState.isManager = !!res.isManager;
     accessState.isSuperAdmin = !!res.isSuperAdmin;
     if(!res.allowed){
-      showGateError('مش مسموحلك تدخل الهب ده. كلم مانجر الهب عشان يضيفلك.');
+      showGateError('You don\'t have access to this hub. Contact the hub manager to get added.');
       return;
     }
     document.getElementById('access-gate').classList.add('hidden');
@@ -1696,7 +1696,7 @@ function checkAccess(){
     }
     bootApp();
   }).catch(()=>{
-    showGateError('مش قادر يتصل بسيرفر الصلاحيات، تأكد من الاتصال وحاول تاني.');
+    showGateError('Could not reach the access server, check your connection and try again.');
   });
 }
 
@@ -1714,19 +1714,19 @@ function openMgrModal(){ document.getElementById('mgr-modal-bg').classList.remov
 function closeMgrModal(){ document.getElementById('mgr-modal-bg').classList.add('hidden'); }
 
 function rowHtml(email){
-  return `<div class="mgr-row"><span>${email}</span><button onclick="mgrRemoveEmail('${email}')">شيل</button></div>`;
+  return `<div class="mgr-row"><span>${email}</span><button onclick="mgrRemoveEmail('${email}')">Remove</button></div>`;
 }
 
 function renderMgrModal(){
   const cur = HUBS.find(h=>h.slug===currentHub);
-  let html = `<h4>الإيميلات المسموح لها تدخل "${cur?cur.lbl:currentHub}"</h4>
-    <div id="mgr-allowed-list" class="mgr-empty">جاري التحميل…</div>
+  let html = `<h4>Emails allowed to view "${cur?cur.lbl:currentHub}"</h4>
+    <div id="mgr-allowed-list" class="mgr-empty">Loading…</div>
     <div class="mgr-add-row">
       <input type="email" id="mgr-add-input" placeholder="name@talabat.com">
-      <button onclick="mgrAddEmail()">ضيف</button>
+      <button onclick="mgrAddEmail()">Add</button>
     </div>`;
   if(accessState.isSuperAdmin){
-    html += `<h4>مانجر كل هب (Super Admin بس)</h4><div id="mgr-managers-list" class="mgr-empty">جاري التحميل…</div>`;
+    html += `<h4>Hub Managers (Super Admin only)</h4><div id="mgr-managers-list" class="mgr-empty">Loading…</div>`;
   }
   document.getElementById('mgr-body').innerHTML = html;
   refreshAllowedList();
@@ -1736,8 +1736,8 @@ function renderMgrModal(){
 function refreshAllowedList(){
   acAPI('listAllowed', {hub: currentHub}).then(res=>{
     const el = document.getElementById('mgr-allowed-list');
-    if(!res.ok){ el.innerHTML='<div class="mgr-empty">مش مسموحلك تشوف القائمة دي</div>'; return; }
-    el.innerHTML = res.emails.length ? res.emails.map(rowHtml).join('') : '<div class="mgr-empty">مفيش إيميلات مضافة لسه</div>';
+    if(!res.ok){ el.innerHTML='<div class="mgr-empty">You are not authorized to view this list</div>'; return; }
+    el.innerHTML = res.emails.length ? res.emails.map(rowHtml).join('') : '<div class="mgr-empty">No emails added yet</div>';
   });
 }
 
@@ -1749,7 +1749,7 @@ function mgrAddEmail(){
     input.value='';
     if(res.ok){
       document.getElementById('mgr-allowed-list').innerHTML =
-        res.emails.length ? res.emails.map(rowHtml).join('') : '<div class="mgr-empty">مفيش إيميلات مضافة لسه</div>';
+        res.emails.length ? res.emails.map(rowHtml).join('') : '<div class="mgr-empty">No emails added yet</div>';
     }
   });
 }
@@ -1767,7 +1767,7 @@ function refreshManagersList(){
       return `<div class="mgr-row"><span>${h.lbl}</span>
         <span style="display:flex;gap:5px;align-items:center;">
           <input type="email" placeholder="manager@talabat.com" value="${m?m.email:''}" style="width:150px;padding:4px 6px;border:1px solid var(--border2);border-radius:6px;font-size:11.5px;" id="mgr-set-${h.slug}">
-          <button onclick="mgrSetManager('${h.slug}')" style="color:var(--accent);">حفظ</button>
+          <button onclick="mgrSetManager('${h.slug}')" style="color:var(--accent);">Save</button>
         </span></div>`;
     }).join('');
   });
