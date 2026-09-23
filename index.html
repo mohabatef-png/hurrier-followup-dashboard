@@ -404,7 +404,7 @@ textarea#clip{position:fixed;left:-9999px;}
 }
 #mgr-modal-bg.hidden{display:none;}
 .mgr-modal{
-  background:var(--card);border-radius:14px;max-width:420px;width:100%;
+  background:var(--card);border-radius:14px;max-width:440px;width:100%;
   max-height:80vh;overflow-y:auto;padding:20px;
 }
 .mgr-modal h3{font-size:15px;margin-bottom:12px;}
@@ -429,6 +429,12 @@ textarea#clip{position:fixed;left:-9999px;}
 }
 .mgr-close-btn{background:var(--text2);margin-top:16px;width:100%;}
 .mgr-empty{font-size:12px;color:var(--text3);padding:6px 0;}
+.mgr-row .em{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px;}
+.mgr-tag{font-size:10px;font-weight:600;background:var(--border);color:var(--text2);padding:1px 7px;border-radius:10px;margin-left:6px;}
+.mgr-hub{border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin-bottom:8px;}
+.mgr-hub-name{font-size:12.5px;font-weight:700;margin-bottom:6px;}
+.mgr-hub .mgr-row{padding:5px 8px;margin-bottom:4px;}
+.mgr-hub .mgr-empty{padding:2px 0 0;}
 .btn-mgr-open{
   flex-shrink:0;background:var(--card);border:1.5px solid var(--border2);
   border-radius:8px;padding:0 9px;height:32px;cursor:pointer;font-size:14px;
@@ -648,7 +654,7 @@ const GH_REPO  = 'mohabatef-png/hurrier-followup-dashboard';
 
 // ── ACCESS CONTROL CONFIG ──────────────────────────────────
 // 1) Web app URL after you deploy the Apps Script (Code.gs) — Deploy > New deployment > Web app > Execute as Me > Who has access: Anyone.
-const ACCESS_API_URL = 'https://script.google.com/macros/s/AKfycbwZd4Koov2RvF9M_mRTjLzpbio6O4mHdy_SwZNR51M-ea9KmLqcpeyLC4lEmyRDMh5K/exec';
+const ACCESS_API_URL = 'https://script.google.com/macros/s/AKfycbzS5zvXlt4u2k6-V3_pFmhrFoskyqIR8RRnfJl7doq02-Vt7gRBPOgdPGo6jJU8ax_VKA/exec';
 // 2) OAuth Client ID from Google Cloud Console (Credentials > Create Credentials > OAuth client ID > Web application),
 //    with this page's URL added under "Authorized JavaScript origins".
 const GOOGLE_CLIENT_ID = '644434669839-4fqckgn85r098756ssu4lpk2r2cdrrkg.apps.googleusercontent.com';
@@ -1726,11 +1732,17 @@ function renderMgrModal(){
       <button onclick="mgrAddEmail()">Add</button>
     </div>`;
   if(accessState.isSuperAdmin){
-    html += `<h4>Hub Managers (Super Admin only)</h4><div id="mgr-managers-list" class="mgr-empty">Loading…</div>`;
+    html += `<h4>Super Admins (Super Admin only)</h4>
+      <div id="mgr-super-list" class="mgr-empty">Loading…</div>
+      <div class="mgr-add-row">
+        <input type="email" id="mgr-add-super" placeholder="name@talabat.com" onkeydown="if(event.key==='Enter')mgrAddSuper()">
+        <button onclick="mgrAddSuper()">Add</button>
+      </div>
+      <h4>Hub Managers (Super Admin only)</h4><div id="mgr-managers-list" class="mgr-empty">Loading…</div>`;
   }
   document.getElementById('mgr-body').innerHTML = html;
   refreshAllowedList();
-  if(accessState.isSuperAdmin) refreshManagersList();
+  if(accessState.isSuperAdmin){ refreshSuperList(); refreshManagersList(); }
 }
 
 function refreshAllowedList(){
@@ -1758,24 +1770,95 @@ function mgrRemoveEmail(email){
   acAPI('removeEmail', {hub: currentHub, targetEmail: email}).then(res=>{ if(res.ok) refreshAllowedList(); });
 }
 
+function esc(v){
+  return String(v).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+const MGR_ERRORS = {
+  bad_email:'Please enter a valid email address',
+  not_authorized:'You are not authorized to do this',
+  cannot_remove_self:'You cannot remove yourself',
+  cannot_remove_fixed:'This super admin is set in the script and can only be removed from Code.gs'
+};
+function mgrFail(res){ alert(MGR_ERRORS[res && res.error] || 'Something went wrong, please try again'); }
+
+// ---- Hub managers (multiple per hub) ----
+function renderManagers(list){
+  const el = document.getElementById('mgr-managers-list');
+  if(!el) return;
+  el.className = '';
+  el.innerHTML = HUBS.map(h=>{
+    const emails = list.filter(x=>x.hub===h.slug).map(x=>x.email);
+    const rows = emails.length
+      ? emails.map(e=>`<div class="mgr-row"><span class="em" title="${esc(e)}">${esc(e)}</span>
+          <button data-hub="${h.slug}" data-email="${esc(e)}" onclick="mgrRemoveManager(this)">Remove</button></div>`).join('')
+      : '<div class="mgr-empty">No manager yet</div>';
+    return `<div class="mgr-hub"><div class="mgr-hub-name">${esc(h.lbl)}</div>${rows}
+      <div class="mgr-add-row">
+        <input type="email" id="mgr-add-${h.slug}" placeholder="manager@talabat.com" onkeydown="if(event.key==='Enter')mgrAddManager('${h.slug}')">
+        <button onclick="mgrAddManager('${h.slug}')">Add</button>
+      </div></div>`;
+  }).join('');
+}
+
 function refreshManagersList(){
   acAPI('getManagers', {}).then(res=>{
-    const el = document.getElementById('mgr-managers-list');
-    if(!res.ok){ el.innerHTML=''; return; }
-    el.innerHTML = HUBS.map(h=>{
-      const m = res.managers.find(x=>x.hub===h.slug);
-      return `<div class="mgr-row"><span>${h.lbl}</span>
-        <span style="display:flex;gap:5px;align-items:center;">
-          <input type="email" placeholder="manager@talabat.com" value="${m?m.email:''}" style="width:150px;padding:4px 6px;border:1px solid var(--border2);border-radius:6px;font-size:11.5px;" id="mgr-set-${h.slug}">
-          <button onclick="mgrSetManager('${h.slug}')" style="color:var(--accent);">Save</button>
-        </span></div>`;
-    }).join('');
+    if(!res.ok){ document.getElementById('mgr-managers-list').innerHTML=''; return; }
+    renderManagers(res.managers);
   });
 }
 
-function mgrSetManager(hub){
-  const val = document.getElementById('mgr-set-'+hub).value.trim();
-  acAPI('setManager', {hub, managerEmail: val}).then(res=>{ if(res.ok) refreshManagersList(); });
+function mgrAddManager(hub){
+  const input = document.getElementById('mgr-add-'+hub);
+  const val = input.value.trim();
+  if(!val) return;
+  acAPI('addManager', {hub, managerEmail: val}).then(res=>{
+    if(res.ok) renderManagers(res.managers); else mgrFail(res);
+  });
+}
+
+function mgrRemoveManager(btn){
+  if(!confirm('Remove ' + btn.dataset.email + ' as manager?')) return;
+  acAPI('removeManager', {hub: btn.dataset.hub, managerEmail: btn.dataset.email}).then(res=>{
+    if(res.ok) renderManagers(res.managers); else mgrFail(res);
+  });
+}
+
+// ---- Super admins ----
+function renderSuperAdmins(list){
+  const el = document.getElementById('mgr-super-list');
+  if(!el) return;
+  el.className = '';
+  el.innerHTML = list.map(a=>{
+    const isMe = accessState.email && a.email === accessState.email;
+    const tag = a.fixed ? '<span class="mgr-tag">Owner</span>' : (isMe ? '<span class="mgr-tag">You</span>' : '');
+    const btn = (a.fixed || isMe) ? '' : `<button data-email="${esc(a.email)}" onclick="mgrRemoveSuper(this)">Remove</button>`;
+    return `<div class="mgr-row"><span class="em" title="${esc(a.email)}">${esc(a.email)}${tag}</span>${btn}</div>`;
+  }).join('');
+}
+
+function refreshSuperList(){
+  acAPI('listSuperAdmins', {}).then(res=>{
+    if(res.ok) renderSuperAdmins(res.superAdmins);
+    else document.getElementById('mgr-super-list').innerHTML='';
+  });
+}
+
+function mgrAddSuper(){
+  const input = document.getElementById('mgr-add-super');
+  const val = input.value.trim();
+  if(!val) return;
+  if(!confirm('Give ' + val + ' full Super Admin access (all hubs, managers and super admins)?')) return;
+  acAPI('addSuperAdmin', {newEmail: val}).then(res=>{
+    if(res.ok){ input.value=''; renderSuperAdmins(res.superAdmins); } else mgrFail(res);
+  });
+}
+
+function mgrRemoveSuper(btn){
+  if(!confirm('Remove ' + btn.dataset.email + ' as Super Admin?')) return;
+  acAPI('removeSuperAdmin', {targetEmail: btn.dataset.email}).then(res=>{
+    if(res.ok) renderSuperAdmins(res.superAdmins); else mgrFail(res);
+  });
 }
 
 // ── APP BOOT (runs only after access is confirmed) ───────
