@@ -400,9 +400,22 @@ textarea#clip{position:fixed;left:-9999px;}
       </div>
       <button class="btn" onclick="loadData()"><span id="ref-ico">↻</span> <span class="lbl">Refresh</span></button>
       <button class="btn btn-csv" onclick="exportXLSX()">↓ <span class="lbl">Excel</span></button>
+      <button class="btn" id="btn-visitors" onclick="openVisitorsModal()">👥 <span class="lbl">Visitors</span></button>
     </div>
   </div>
   <div class="topbar-meta-mobile" id="brand-meta-mobile">Loading…</div>
+</div>
+
+<!-- VISITORS MODAL -->
+<div id="visitors-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:900;" onclick="if(event.target===this)closeVisitorsModal()">
+  <div style="background:#fff;max-width:640px;margin:60px auto;border-radius:10px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.2);">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;">
+      <strong style="font-size:14px;">👥 Who's using the dashboard</strong>
+      <span style="flex:1"></span>
+      <button class="btn" onclick="closeVisitorsModal()">✕</button>
+    </div>
+    <div id="visitors-body" style="padding:16px 18px;overflow-y:auto;font-size:13px;">Loading…</div>
+  </div>
 </div>
 
 <div id="summary-wrap">
@@ -560,6 +573,10 @@ textarea#clip{position:fixed;left:-9999px;}
 <script>
 // ── CONFIG ──────────────────────────────────────────────
 const GH_REPO  = 'mohabatef-png/hurrier-followup-dashboard';
+
+// Google Apps Script Web App URL — logs + serves "who opened which hub, when".
+// See setup instructions from Claude for the Apps Script code to deploy.
+const VISIT_LOG_URL = 'https://script.google.com/a/macros/talabat.com/s/AKfycbydiKe86s8WEk-sKmqgEG1HfyUVKvoKg5lKDvw7YS2Vdt0Qk3r4bBtbeDjwALuK2uTZ/exec';
 
 // Each hub's bookmarklet pushes to its own data-<slug>.json file in the repo,
 // so every hub can have its own live dashboard view via ?hub=<slug>.
@@ -1550,8 +1567,67 @@ document.addEventListener('click',e=>{
   }
 });
 
+// ── VISITOR TRACKING (who opened which hub, and when) ────
+function getVisitorName(){
+  let n='';
+  try{ n=localStorage.getItem('tmart_user_name')||''; }catch(e){}
+  if(!n){
+    n=(prompt('👋 اسمك ايه؟ (هيتسجل تلقائي كل مرة تدخل فيها الداشبورد)')||'').trim();
+    if(n){ try{ localStorage.setItem('tmart_user_name',n); }catch(e){} }
+  }
+  return n||'Unknown';
+}
+
+function logVisit(){
+  if(!VISIT_LOG_URL || VISIT_LOG_URL.indexOf('PASTE_YOUR')===0) return;
+  const name=getVisitorName();
+  const hubLbl=(HUBS.find(h=>h.slug===currentHub)||{}).lbl||currentHub;
+  const payload={name, hub:currentHub, hubLabel:hubLbl, ts:new Date().toISOString()};
+  fetch(VISIT_LOG_URL,{
+    method:'POST',
+    mode:'no-cors', // Apps Script doesn't return CORS headers; we don't need to read the response here
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload)
+  }).catch(()=>{});
+}
+
+async function openVisitorsModal(){
+  document.getElementById('visitors-overlay').style.display='block';
+  const body=document.getElementById('visitors-body');
+  body.textContent='Loading…';
+  if(!VISIT_LOG_URL || VISIT_LOG_URL.indexOf('PASTE_YOUR')===0){
+    body.innerHTML='<span style="color:var(--text2)">مش متظبط لسه — لازم تحط رابط الـ Google Apps Script في <code>VISIT_LOG_URL</code> جوه الكود (شوف تعليمات الإعداد).</span>';
+    return;
+  }
+  try{
+    const r=await fetch(VISIT_LOG_URL+'?action=list',{cache:'no-cache'});
+    const rows=await r.json(); // expected: [{name,hub,hubLabel,ts}, ...] newest first
+    if(!rows.length){ body.textContent='لسه مفيش زيارات متسجلة.'; return; }
+    const byHub={};
+    rows.forEach(v=>{ (byHub[v.hubLabel||v.hub]=byHub[v.hubLabel||v.hub]||[]).push(v); });
+    let html='';
+    Object.keys(byHub).forEach(hub=>{
+      html+=`<div style="margin-bottom:14px;"><div style="font-weight:700;margin-bottom:6px;">${hub}</div>`;
+      html+=byHub[hub].slice(0,20).map(v=>{
+        const d=new Date(v.ts);
+        return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+          <span>${v.name}</span>
+          <span style="color:var(--text3);font-family:var(--mono);font-size:12px;">${d.toLocaleString('en-EG')}</span>
+        </div>`;
+      }).join('');
+      html+='</div>';
+    });
+    body.innerHTML=html;
+  }catch(e){
+    body.innerHTML='<span style="color:var(--red)">فشل تحميل السجل — تأكد إن رابط الـ Apps Script شغال.</span>';
+  }
+}
+
+function closeVisitorsModal(){ document.getElementById('visitors-overlay').style.display='none'; }
+
 // ── INIT ─────────────────────────────────────────────────
 initHubUI();
+logVisit();
 try{ if(localStorage.getItem('tmart_summary_hidden')==='1') setSummary(true); }catch(e){}
 renderStats();
 renderOStatusBox();
