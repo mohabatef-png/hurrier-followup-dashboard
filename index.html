@@ -6,6 +6,7 @@
 <title>T-Mart Orders Follow-Up</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -374,11 +375,94 @@ textarea#clip{position:fixed;left:-9999px;}
   font-family:var(--sans);transition:all .13s;white-space:nowrap;
 }
 .btn-reset:hover{background:#fee2e2;border-color:#fca5a5;}
+
+/* ── ACCESS CONTROL ─────────────────────────────────────── */
+#access-gate{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  gap:16px;text-align:center;padding:24px;
+}
+#access-gate.hidden{display:none;}
+.gate-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:32px 28px;max-width:340px;box-shadow:0 8px 30px rgba(0,0,0,.08);
+}
+.gate-card img.gate-logo{width:56px;height:56px;border-radius:12px;margin-bottom:14px;}
+.gate-card h2{font-size:17px;margin-bottom:6px;}
+.gate-card p{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5;}
+.gate-denied{color:#c0392b;font-size:13px;margin-top:10px;}
+.gate-loading{font-size:13px;color:var(--text2);}
+.btn-access{
+  background:var(--accent);color:#fff;border:none;border-radius:8px;
+  padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:5px;
+}
+.btn-access:hover{opacity:.9;}
+#mgr-modal-bg{
+  position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.35);
+  display:flex;align-items:center;justify-content:center;padding:16px;
+}
+#mgr-modal-bg.hidden{display:none;}
+.mgr-modal{
+  background:var(--card);border-radius:14px;max-width:420px;width:100%;
+  max-height:80vh;overflow-y:auto;padding:20px;
+}
+.mgr-modal h3{font-size:15px;margin-bottom:12px;}
+.mgr-modal h4{font-size:12.5px;color:var(--text2);margin:16px 0 6px;}
+.mgr-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 10px;border:1px solid var(--border);border-radius:8px;
+  margin-bottom:6px;font-size:12.5px;
+}
+.mgr-row button{
+  background:none;border:none;color:#c0392b;cursor:pointer;font-size:12px;
+  font-weight:600;
+}
+.mgr-add-row{display:flex;gap:6px;margin-top:8px;}
+.mgr-add-row input{
+  flex:1;padding:7px 9px;border:1.5px solid var(--border2);border-radius:8px;
+  font-size:12.5px;font-family:var(--sans);
+}
+.mgr-add-row button, .mgr-close-btn{
+  background:var(--accent);color:#fff;border:none;border-radius:8px;
+  padding:7px 12px;font-size:12.5px;font-weight:600;cursor:pointer;
+}
+.mgr-close-btn{background:var(--text2);margin-top:16px;width:100%;}
+.mgr-empty{font-size:12px;color:var(--text3);padding:6px 0;}
+.btn-mgr-open{
+  flex-shrink:0;background:var(--card);border:1.5px solid var(--border2);
+  border-radius:8px;padding:0 9px;height:32px;cursor:pointer;font-size:14px;
+  display:none;align-items:center;justify-content:center;
+}
+.btn-mgr-open.show{display:flex;}
 </style>
 </head>
 <body>
 
 <div id="loader"><div class="spin"></div></div>
+
+<!-- ACCESS GATE -->
+<div id="access-gate">
+  <div class="gate-card">
+    <img class="gate-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect width='48' height='48' rx='10' fill='%23ff6b2b'/><text x='24' y='31' font-size='20' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>T</text></svg>">
+    <h2>T-Mart Orders Follow-Up</h2>
+    <div id="gate-body">
+      <p>سجّل دخولك بالإيميل عشان تدخل الأداة</p>
+      <div id="g_id_signin" style="display:flex;justify-content:center;"></div>
+      <p class="gate-loading" id="gate-status" style="display:none;">بيتأكد من صلاحيتك…</p>
+      <p class="gate-denied" id="gate-denied" style="display:none;"></p>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE ACCESS MODAL -->
+<div id="mgr-modal-bg" class="hidden">
+  <div class="mgr-modal">
+    <h3 id="mgr-title">إدارة صلاحية الدخول</h3>
+    <div id="mgr-body">Loading…</div>
+    <button class="mgr-close-btn" onclick="closeMgrModal()">قفل</button>
+  </div>
+</div>
 
 <!-- TOP BAR -->
 <div class="topbar">
@@ -394,28 +478,16 @@ textarea#clip{position:fixed;left:-9999px;}
     </div>
     <div class="topbar-gap"></div>
     <div class="topbar-right">
+      <button class="btn-mgr-open" id="btn-mgr-open" title="إدارة صلاحية الدخول" onclick="openMgrModal()">🔧</button>
       <div class="live-pill">
         <span class="live-dot"></span>
         <span id="cd">—</span>
       </div>
       <button class="btn" onclick="loadData()"><span id="ref-ico">↻</span> <span class="lbl">Refresh</span></button>
       <button class="btn btn-csv" onclick="exportXLSX()">↓ <span class="lbl">Excel</span></button>
-      <button class="btn" id="btn-visitors" onclick="openVisitorsModal()">👥 <span class="lbl">Visitors</span></button>
     </div>
   </div>
   <div class="topbar-meta-mobile" id="brand-meta-mobile">Loading…</div>
-</div>
-
-<!-- VISITORS MODAL -->
-<div id="visitors-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:900;" onclick="if(event.target===this)closeVisitorsModal()">
-  <div style="background:#fff;max-width:640px;margin:60px auto;border-radius:10px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.2);">
-    <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;">
-      <strong style="font-size:14px;">👥 Who's using the dashboard</strong>
-      <span style="flex:1"></span>
-      <button class="btn" onclick="closeVisitorsModal()">✕</button>
-    </div>
-    <div id="visitors-body" style="padding:16px 18px;overflow-y:auto;font-size:13px;">Loading…</div>
-  </div>
 </div>
 
 <div id="summary-wrap">
@@ -574,9 +646,12 @@ textarea#clip{position:fixed;left:-9999px;}
 // ── CONFIG ──────────────────────────────────────────────
 const GH_REPO  = 'mohabatef-png/hurrier-followup-dashboard';
 
-// Google Apps Script Web App URL — logs + serves "who opened which hub, when".
-// See setup instructions from Claude for the Apps Script code to deploy.
-const VISIT_LOG_URL = 'https://script.google.com/macros/s/AKfycbzpbwZPgnQnLVeP0f73wz8AqvTS09-IJMWKaYA33Aq7MsYJOqAtrXe-s8Ch5Ebn_kX37g/exec';
+// ── ACCESS CONTROL CONFIG ──────────────────────────────────
+// 1) Web app URL after you deploy the Apps Script (Code.gs) — Deploy > New deployment > Web app > Execute as Me > Who has access: Anyone.
+const ACCESS_API_URL = 'https://script.google.com/macros/s/AKfycbwZd4Koov2RvF9M_mRTjLzpbio6O4mHdy_SwZNR51M-ea9KmLqcpeyLC4lEmyRDMh5K/exec';
+// 2) OAuth Client ID from Google Cloud Console (Credentials > Create Credentials > OAuth client ID > Web application),
+//    with this page's URL added under "Authorized JavaScript origins".
+const GOOGLE_CLIENT_ID = '644434669839-4fqckgn85r098756ssu4lpk2r2cdrrkg.apps.googleusercontent.com';
 
 // Each hub's bookmarklet pushes to its own data-<slug>.json file in the repo,
 // so every hub can have its own live dashboard view via ?hub=<slug>.
@@ -1567,71 +1642,153 @@ document.addEventListener('click',e=>{
   }
 });
 
-// ── VISITOR TRACKING (who opened which hub, and when) ────
-function getVisitorName(){
-  let n='';
-  try{ n=localStorage.getItem('tmart_user_name')||''; }catch(e){}
-  if(!n){
-    n=(prompt('👋 اسمك ايه؟ (هيتسجل تلقائي كل مرة تدخل فيها الداشبورد)')||'').trim();
-    if(n){ try{ localStorage.setItem('tmart_user_name',n); }catch(e){} }
-  }
-  return n||'Unknown';
-}
+// ── ACCESS CONTROL ──────────────────────────────────────
+let accessState = {email:null, idToken:null, isManager:false, isSuperAdmin:false};
 
-function logVisit(){
-  if(!VISIT_LOG_URL || VISIT_LOG_URL.indexOf('PASTE_YOUR')===0) return;
-  const name=getVisitorName();
-  const hubLbl=(HUBS.find(h=>h.slug===currentHub)||{}).lbl||currentHub;
-  const payload={name, hub:currentHub, hubLabel:hubLbl, ts:new Date().toISOString()};
-  fetch(VISIT_LOG_URL,{
+function acAPI(action, extra){
+  return fetch(ACCESS_API_URL, {
     method:'POST',
-    mode:'no-cors', // Apps Script doesn't return CORS headers; we don't need to read the response here
     headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify(payload)
-  }).catch(()=>{});
+    body: JSON.stringify(Object.assign({action, idToken: accessState.idToken}, extra||{}))
+  }).then(r=>r.json());
 }
 
-async function openVisitorsModal(){
-  document.getElementById('visitors-overlay').style.display='block';
-  const body=document.getElementById('visitors-body');
-  body.textContent='Loading…';
-  if(!VISIT_LOG_URL || VISIT_LOG_URL.indexOf('PASTE_YOUR')===0){
-    body.innerHTML='<span style="color:var(--text2)">مش متظبط لسه — لازم تحط رابط الـ Google Apps Script في <code>VISIT_LOG_URL</code> جوه الكود (شوف تعليمات الإعداد).</span>';
+function startAccessControl(){
+  if(typeof google==='undefined' || !google.accounts){
+    // Google script blocked/offline — retry shortly
+    setTimeout(startAccessControl, 500);
     return;
   }
-  try{
-    const r=await fetch(VISIT_LOG_URL+'?action=list',{cache:'no-cache'});
-    const rows=await r.json(); // expected: [{name,hub,hubLabel,ts}, ...] newest first
-    if(!rows.length){ body.textContent='لسه مفيش زيارات متسجلة.'; return; }
-    const byHub={};
-    rows.forEach(v=>{ (byHub[v.hubLabel||v.hub]=byHub[v.hubLabel||v.hub]||[]).push(v); });
-    let html='';
-    Object.keys(byHub).forEach(hub=>{
-      html+=`<div style="margin-bottom:14px;"><div style="font-weight:700;margin-bottom:6px;">${hub}</div>`;
-      html+=byHub[hub].slice(0,20).map(v=>{
-        const d=new Date(v.ts);
-        return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
-          <span>${v.name}</span>
-          <span style="color:var(--text3);font-family:var(--mono);font-size:12px;">${d.toLocaleString('en-EG')}</span>
-        </div>`;
-      }).join('');
-      html+='</div>';
-    });
-    body.innerHTML=html;
-  }catch(e){
-    body.innerHTML='<span style="color:var(--red)">فشل تحميل السجل — تأكد إن رابط الـ Apps Script شغال.</span>';
-  }
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleCredential });
+  google.accounts.id.renderButton(document.getElementById('g_id_signin'), {theme:'outline', size:'large', text:'signin_with'});
+  const cached = sessionStorage.getItem('tmart_id_token');
+  if(cached){ accessState.idToken = cached; checkAccess(); }
+  else { google.accounts.id.prompt(); }
 }
 
-function closeVisitorsModal(){ document.getElementById('visitors-overlay').style.display='none'; }
+function onGoogleCredential(resp){
+  accessState.idToken = resp.credential;
+  sessionStorage.setItem('tmart_id_token', resp.credential);
+  checkAccess();
+}
+
+function checkAccess(){
+  document.getElementById('gate-body').querySelector('p').style.display='none';
+  document.getElementById('g_id_signin').style.display='none';
+  document.getElementById('gate-status').style.display='block';
+  document.getElementById('gate-denied').style.display='none';
+  acAPI('checkAccess', {hub: currentHub}).then(res=>{
+    if(!res.ok){
+      sessionStorage.removeItem('tmart_id_token');
+      showGateError('حصلت مشكلة في تسجيل الدخول، حاول تاني');
+      return;
+    }
+    accessState.email = res.email || null;
+    accessState.isManager = !!res.isManager;
+    accessState.isSuperAdmin = !!res.isSuperAdmin;
+    if(!res.allowed){
+      showGateError('مش مسموحلك تدخل الهب ده. كلم مانجر الهب عشان يضيفلك.');
+      return;
+    }
+    document.getElementById('access-gate').classList.add('hidden');
+    if(accessState.isManager || accessState.isSuperAdmin){
+      document.getElementById('btn-mgr-open').classList.add('show');
+    }
+    bootApp();
+  }).catch(()=>{
+    showGateError('مش قادر يتصل بسيرفر الصلاحيات، تأكد من الاتصال وحاول تاني.');
+  });
+}
+
+function showGateError(msg){
+  document.getElementById('gate-status').style.display='none';
+  const d=document.getElementById('gate-denied');
+  d.textContent=msg;
+  d.style.display='block';
+  document.getElementById('g_id_signin').style.display='flex';
+  document.getElementById('gate-body').querySelector('p').style.display='block';
+}
+
+// ── MANAGE ACCESS MODAL ──────────────────────────────────
+function openMgrModal(){ document.getElementById('mgr-modal-bg').classList.remove('hidden'); renderMgrModal(); }
+function closeMgrModal(){ document.getElementById('mgr-modal-bg').classList.add('hidden'); }
+
+function rowHtml(email){
+  return `<div class="mgr-row"><span>${email}</span><button onclick="mgrRemoveEmail('${email}')">شيل</button></div>`;
+}
+
+function renderMgrModal(){
+  const cur = HUBS.find(h=>h.slug===currentHub);
+  let html = `<h4>الإيميلات المسموح لها تدخل "${cur?cur.lbl:currentHub}"</h4>
+    <div id="mgr-allowed-list" class="mgr-empty">جاري التحميل…</div>
+    <div class="mgr-add-row">
+      <input type="email" id="mgr-add-input" placeholder="name@talabat.com">
+      <button onclick="mgrAddEmail()">ضيف</button>
+    </div>`;
+  if(accessState.isSuperAdmin){
+    html += `<h4>مانجر كل هب (Super Admin بس)</h4><div id="mgr-managers-list" class="mgr-empty">جاري التحميل…</div>`;
+  }
+  document.getElementById('mgr-body').innerHTML = html;
+  refreshAllowedList();
+  if(accessState.isSuperAdmin) refreshManagersList();
+}
+
+function refreshAllowedList(){
+  acAPI('listAllowed', {hub: currentHub}).then(res=>{
+    const el = document.getElementById('mgr-allowed-list');
+    if(!res.ok){ el.innerHTML='<div class="mgr-empty">مش مسموحلك تشوف القائمة دي</div>'; return; }
+    el.innerHTML = res.emails.length ? res.emails.map(rowHtml).join('') : '<div class="mgr-empty">مفيش إيميلات مضافة لسه</div>';
+  });
+}
+
+function mgrAddEmail(){
+  const input = document.getElementById('mgr-add-input');
+  const val = input.value.trim();
+  if(!val) return;
+  acAPI('addEmail', {hub: currentHub, newEmail: val}).then(res=>{
+    input.value='';
+    if(res.ok){
+      document.getElementById('mgr-allowed-list').innerHTML =
+        res.emails.length ? res.emails.map(rowHtml).join('') : '<div class="mgr-empty">مفيش إيميلات مضافة لسه</div>';
+    }
+  });
+}
+
+function mgrRemoveEmail(email){
+  acAPI('removeEmail', {hub: currentHub, targetEmail: email}).then(res=>{ if(res.ok) refreshAllowedList(); });
+}
+
+function refreshManagersList(){
+  acAPI('getManagers', {}).then(res=>{
+    const el = document.getElementById('mgr-managers-list');
+    if(!res.ok){ el.innerHTML=''; return; }
+    el.innerHTML = HUBS.map(h=>{
+      const m = res.managers.find(x=>x.hub===h.slug);
+      return `<div class="mgr-row"><span>${h.lbl}</span>
+        <span style="display:flex;gap:5px;align-items:center;">
+          <input type="email" placeholder="manager@talabat.com" value="${m?m.email:''}" style="width:150px;padding:4px 6px;border:1px solid var(--border2);border-radius:6px;font-size:11.5px;" id="mgr-set-${h.slug}">
+          <button onclick="mgrSetManager('${h.slug}')" style="color:var(--accent);">حفظ</button>
+        </span></div>`;
+    }).join('');
+  });
+}
+
+function mgrSetManager(hub){
+  const val = document.getElementById('mgr-set-'+hub).value.trim();
+  acAPI('setManager', {hub, managerEmail: val}).then(res=>{ if(res.ok) refreshManagersList(); });
+}
+
+// ── APP BOOT (runs only after access is confirmed) ───────
+function bootApp(){
+  initHubUI();
+  try{ if(localStorage.getItem('tmart_summary_hidden')==='1') setSummary(true); }catch(e){}
+  renderStats();
+  renderOStatusBox();
+  loadData();
+}
 
 // ── INIT ─────────────────────────────────────────────────
-initHubUI();
-logVisit();
-try{ if(localStorage.getItem('tmart_summary_hidden')==='1') setSummary(true); }catch(e){}
-renderStats();
-renderOStatusBox();
-loadData();
+startAccessControl();
 </script>
 </body>
 </html>
