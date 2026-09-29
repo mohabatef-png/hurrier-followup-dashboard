@@ -912,6 +912,56 @@ function balFmt(o){
   return `<span class="td-dl ${cls}">${fmtMoney(v)}</span>`;
 }
 
+const TPL_CANONICAL={
+  "MTA":"MTA",
+  "ALALAMIA":"Al Alamia",
+  "ELEZZ":"El Ezz",
+  "TEAMMHFORDELIVERY":"Team mh for Delivery",
+  "SPEEDO":"Speedo",
+  "EBADELRAHMAN":"Ebad El rahman",
+  "ELABTAL":"El Abtal",
+  "ELTOHAMI":"El Tohami",
+  "TOPDELIVERY":"Top delivery",
+  "FULLSPEED":"Full Speed",
+  "STOPCAR":"Stop Car",
+  "TANTA":"Tanta",
+  "TANTACAR":"Tanta Car",
+  "JASSON":"Jasson",
+  "ZEROZEROSEVEN":"Zero Zero Seven",
+  "COURIERFORDELIVERY":"Courier for delivery",
+  "ELDAWLYA":"el Dawlya",
+  "BECOOL":"BeCool",
+  "MRDELIVERY":"MR Delivery",
+  "APACHE":"Apache",
+  "SUPERSPEED":"Super Speed",
+  "SPEEDY":"Speedy",
+  "READY":"Ready",
+  "BEDAYA":"Bedaya",
+  "BARG":"Barg",
+  "NOOT":"Noot",
+  "WASALY":"Wasaly",
+  "MOBASHER":"Mobasher",
+  "WAKEEL":"Wakeel",
+  "TURBO":"Turbo",
+  "KAF":"Kaf",
+  "YALLAFELSEKKA":"Yalla fel Sekka",
+  "MOGA":"Moga",
+  "SOG":"SOG",
+  "A3M":"A3M",
+  "GODELIVERY":"Go Delivery",
+  "RAWAHEL":"Rawahel",
+  "ELBASMA":"El Basma",
+  "ASPHALT":"Asphalt",
+  "MAKHSOS":"Makhsos",
+  "ELWAFAA":"El Wafaa",
+  "GLESCO":"Glesco",
+  "TOPVISION8":"Top Vision-8",
+  "ZAGEL":"Zagel",
+  "HYDWING":"Hydwing",
+  "HERO":"Hero",
+  "GALAXY":"Galaxy",
+  "AYLAEXPRESS":"Ayla Express"
+};
 // ── LOAD ────────────────────────────────────────────────
 async function loadData(){
   document.getElementById('loader').classList.add('on');
@@ -928,11 +978,20 @@ async function loadData(){
       rs: o.rs||'',
       rscat: rsCat(o.rs||''),
       bal: (o.bal===null||o.bal===undefined)?null:Number(o.bal),
-      tpl: (()=>{ const c=(o.c||'').trim(); const i=c.indexOf('_'); if(i<0) return ''; const after=c.slice(i+1).trim(); const m=after.match(/^([^_(]+)/); return m?m[1].trim():''; })()
+      tpl: (()=>{
+        const c=(o.c||'').trim();
+        const i=c.indexOf('_'); if(i<0) return '';
+        const after=c.slice(i+1).trim();
+        const us=after.indexOf('_'); const seg=us>=0?after.slice(0,us).trim():after.trim();
+        const pb=seg.indexOf('('); const raw=(pb>=0?seg.slice(0,pb).trim():seg).trim();
+        const key=raw.toUpperCase().replace(/[\s\-]+/g,'');
+        return TPL_CANONICAL[key]||raw;
+      })()
     }));
     const cCounts={};
     all.forEach(o=>{ if(o.c) cCounts[o.c]=(cCounts[o.c]||0)+1; });
     all.forEach(o=>{ o.stackCount = o.c ? (cCounts[o.c]||0) : 0; });
+
     const liveIds=new Set(all.map(o=>o.id));
     selectedIds.forEach(id=>{ if(!liveIds.has(id)) selectedIds.delete(id); });
     populate();
