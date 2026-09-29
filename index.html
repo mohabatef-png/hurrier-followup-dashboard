@@ -916,6 +916,7 @@ const TPL_CANONICAL={
   "MTA":"MTA",
   "ALALAMIA":"Al Alamia",
   "ELEZZ":"El Ezz",
+  "TEAMMH":"Team mh for Delivery",
   "TEAMMHFORDELIVERY":"Team mh for Delivery",
   "SPEEDO":"Speedo",
   "EBADELRAHMAN":"Ebad El rahman",
@@ -986,8 +987,25 @@ async function loadData(){
         const pb=seg.indexOf('('); const raw=(pb>=0?seg.slice(0,pb).trim():seg).trim();
         const key=raw.toUpperCase().replace(/[\s\-]+/g,'');
         return TPL_CANONICAL[key]||raw;
+      })(),
+      _tk: (()=>{
+        const c=(o.c||'').trim();
+        const i=c.indexOf('_'); if(i<0) return '';
+        const after=c.slice(i+1).trim();
+        const us=after.indexOf('_'); const seg=us>=0?after.slice(0,us).trim():after.trim();
+        const pb=seg.indexOf('('); const raw=(pb>=0?seg.slice(0,pb).trim():seg).trim();
+        return raw.toUpperCase().replace(/[\s\-]+/g,'');
       })()
     }));
+    // Unify case/spacing variants of any 3PL not in TPL_CANONICAL:
+    // group by normalized key and use the most frequent spelling.
+    (()=>{
+      const cnt={};
+      all.forEach(o=>{ if(o.tpl && o._tk && !TPL_CANONICAL[o._tk]){ (cnt[o._tk]=cnt[o._tk]||{})[o.tpl]=(cnt[o._tk][o.tpl]||0)+1; } });
+      const best={};
+      Object.keys(cnt).forEach(k=>{ best[k]=Object.entries(cnt[k]).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))[0][0]; });
+      all.forEach(o=>{ if(best[o._tk]) o.tpl=best[o._tk]; });
+    })();
     const cCounts={};
     all.forEach(o=>{ if(o.c) cCounts[o.c]=(cCounts[o.c]||0)+1; });
     all.forEach(o=>{ o.stackCount = o.c ? (cCounts[o.c]||0) : 0; });
