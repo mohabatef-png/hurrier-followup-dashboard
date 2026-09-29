@@ -546,6 +546,14 @@ textarea#clip{position:fixed;left:-9999px;}
     </div>
     <select id="f-tmart" style="display:none"></select>
   </div>
+  <div class="sel-wrap" id="wrap-tpl">
+    <div class="sel-box" onclick="toggleSel('tpl')" id="box-tpl"><span id="lbl-tpl">All 3PLs</span><span class="arr">▼</span></div>
+    <div class="sel-drop" id="drop-tpl">
+      <input class="sel-search" placeholder="Search 3PL..." oninput="filterOpts('tpl',this.value)">
+      <div class="sel-opts" id="opts-tpl"></div>
+    </div>
+    <select id="f-tpl" style="display:none"></select>
+  </div>
   <div class="sel-wrap" id="wrap-ostatus">
     <div class="sel-box" onclick="toggleSel('ostatus')" id="box-ostatus"><span id="lbl-ostatus">All statuses</span><span class="arr">▼</span></div>
     <div class="sel-drop" id="drop-ostatus">
@@ -919,7 +927,8 @@ async function loadData(){
       phone: o.phone||'',
       rs: o.rs||'',
       rscat: rsCat(o.rs||''),
-      bal: (o.bal===null||o.bal===undefined)?null:Number(o.bal)
+      bal: (o.bal===null||o.bal===undefined)?null:Number(o.bal),
+      tpl: (()=>{ const c=(o.c||'').trim(); const i=c.indexOf('_'); if(i<0) return ''; const after=c.slice(i+1).trim(); const m=after.match(/^([^_(]+)/); return m?m[1].trim():''; })()
     }));
     const cCounts={};
     all.forEach(o=>{ if(o.c) cCounts[o.c]=(cCounts[o.c]||0)+1; });
@@ -957,11 +966,13 @@ function populate(){
   const tmarts =[...new Set(all.filter(o=>o.vt==='darkstores').map(o=>o.v).filter(Boolean))].sort();
   const types  =[...new Set(all.map(o=>o.vt).filter(Boolean))].sort();
   const vehs   =[...new Set(all.map(o=>o.veh).filter(Boolean))].sort();
+  const tpls   =[...new Set(all.map(o=>o.tpl).filter(Boolean))].sort();
   rep('f-zone',zones,'All zones');
   rep('f-vendor',vendors,'All vendors');
   rep('f-tmart',tmarts,'All T-Mart branches');
   rep('f-type',types,'All types');
   rep('f-vtype',vehs,'All vehicle types');
+  rep('f-tpl',tpls,'All 3PLs');
   renderOStatusBox();
 }
 
@@ -971,7 +982,7 @@ function rep(id,items,ph){
   items.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});
   if(items.includes(cur))s.value=cur;
   const key=id.replace('f-','');
-  if(['zone','vendor','tmart','type','vtype'].includes(key)) buildSelOpts(key,items,ph);
+  if(['zone','vendor','tmart','type','vtype','tpl'].includes(key)) buildSelOpts(key,items,ph);
 }
 
 // ── ORDER STATUS FILTER (mirrors the stat-card tabs) ──────
@@ -1035,6 +1046,7 @@ function applyFilters(){
   const pay  =document.getElementById('f-pay').value;
   const veh  =selVals['vtype']||'';
   const rst  =selVals['rstatus']||'';
+  const tpl  =selVals['tpl']||'';
 
   fil=all.filter(o=>{
     if(tab!=='all' && o._s!==tab) return false;
@@ -1048,6 +1060,7 @@ function applyFilters(){
     if(pay==='visa'&& o.cash) return false;
     if(!vehPass(o, veh)) return false;
     if(!rsPass(o, rst)) return false;
+    if(tpl && o.tpl!==tpl) return false;
     if(stackedOnly && (o.stackCount||0)<2) return false;
     if(cashBlockOnly && !(o.bal!==null && o.bal!==undefined && o.bal>CASH_BLOCK_LIMIT)) return false;
     return true;
@@ -1086,6 +1099,7 @@ function renderStats(){
   const pay  =document.getElementById('f-pay').value;
   const veh  =selVals['vtype']||'';
   const rst  =selVals['rstatus']||'';
+  const tpl  =selVals['tpl']||'';
 
   function pass(o){
     if(delayedOnly && !isLate(o)) return false;
@@ -1098,6 +1112,7 @@ function renderStats(){
     if(pay==='visa'&& o.cash) return false;
     if(!vehPass(o, veh)) return false;
     if(!rsPass(o, rst)) return false;
+    if(tpl && o.tpl!==tpl) return false;
     if(stackedOnly && (o.stackCount||0)<2) return false;
     if(cashBlockOnly && !(o.bal!==null && o.bal!==undefined && o.bal>CASH_BLOCK_LIMIT)) return false;
     return true;
@@ -1141,6 +1156,7 @@ function renderInsights(){
   const pay  =document.getElementById('f-pay').value;
   const veh  =selVals['vtype']||'';
   const rst  =selVals['rstatus']||'';
+  const tpl  =selVals['tpl']||'';
 
   // every active filter EXCEPT the one being displayed, so cards stay usable for switching
   function pass(o, skip){
@@ -1155,6 +1171,7 @@ function renderInsights(){
     if(pay==='visa'&& o.cash) return false;
     if(!vehPass(o, veh)) return false;
     if(!rsPass(o, rst)) return false;
+    if(tpl && o.tpl!==tpl) return false;
     if(stackedOnly && (o.stackCount||0)<2) return false;
     if(cashBlockOnly && !(o.bal!==null && o.bal!==undefined && o.bal>CASH_BLOCK_LIMIT)) return false;
     return true;
@@ -1216,6 +1233,7 @@ function renderVStats(){
   const type =document.getElementById('f-type').value;
   const pay  =document.getElementById('f-pay').value;
   const curVeh=selVals['vtype']||'';
+  const tpl  =selVals['tpl']||'';
 
   function pass(o){
     if(tab!=='all' && o._s!==tab) return false;
@@ -1227,6 +1245,7 @@ function renderVStats(){
     if(type && o.vt!==type) return false;
     if(pay==='cash'&&!o.cash) return false;
     if(pay==='visa'&& o.cash) return false;
+    if(tpl && o.tpl!==tpl) return false;
     return true;
   }
 
@@ -1268,6 +1287,7 @@ function renderRStats(){
   const pay  =document.getElementById('f-pay').value;
   const veh  =selVals['vtype']||'';
   const curRs=selVals['rstatus']||'';
+  const tpl  =selVals['tpl']||'';
 
   function pass(o){
     if(tab!=='all' && o._s!==tab) return false;
@@ -1280,6 +1300,7 @@ function renderRStats(){
     if(pay==='cash'&&!o.cash) return false;
     if(pay==='visa'&& o.cash) return false;
     if(!vehPass(o, veh)) return false;
+    if(tpl && o.tpl!==tpl) return false;
     return true;
   }
 
@@ -1315,6 +1336,7 @@ function renderCBStats(){
   const pay  =document.getElementById('f-pay').value;
   const veh  =selVals['vtype']||'';
   const rst  =selVals['rstatus']||'';
+  const tpl  =selVals['tpl']||'';
 
   function pass(o){
     if(tab!=='all' && o._s!==tab) return false;
@@ -1328,6 +1350,7 @@ function renderCBStats(){
     if(pay==='visa'&& o.cash) return false;
     if(!vehPass(o, veh)) return false;
     if(!rsPass(o, rst)) return false;
+    if(tpl && o.tpl!==tpl) return false;
     return true;
   }
 
@@ -1563,6 +1586,9 @@ function resetFilters(){
   selVals['vtype']='';
   document.getElementById('lbl-vtype').textContent='All vehicle types';
   selVals['rstatus']='';
+  document.getElementById('f-tpl').value='';
+  selVals['tpl']='';
+  document.getElementById('lbl-tpl').textContent='All 3PLs';
   setSortMode('overdue','Most delayed first');
   document.querySelectorAll('#opts-sort .sel-opt').forEach((el,i)=>el.classList.toggle('selected',i===0));
   tab='all';
@@ -1584,6 +1610,7 @@ function isFiltered(){
     || document.getElementById('f-pay').value!==''
     || (selVals['vtype']||'')!==''
     || (selVals['rstatus']||'')!==''
+    || (selVals['tpl']||'')!==''
     || tab!=='all'
     || stackedOnly
     || delayedOnly
@@ -1591,14 +1618,14 @@ function isFiltered(){
 }
 
 // ── SEARCHABLE SELECT ────────────────────────────────────────
-const selVals={'zone':'','vendor':'','tmart':'','type':'','pay':'','vtype':'','rstatus':'','ostatus':'','sort':'overdue'};
-const selLabels={'zone':'All zones','vendor':'All vendors','tmart':'All T-Mart branches','type':'All types','pay':'All payments','vtype':'All vehicle types','ostatus':'All statuses','sort':'Most delayed first'};
+const selVals={'zone':'','vendor':'','tmart':'','type':'','pay':'','vtype':'','rstatus':'','ostatus':'','sort':'overdue','tpl':''};
+const selLabels={'zone':'All zones','vendor':'All vendors','tmart':'All T-Mart branches','type':'All types','pay':'All payments','vtype':'All vehicle types','ostatus':'All statuses','sort':'Most delayed first','tpl':'All 3PLs'};
 
 function toggleSel(id){
   const drop=document.getElementById('drop-'+id);
   const box=document.getElementById('box-'+id);
   const isOpen=drop.classList.contains('open');
-  ['zone','vendor','tmart','type','pay','vtype','ostatus','sort'].forEach(k=>{
+  ['zone','vendor','tmart','tpl','type','pay','vtype','ostatus','sort'].forEach(k=>{
     document.getElementById('drop-'+k)?.classList.remove('open');
     document.getElementById('box-'+k)?.classList.remove('open');
   });
@@ -1641,7 +1668,7 @@ function buildSelOpts(id,items,ph){
 
 document.addEventListener('click',e=>{
   if(!e.target.closest('.sel-wrap')){
-    ['zone','vendor','tmart','type','pay','vtype','ostatus','sort'].forEach(k=>{
+    ['zone','vendor','tmart','tpl','type','pay','vtype','ostatus','sort'].forEach(k=>{
       document.getElementById('drop-'+k)?.classList.remove('open');
       document.getElementById('box-'+k)?.classList.remove('open');
     });
